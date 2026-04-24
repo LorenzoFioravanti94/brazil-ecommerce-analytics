@@ -2,7 +2,7 @@
 import duckdb
 import os
 
-DB_PATH    = "data/duckdb/ecommerce_brazil.duckdb"
+DB_PATH    = "data/duckdb/prod.duckdb"
 OLIST_PATH = os.path.join("data", "raw", "olist")
 IBGE_PATH  = os.path.join("data", "raw", "ibge")
 
