@@ -1,29 +1,98 @@
-
-# DBT
+# ─── DBT ───────────────────────────────────────────────────────────────────────
 brz_ecommerce_backend/target/
 brz_ecommerce_backend/dbt_packages/
 brz_ecommerce_backend/logs/
 
-# Python virtual environment
-myvenv/
-venv/
-.venv/
-env/
-ENV/
+# ─── DAGSTER ───────────────────────────────────────────────────────────────────
+orchestration/.dg/
+orchestration/.tmp_dagster_home*/
 
-# Data
+# ─── DATA ──────────────────────────────────────────────────────────────────────
 data/duckdb/*.duckdb
 data/raw/**/*.csv
 
-# Python cache
+# ─── PYTHON ────────────────────────────────────────────────────────────────────
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[codz]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+.installed.cfg
+MANIFEST
+__pypackages__/
+.pdm-python
+.pdm-build/
+.pixi
 
-# VS Code 
+# ─── VIRTUAL ENVIRONMENTS ──────────────────────────────────────────────────────
+myvenv/
+.venv
+.venv/
+venv/
+venv.bak/
+env/
+env.bak/
+ENV/
+
+# ─── PACKAGING & DISTRIBUTION ──────────────────────────────────────────────────
+build/
+dist/
+wheels/
+eggs/
+.eggs/
+sdist/
+develop-eggs/
+parts/
+var/
+lib/
+lib64/
+share/python-wheels/
+downloads/
+.Python
+
+# ─── INSTALLERS & LOGS ─────────────────────────────────────────────────────────
+pip-log.txt
+pip-delete-this-directory.txt
+*.manifest
+*.spec
+
+# ─── TESTING & COVERAGE ────────────────────────────────────────────────────────
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ─── TYPE CHECKERS & LINTERS ───────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+cython_debug/
+
+# ─── EDITORS & IDEs ────────────────────────────────────────────────────────────
 .vscode/
+.ropeproject
+.spyderproject
+.spyproject
 
-# OS files
+# ─── OS FILES ──────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+
+# ─── MISC PYTHON TOOLS ─────────────────────────────────────────────────────────
+.ipynb_checkpoints
+profile_default/
+.pypirc
+.abstra/
