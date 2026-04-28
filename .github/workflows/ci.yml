@@ -28,7 +28,7 @@ jobs:
           EOF
 
       - name: Run dbt
-        run: dbt build $DBT_SELECT --target test  # runs dbt against the test environment
+        run: dbt build $DBT_SELECT --target test --project-dir brz_ecommerce_backend # runs dbt against the test environment
         env:
           DBT_SELECT: >-
             ${{ github.base_ref == 'main'
