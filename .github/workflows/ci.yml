@@ -5,13 +5,27 @@ on:
 
 jobs:
   dbt-ci:                      # name of the GitHub Actions job
-    runs-on: ubuntu-latest     # GitHub spins up a fresh Linux virtual machine
     name: Run dbt build
+    runs-on: ubuntu-latest     # GitHub spins up a fresh Linux virtual machine
+    
     steps:
       - uses: actions/checkout@v3       # downloads the repository code onto the virtual machine
 
       - name: Install dependencies
         run: pip install dbt-duckdb     # installs dbt on the virtual machine
+
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          brz_ecommerce_backend:
+            target: test
+            outputs:
+              test:
+                type: duckdb
+                path: /tmp/test.duckdb
+                threads: 2
+          EOF
 
       - name: Run dbt
         run: dbt build $DBT_SELECT --target test  # runs dbt against the test environment
