@@ -6,7 +6,7 @@ on:
 jobs:
   dbt-ci:                      # name of the GitHub Actions job
     runs-on: ubuntu-latest     # GitHub spins up a fresh Linux virtual machine
-
+    name: Run dbt build
     steps:
       - uses: actions/checkout@v3       # downloads the repository code onto the virtual machine
 
