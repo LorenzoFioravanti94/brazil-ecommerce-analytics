@@ -31,7 +31,18 @@ jobs:
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/state
-        continue-on-error: true    # if no artifact exists yet, falls back to committed manifest
+        continue-on-error: true    # if no artifact exists yet, falls back to committed manifest, needed the first time the workflow runs
 
-      - name: Run dbt
+      - name: Run dbt (Slim CI — PR towards develop)
+        if: github.base_ref == 'develop'
+        run: |
+          dbt build \
+            --select state:modified+ \
+            --defer \
+            --state brz_ecommerce_backend/state \
+            --target test \
+            --project-dir brz_ecommerce_backend
+
+      - name: Run dbt (Full CI — PR towards main)
+        if: github.base_ref == 'main'
         run: dbt build --target test --project-dir brz_ecommerce_backend
