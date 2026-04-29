@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: pip install dbt-duckdb
+        run: pip install dbt-duckdb==1.10.1
 
       - name: Create profiles.yml
         run: |
