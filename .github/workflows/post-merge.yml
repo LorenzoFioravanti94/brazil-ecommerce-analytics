@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main]    # triggers on every merge to main
+    branches: [main]  # triggers on every merge to main
 
 jobs:
   trigger-dagster:
@@ -14,18 +14,30 @@ jobs:
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -d '{
-              "query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"definitions.py\", repositoryName: \"__repository__\", jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+              "query": "mutation { launchRun(executionParams: { selector: { jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
             }' \
             ${{ secrets.DAGSTER_URL }}/graphql)
 
           echo "Launch response: $RESPONSE"
 
-          # Step 2 — extract the runId from the response
-          RUN_ID=$(echo $RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['launchRun']['run']['runId'])")
+          # Step 2 — extract runId safely
+          RUN_ID=$(echo $RESPONSE | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+run = data.get('data', {}).get('launchRun', {}).get('run', {})
+print(run.get('runId', ''))
+")
+
+          if [ -z "$RUN_ID" ]; then
+            echo "ERROR: Failed to retrieve runId"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
           echo "Run ID: $RUN_ID"
 
-          # Step 3 — poll Dagster every 30 seconds until the run completes
-          MAX_ATTEMPTS=60    # max 30 minutes (60 * 30s)
+          # Step 3 — poll Dagster until completion
+          MAX_ATTEMPTS=60
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -34,7 +46,11 @@ jobs:
               -d "{\"query\": \"{ run(runId: \\\"$RUN_ID\\\") { status } }\"}" \
               ${{ secrets.DAGSTER_URL }}/graphql)
 
-            STATUS=$(echo $STATUS_RESPONSE | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['run']['status'])")
+            STATUS=$(echo $STATUS_RESPONSE | python3 -c "
+import sys, json
+print(json.load(sys.stdin).get('data', {}).get('run', {}).get('status', 'UNKNOWN'))
+")
+
             echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
 
             if [ "$STATUS" = "SUCCESS" ]; then
@@ -55,11 +71,14 @@ jobs:
   update-manifest:
     runs-on: ubuntu-latest
     name: Update dbt manifest
-    needs: trigger-dagster    # runs only after Dagster job completes successfully
+    needs: trigger-dagster
+
     steps:
       - uses: actions/checkout@v6
+
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
+
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
@@ -72,8 +91,10 @@ jobs:
                 path: /tmp/prod.duckdb
                 threads: 4
           EOF
+
       - name: Generate manifest
         run: dbt parse --project-dir brz_ecommerce_backend
+
       - name: Save manifest as artifact
         uses: actions/upload-artifact@v6
         with:
