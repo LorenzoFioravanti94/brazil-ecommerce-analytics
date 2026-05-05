@@ -8,7 +8,7 @@ jobs:
     name: Update dbt manifest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
@@ -30,7 +30,7 @@ jobs:
         run: dbt parse --project-dir brz_ecommerce_backend
 
       - name: Save manifest as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/target/manifest.json
