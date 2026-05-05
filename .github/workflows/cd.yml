@@ -1,0 +1,18 @@
+on:
+  push:
+    branches: [main]    # triggers on every merge to main
+
+jobs:
+  trigger-dagster:
+    runs-on: ubuntu-latest
+    name: Trigger Dagster Standard Job
+
+    steps:
+      - name: Trigger Standard Job via Dagster GraphQL API
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d '{
+              "query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"definitions.py\", repositoryName: \"__repository__\", jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+            }' \
+            ${{ secrets.DAGSTER_URL }}/graphql
