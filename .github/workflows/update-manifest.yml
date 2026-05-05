@@ -34,4 +34,4 @@ jobs:
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/target/manifest.json
-          retention-days: 90    # maximum retention period — artifact expires after 400 days
+          retention-days: 90    # maximum retention period — artifact expires after 90 days
