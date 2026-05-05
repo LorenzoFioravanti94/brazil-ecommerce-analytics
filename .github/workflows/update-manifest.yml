@@ -8,7 +8,7 @@ jobs:
     name: Update dbt manifest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
@@ -34,4 +34,4 @@ jobs:
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/target/manifest.json
-          retention-days: 400    # maximum retention period — artifact expires after 400 days
+          retention-days: 90    # maximum retention period — artifact expires after 90 days
