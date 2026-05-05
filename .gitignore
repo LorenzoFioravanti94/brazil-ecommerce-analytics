@@ -6,7 +6,7 @@ brz_ecommerce_backend/logs/
 
 # ─── DAGSTER ───────────────────────────────────────────────────────────────────
 orchestration/.dg/
-orchestration/.tmp_dagster_home*/
+.tmp_dagster_home*/
 
 # ─── DATA ──────────────────────────────────────────────────────────────────────
 data/duckdb/*.duckdb
