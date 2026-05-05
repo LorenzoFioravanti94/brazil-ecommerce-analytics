@@ -36,6 +36,14 @@ jobs:
           path: brz_ecommerce_backend/state
         continue-on-error: true    # if no artifact exists yet, falls back to committed manifest, needed the first time the workflow runs
 
+      - name: Fallback to committed manifest
+        run: |
+          if [ ! -f brz_ecommerce_backend/state/manifest.json ]; then
+            echo "No artifact found, using committed manifest as fallback"
+            mkdir -p brz_ecommerce_backend/state
+            cp brz_ecommerce_backend/target/manifest.json brz_ecommerce_backend/state/manifest.json
+          fi
+          
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
