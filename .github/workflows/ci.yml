@@ -8,7 +8,7 @@ jobs:
     name: Run dbt build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
