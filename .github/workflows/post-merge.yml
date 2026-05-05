@@ -1,103 +1,58 @@
-on:
-  push:
-    branches: [main]  # triggers on every merge to main
+- name: Trigger Standard Job and wait for completion
+  shell: bash
+  run: |
+    set -e
 
-jobs:
-  trigger-dagster:
-    runs-on: ubuntu-latest
-    name: Trigger Dagster Standard Job
+    QUERY='{
+      "query": "mutation { launchRun(executionParams: { selector: { jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+    }'
 
-    steps:
-      - name: Trigger Standard Job and wait for completion
-        run: |
-          # Step 1 — launch the job and capture the runId
-          RESPONSE=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{
-              "query": "mutation { launchRun(executionParams: { selector: { jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
-            }' \
-            ${{ secrets.DAGSTER_URL }}/graphql)
+    RESPONSE=$(curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d "$QUERY" \
+      ${{ secrets.DAGSTER_URL }}/graphql)
 
-          echo "Launch response: $RESPONSE"
+    echo "Launch response: $RESPONSE"
 
-          # Step 2 — extract runId safely
-          RUN_ID=$(echo $RESPONSE | python3 -c "
+    RUN_ID=$(echo "$RESPONSE" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
-run = data.get('data', {}).get('launchRun', {}).get('run', {})
-print(run.get('runId', ''))
+print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
 ")
 
-          if [ -z "$RUN_ID" ]; then
-            echo "ERROR: Failed to retrieve runId"
-            echo "$RESPONSE"
-            exit 1
-          fi
+    if [ -z "$RUN_ID" ]; then
+      echo "ERROR: runId not found"
+      echo "$RESPONSE"
+      exit 1
+    fi
 
-          echo "Run ID: $RUN_ID"
+    echo "Run ID: $RUN_ID"
 
-          # Step 3 — poll Dagster until completion
-          MAX_ATTEMPTS=60
-          ATTEMPT=0
+    MAX_ATTEMPTS=60
+    ATTEMPT=0
 
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            STATUS_RESPONSE=$(curl -s -X POST \
-              -H "Content-Type: application/json" \
-              -d "{\"query\": \"{ run(runId: \\\"$RUN_ID\\\") { status } }\"}" \
-              ${{ secrets.DAGSTER_URL }}/graphql)
+    while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+      STATUS_RESPONSE=$(curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -d "{\"query\": \"{ run(runId: \\\"$RUN_ID\\\") { status } }\"}" \
+        ${{ secrets.DAGSTER_URL }}/graphql)
 
-            STATUS=$(echo $STATUS_RESPONSE | python3 -c "
+      STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
 import sys, json
 print(json.load(sys.stdin).get('data', {}).get('run', {}).get('status', 'UNKNOWN'))
 ")
 
-            echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
+      echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
 
-            if [ "$STATUS" = "SUCCESS" ]; then
-              echo "Dagster job completed successfully"
-              exit 0
-            elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELED" ]; then
-              echo "Dagster job failed with status: $STATUS"
-              exit 1
-            fi
+      if [ "$STATUS" = "SUCCESS" ]; then
+        exit 0
+      elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELED" ]; then
+        exit 1
+      fi
 
-            ATTEMPT=$((ATTEMPT+1))
-            sleep 30
-          done
+      ATTEMPT=$((ATTEMPT+1))
+      sleep 30
+    done
 
-          echo "Timeout: Dagster job did not complete within 30 minutes"
-          exit 1
-
-  update-manifest:
-    runs-on: ubuntu-latest
-    name: Update dbt manifest
-    needs: trigger-dagster
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install dependencies
-        run: pip install dbt-duckdb==1.10.1
-
-      - name: Create profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          brz_ecommerce_backend:
-            target: prod
-            outputs:
-              prod:
-                type: duckdb
-                path: /tmp/prod.duckdb
-                threads: 4
-          EOF
-
-      - name: Generate manifest
-        run: dbt parse --project-dir brz_ecommerce_backend
-
-      - name: Save manifest as artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: dbt-manifest
-          path: brz_ecommerce_backend/target/manifest.json
-          retention-days: 90
+    echo "Timeout"
+    exit 1
