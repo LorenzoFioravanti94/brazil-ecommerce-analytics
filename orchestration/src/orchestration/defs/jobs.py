@@ -32,15 +32,9 @@ time_sensitive_job = define_asset_job(
         # +fct_<model_name>+ selects all upstream models (to ensure inputs are fresh)
         # and all downstream models (to propagate the update)
     ),
-    config={
-        "execution": {
-            "config": {
-                "timeout_seconds": 3550
-            }
-        }
-    }
 )
 
+"""
 # Fresher Rebuild Job — triggered by source freshness sensor
 # builds only models with fresh sources
 fresher_rebuild_job = define_asset_job(
@@ -50,3 +44,4 @@ fresher_rebuild_job = define_asset_job(
         dbt_select="source_status:fresher+"
     )
 )
+"""

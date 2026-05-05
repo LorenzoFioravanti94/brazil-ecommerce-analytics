@@ -1,4 +1,4 @@
-# orchestration/src/orchestration/defs/sensors.py
+"""
 from dagster import sensor, RunRequest, SensorEvaluationContext
 from pathlib import Path
 import os
@@ -25,3 +25,4 @@ def source_freshness_sensor(context: SensorEvaluationContext):
     if latest_mtime > last_mtime:
         context.update_cursor(str(latest_mtime))
         yield RunRequest(run_key=str(latest_mtime))
+"""
