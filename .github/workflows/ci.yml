@@ -8,7 +8,7 @@ jobs:
     name: Run dbt build
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
@@ -30,7 +30,7 @@ jobs:
         run: dbt debug --project-dir brz_ecommerce_backend
         
       - name: Download manifest artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/state
