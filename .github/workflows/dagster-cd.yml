@@ -2,7 +2,7 @@ name: dagster-cd
 
 on:
   push:
-    branches: [main]    # triggers on every merge to main
+    branches: [main]
 
 jobs:
   trigger-dagster:
@@ -42,7 +42,7 @@ jobs:
 
           echo "Run ID: $RUN_ID"
 
-          MAX_ATTEMPTS=60    # max 30 minutes (60 * 30s)
+          MAX_ATTEMPTS=60
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -52,6 +52,8 @@ jobs:
               -H "Content-Type: application/json" \
               -d "$STATUS_QUERY" \
               "${{ secrets.DAGSTER_URL }}/graphql")
+
+            echo "Status response raw: $STATUS_RESPONSE"
 
             STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
           import sys, json
