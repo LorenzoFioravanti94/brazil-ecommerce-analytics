@@ -1,0 +1,36 @@
+on:
+  workflow_run:
+    workflows: ["dagster-cd"]    # runs only after dagster-cd.yml completes
+    types:
+      - completed
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    name: Update dbt manifest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}    # only if dagster-cd succeeded
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: pip install dbt-duckdb==1.10.1
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          brz_ecommerce_backend:
+            target: prod
+            outputs:
+              prod:
+                type: duckdb
+                path: /tmp/prod.duckdb
+                threads: 4
+          EOF
+      - name: Generate manifest
+        run: dbt parse --project-dir brz_ecommerce_backend
+      - name: Save manifest as artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: dbt-manifest
+          path: brz_ecommerce_backend/target/manifest.json
+          retention-days: 90

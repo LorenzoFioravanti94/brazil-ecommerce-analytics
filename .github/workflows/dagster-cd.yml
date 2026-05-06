@@ -1,0 +1,76 @@
+name: dagster-cd
+
+on:
+  push:
+    branches: [main]    # triggers on every merge to main
+
+jobs:
+  trigger-dagster:
+    runs-on: ubuntu-latest
+    name: Trigger Dagster Standard Job
+
+    steps:
+      - name: Trigger Standard Job and wait for completion
+        shell: bash
+        run: |
+          set -e
+
+          read -r -d '' QUERY <<EOF || true
+          {
+            "query": "mutation { launchRun(executionParams: { selector: { jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+          }
+          EOF
+
+          RESPONSE=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d "$QUERY" \
+            "${{ secrets.DAGSTER_URL }}/graphql")
+
+          echo "Launch response: $RESPONSE"
+
+          RUN_ID=$(echo "$RESPONSE" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
+          ")
+
+          if [ -z "$RUN_ID" ]; then
+            echo "ERROR: runId not found"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
+          echo "Run ID: $RUN_ID"
+
+          MAX_ATTEMPTS=60    # max 30 minutes (60 * 30s)
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            STATUS_QUERY="{\"query\": \"{ run(runId: \\\"$RUN_ID\\\") { status } }\"}"
+
+            STATUS_RESPONSE=$(curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -d "$STATUS_QUERY" \
+              "${{ secrets.DAGSTER_URL }}/graphql")
+
+            STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
+          import sys, json
+          print(json.load(sys.stdin).get('data', {}).get('run', {}).get('status', 'UNKNOWN'))
+          ")
+
+            echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
+
+            if [ "$STATUS" = "SUCCESS" ]; then
+              echo "Dagster job completed successfully"
+              exit 0
+            elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELED" ]; then
+              echo "Dagster job failed with status: $STATUS"
+              exit 1
+            fi
+
+            ATTEMPT=$((ATTEMPT+1))
+            sleep 30
+          done
+
+          echo "Timeout: Dagster job did not complete within 30 minutes"
+          exit 1
