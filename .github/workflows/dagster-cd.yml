@@ -17,7 +17,7 @@ jobs:
 
           read -r -d '' QUERY <<EOF || true
           {
-            "query": "mutation { launchRun(executionParams: { selector: { jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+            "query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"orchestration.definitions\", repositoryName: \"__repository__\", jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
           }
           EOF
 
