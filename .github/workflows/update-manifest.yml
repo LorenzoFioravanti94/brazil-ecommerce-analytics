@@ -1,3 +1,5 @@
+name: update-manifest
+
 on:
   workflow_run:
     workflows: ["dagster-cd"]    # runs only after dagster-cd.yml completes
