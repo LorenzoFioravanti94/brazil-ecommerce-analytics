@@ -1,5 +1,3 @@
-# .github/workflows/dagster-cd.yml
-
 name: dagster-cd
 
 on:
