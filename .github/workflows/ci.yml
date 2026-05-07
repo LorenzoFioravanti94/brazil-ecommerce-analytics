@@ -7,7 +7,6 @@ on:
 jobs:
   dbt-ci:
     runs-on: ubuntu-latest
-    name: Run dbt build
 
     steps:
       - uses: actions/checkout@v6
@@ -36,14 +35,12 @@ jobs:
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/state
-        continue-on-error: true    # if no artifact exists yet, falls back to committed manifest, needed the first time the workflow runs
 
-      - name: Fallback to committed manifest
+      - name: Fail if manifest missing
         run: |
           if [ ! -f brz_ecommerce_backend/state/manifest.json ]; then
-            echo "No artifact found, using committed manifest as fallback"
-            mkdir -p brz_ecommerce_backend/state
-            cp brz_ecommerce_backend/target/manifest.json brz_ecommerce_backend/state/manifest.json
+            echo "ERROR: missing manifest artifact from base branch CI"
+            exit 1
           fi
           
       - name: Run dbt (Slim CI — PR towards develop)
