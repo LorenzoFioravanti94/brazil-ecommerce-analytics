@@ -29,10 +29,10 @@ jobs:
           echo "Launch response: $RESPONSE"
 
           RUN_ID=$(echo "$RESPONSE" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
-")
+          import sys, json
+          data = json.load(sys.stdin)
+          print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
+          ")
 
           if [ -z "$RUN_ID" ]; then
             echo "ERROR: runId not found"
@@ -46,6 +46,7 @@ print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+
             STATUS_QUERY="{\"query\": \"{ runOrError(runId: \\\"$RUN_ID\\\") { __typename ... on Run { status } } }\"}"
 
             STATUS_RESPONSE=$(curl -s -X POST \
@@ -56,10 +57,10 @@ print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
             echo "Status response: $STATUS_RESPONSE"
 
             STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))
-")
+            import sys, json
+            data = json.load(sys.stdin)
+            print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))
+            ")
 
             echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
 
@@ -73,6 +74,7 @@ print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))
 
             ATTEMPT=$((ATTEMPT+1))
             sleep 30
+
           done
 
           echo "Timeout: Dagster job did not complete within 30 minutes"
