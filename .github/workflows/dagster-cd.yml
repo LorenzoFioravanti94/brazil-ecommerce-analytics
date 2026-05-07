@@ -17,7 +17,7 @@ jobs:
 
           read -r -d '' QUERY <<EOF || true
           {
-            "query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"orchestration.definitions\", repositoryName: \"__repository__\", jobName: \"standard_job\" }, runConfigData: {} }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
+            "query": "mutation { launchRun(executionParams: { selector: { repositoryLocationName: \"orchestration.definitions\", repositoryName: \"__repository__\", jobName: \"standard_job\" }, runConfigData: { execution: { config: { git_sha: \"${{ github.sha }}\" } } } }) { __typename ... on LaunchRunSuccess { run { runId } } ... on PythonError { message } } }"
           }
           EOF
 
@@ -29,10 +29,10 @@ jobs:
           echo "Launch response: $RESPONSE"
 
           RUN_ID=$(echo "$RESPONSE" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
-          ")
+import sys, json
+data = json.load(sys.stdin)
+print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
+")
 
           if [ -z "$RUN_ID" ]; then
             echo "ERROR: runId not found"
@@ -46,20 +46,20 @@ jobs:
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            STATUS_QUERY="{\"query\": \"{ pipelineRunOrError(runId: \\\"$RUN_ID\\\") { __typename ... on Run { status } } }\"}"
+            STATUS_QUERY="{\"query\": \"{ runOrError(runId: \\\"$RUN_ID\\\") { __typename ... on Run { status } } }\"}"
 
             STATUS_RESPONSE=$(curl -s -X POST \
               -H "Content-Type: application/json" \
               -d "$STATUS_QUERY" \
               "${{ secrets.DAGSTER_URL }}/graphql")
 
-            echo "Status response raw: $STATUS_RESPONSE"
+            echo "Status response: $STATUS_RESPONSE"
 
             STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          print(data.get('data', {}).get('pipelineRunOrError', {}).get('status', 'UNKNOWN'))
-          ")
+import sys, json
+data = json.load(sys.stdin)
+print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))
+")
 
             echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
 
