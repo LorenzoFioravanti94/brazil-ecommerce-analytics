@@ -9,7 +9,7 @@ DBT_PROJECT_DIR = (
 class DbtConfig(Config):
     full_refresh: bool = False    # default: incremental run
 
-@dbt_assets(manifest=DBT_PROJECT_DIR / "target" / "manifest.json")
+@dbt_assets(manifest=DBT_PROJECT_DIR / "persistent_state" / "manifest.json")
 def brz_ecommerce_assets(context: AssetExecutionContext, dbt: DbtCliResource, config: DbtConfig):  # <project_name>_assets
     dbt_args = ["build"]
     if config.full_refresh:
