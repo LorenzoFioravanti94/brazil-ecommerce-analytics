@@ -1,21 +1,28 @@
+```yaml
 name: update-manifest
 
 on:
   workflow_run:
-    workflows: ["dagster-cd"]    # runs only after dagster-cd.yml completes
+    workflows: ["dagster-cd"]
     types:
       - completed
 
 jobs:
   update-manifest:
     runs-on: ubuntu-latest
-    name: Update dbt manifest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}    # only if dagster-cd succeeded
+    name: Update persistent dbt manifest
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v6
+
       - name: Install dependencies
         run: pip install dbt-duckdb==1.10.1
+
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
@@ -28,11 +35,27 @@ jobs:
                 path: /tmp/prod.duckdb
                 threads: 4
           EOF
-      - name: Generate manifest
-        run: dbt parse --project-dir brz_ecommerce_backend
-      - name: Save manifest as artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: dbt-manifest
-          path: brz_ecommerce_backend/target/manifest.json
-          retention-days: 90
+
+      - name: Generate production manifest
+        run: |
+          dbt parse \
+            --target prod \
+            --project-dir brz_ecommerce_backend
+
+      - name: Update persistent manifest
+        run: |
+          mkdir -p brz_ecommerce_backend/persistent_state
+          cp brz_ecommerce_backend/target/manifest.json \
+             brz_ecommerce_backend/persistent_state/manifest.json
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add brz_ecommerce_backend/persistent_state/manifest.json
+
+          git diff --cached --quiet || git commit -m "Update production manifest"
+
+          git push
+```
