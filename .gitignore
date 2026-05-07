@@ -1,6 +1,5 @@
 # ─── DBT ───────────────────────────────────────────────────────────────────────
-brz_ecommerce_backend/target/*
-!brz_ecommerce_backend/target/manifest.json
+brz_ecommerce_backend/target/
 brz_ecommerce_backend/dbt_packages/
 brz_ecommerce_backend/logs/
 
