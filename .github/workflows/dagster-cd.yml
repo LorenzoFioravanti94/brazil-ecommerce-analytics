@@ -28,11 +28,7 @@ jobs:
 
           echo "Launch response: $RESPONSE"
 
-          RUN_ID=$(echo "$RESPONSE" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))
-          ")
+          RUN_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; data=json.load(sys.stdin); print(data.get('data', {}).get('launchRun', {}).get('run', {}).get('runId', ''))")
 
           if [ -z "$RUN_ID" ]; then
             echo "ERROR: runId not found"
@@ -56,11 +52,7 @@ jobs:
 
             echo "Status response: $STATUS_RESPONSE"
 
-            STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "
-            import sys, json
-            data = json.load(sys.stdin)
-            print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))
-            ")
+            STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; data=json.load(sys.stdin); print(data.get('data', {}).get('runOrError', {}).get('status', 'UNKNOWN'))")
 
             echo "Run status: $STATUS (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)"
 
