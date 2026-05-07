@@ -23,7 +23,6 @@ full_refresh_job = define_asset_job(
 
 # Time Sensitive Job — hourly schedule
 # builds only a specific subset of the DAG
-# timeout: 3550 seconds (just under one hour) — prevents overlap with the next run
 time_sensitive_job = define_asset_job(
     name="time_sensitive_job",
     selection=build_dbt_asset_selection(
