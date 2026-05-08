@@ -22,7 +22,9 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
-
+on-run-start:
+  - "ATTACH '/home/lorenzo/Projects/dbt/brz-ecommerce-backend/data/duckdb/prod.duckdb' AS prod"
+  
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
