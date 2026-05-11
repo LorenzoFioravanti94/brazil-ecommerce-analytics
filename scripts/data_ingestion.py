@@ -1,10 +1,13 @@
 # scripts/load_raw.py
 import duckdb
 import os
+from pathlib import Path
 
-DB_PATH    = "data/duckdb/prod.duckdb"
-OLIST_PATH = os.path.join("data", "raw", "olist")
-IBGE_PATH  = os.path.join("data", "raw", "ibge")
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+DB_PATH    = BASE_DIR / "data/duckdb/prod.duckdb"
+OLIST_PATH = BASE_DIR / "data/raw/olist"
+IBGE_PATH  = BASE_DIR / "data/raw/ibge"
 
 con = duckdb.connect(DB_PATH)
 
