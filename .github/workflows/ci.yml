@@ -32,6 +32,18 @@ jobs:
       - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
+      - name: Debug persistent_state
+        if: github.base_ref == 'develop'
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Repo structure ==="
+          ls -la
+          echo "=== persistent_state contents ==="
+          ls -la brz_ecommerce_backend/persistent_state/ || echo "DIRECTORY NOT FOUND"
+          echo "=== manifest exists? ==="
+          cat brz_ecommerce_backend/persistent_state/manifest.json | head -5 || echo "FILE NOT FOUND"
+
       # SLIM CI: solo PR verso develop
       - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
