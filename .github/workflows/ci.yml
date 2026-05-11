@@ -56,6 +56,21 @@ jobs:
           echo "=== path assoluto manifest ==="
           realpath brz_ecommerce_backend/persistent_state/manifest.json
 
+      - name: Debug manifest content
+        if: github.base_ref == 'develop'
+        run: |
+          echo "=== dimensione file ==="
+          wc -c brz_ecommerce_backend/persistent_state/manifest.json
+          echo "=== è JSON valido? ==="
+          python3 -c "
+          import json
+          with open('brz_ecommerce_backend/persistent_state/manifest.json') as f:
+            d = json.load(f)
+          print('dbt_version:', d['metadata']['dbt_version'])
+          print('schema_version:', d['metadata']['dbt_schema_version'])
+          print('nodes count:', len(d.get('nodes', {})))
+          " || echo "ERRORE: JSON non valido o corrotto"
+
       # SLIM CI: solo PR verso develop
       - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
