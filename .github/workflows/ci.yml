@@ -77,6 +77,23 @@ jobs:
           print('nodes count:', len(d.get('nodes', {})))
           " || echo "ERRORE: JSON non valido o corrotto"
 
+      - name: Debug state flag
+        if: github.base_ref == 'develop'
+        run: |
+          echo "=== path passato a --state ==="
+          ls -la brz_ecommerce_backend/persistent_state/
+          echo "=== dbt parse genera il manifest corrente ==="
+          dbt parse \
+            --target test \
+            --project-dir brz_ecommerce_backend
+          echo "=== manifest generato da dbt parse ==="
+          ls -la brz_ecommerce_backend/target/manifest.json || echo "NON TROVATO"
+          echo "=== provo list con state ==="
+          dbt list \
+            --select "state:modified+" \
+            --state brz_ecommerce_backend/persistent_state \
+            --project-dir brz_ecommerce_backend
+
       # SLIM CI: solo PR verso develop
       - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
