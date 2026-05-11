@@ -13,39 +13,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set DBT env var
-        run: echo "DBT_PROD_DB_PATH=/tmp/prod.duckdb" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: |
           pip install \
-          dbt-core==1.11.8 \
-          dbt-duckdb==1.10.1 \
-          duckdb==1.0.0 \
-          kaggle
+            dbt-core==1.11.8 \
+            dbt-duckdb==1.10.1 \
+            kaggle
 
       - name: Configure Kaggle API Token
         run: |
           mkdir -p ~/.kaggle
           echo "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
           chmod 600 ~/.kaggle/access_token
-
-      - name: Debug working directory
-        run: |
-          pwd
-          ls -R
-
-      - name: Download Olist dataset
-        run: |
-          mkdir -p brz_ecommerce_backend/data/raw/olist
-
-          kaggle datasets download \
-            -d olistbr/brazilian-ecommerce \
-            -p brz_ecommerce_backend/data/raw/olist \
-            --unzip
-
-      - name: Set working directory (IMPORTANT)
-        run: cd $GITHUB_WORKSPACE
 
       - name: Download datasets
         run: |
@@ -62,14 +41,8 @@ jobs:
             -p data/raw/ibge \
             --unzip
 
-      - name: Debug ingestion input
-        run: |
-          ls -R data/raw || true
-          ls -R brz_ecommerce_backend/data/raw || true
-
       - name: Run DuckDB ingestion
-        run: |
-          python scripts/data_ingestion.py
+        run: python scripts/data_ingestion.py
 
       - name: Create profiles.yml
         run: |
@@ -92,7 +65,6 @@ jobs:
         run: |
           if [ ! -f brz_ecommerce_backend/persistent_state/manifest.json ]; then
             echo "ERROR: persistent_state/manifest.json not found."
-            echo "Run the bootstrap step on main and push it first."
             exit 1
           fi
 
