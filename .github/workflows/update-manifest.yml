@@ -66,6 +66,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to manifest — skipping commit"
           else
-            git commit -m "chore(ci): update persistent_state manifest [skip ci]"
+            git commit -m "chore(ci): update persistent_state manifest"
             git push origin main
           fi
