@@ -1,12 +1,17 @@
-# scripts/load_raw.py
+from pathlib import Path
 import duckdb
-import os
 
-DB_PATH    = "data/duckdb/prod.duckdb"
-OLIST_PATH = os.path.join("data", "raw", "olist")
-IBGE_PATH  = os.path.join("data", "raw", "ibge")
+REPO_ROOT = Path.cwd()
 
-con = duckdb.connect(DB_PATH)
+DB_PATH = REPO_ROOT / "data/duckdb/prod.duckdb"
+OLIST_PATH = REPO_ROOT / "data/raw/olist"
+IBGE_PATH = REPO_ROOT / "data/raw/ibge"
+
+print("REPO_ROOT:", REPO_ROOT)
+print("OLIST_PATH:", OLIST_PATH)
+print("IBGE_PATH:", IBGE_PATH)
+
+con = duckdb.connect(str(DB_PATH))
 
 con.execute("CREATE SCHEMA IF NOT EXISTS raw_olist")
 con.execute("CREATE SCHEMA IF NOT EXISTS raw_ibge")
@@ -24,28 +29,56 @@ olist_tables = {
     "category_translation": "product_category_name_translation.csv",
 }
 
+print("\n=== OLIST INGESTION ===")
+
 for table_name, filename in olist_tables.items():
-    filepath = os.path.join(OLIST_PATH, filename)
-    con.execute(f"""
+    filepath = OLIST_PATH / filename
+
+    print(f"\nTABLE: {table_name}")
+    print("FILEPATH:", filepath)
+    print("EXISTS:", filepath.exists())
+
+    if not filepath.exists():
+        raise FileNotFoundError(f"Missing file: {filepath}")
+
+    sql = f"""
         CREATE OR REPLACE TABLE raw_olist.{table_name} AS
-        SELECT * FROM read_csv_auto('{filepath}')
-    """)
+        SELECT * FROM read_csv_auto('{str(filepath)}')
+    """
+
+    print("SQL:", sql)
+
+    con.execute(sql)
     print(f"✔ Loaded: raw_olist.{table_name}")
 
 # --- IBGE tables ---
 ibge_tables = {
     "airports": "airports.csv",
     "hdi":      "hdi.csv",
-    "icu_beds": "icu-beds.csv",  # we use the UNDERSCORE beacause '-' is not a valid SQL table name
+    "icu_beds": "icu-beds.csv",
     "states":   "states.csv",
 }
 
+print("\n=== IBGE INGESTION ===")
+
 for table_name, filename in ibge_tables.items():
-    filepath = os.path.join(IBGE_PATH, filename)
-    con.execute(f"""
+    filepath = IBGE_PATH / filename
+
+    print(f"\nTABLE: {table_name}")
+    print("FILEPATH:", filepath)
+    print("EXISTS:", filepath.exists())
+
+    if not filepath.exists():
+        raise FileNotFoundError(f"Missing file: {filepath}")
+
+    sql = f"""
         CREATE OR REPLACE TABLE raw_ibge.{table_name} AS
-        SELECT * FROM read_csv_auto('{filepath}')
-    """)
+        SELECT * FROM read_csv_auto('{str(filepath)}')
+    """
+
+    print("SQL:", sql)
+
+    con.execute(sql)
     print(f"✔ Loaded: raw_ibge.{table_name}")
 
 con.close()
