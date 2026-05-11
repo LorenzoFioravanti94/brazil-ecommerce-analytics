@@ -19,7 +19,7 @@ jobs:
 
     steps:
       # checkout esplicito di main (non del commit SHA dell'evento)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 1
