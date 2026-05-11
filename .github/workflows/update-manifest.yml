@@ -23,6 +23,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+          token: ${{ secrets.MANIFEST_PAT }}
 
       - name: Install dependencies
         run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
@@ -65,6 +66,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to manifest — skipping commit"
           else
-            git commit -m "chore(ci): update persistent_state manifest [skip ci]"
+            git commit -m "chore(ci): update persistent_state manifest"
             git push origin main
           fi
