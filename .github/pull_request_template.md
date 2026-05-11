@@ -1,3 +1,8 @@
+## Description
+<prefix>: feature/, refactor/, docs/, bugfix/, hotfix/
+
+TARGET BRANCH | <prefix> | <Layer> | <optional: Sublayer> | <description>
+
 ## Checklist
 
 **PR from `feature/` → `develop`**
@@ -14,6 +19,6 @@
   ```
   git checkout develop
   git fetch origin
-  git merge origin/main
-  git push origin develop
+  git rebase origin/main
+  git push --force-with-lease origin develop
   ```
