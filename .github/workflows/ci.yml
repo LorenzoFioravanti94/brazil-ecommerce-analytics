@@ -29,6 +29,12 @@ jobs:
                 threads: 2
           EOF
 
+      - name: Debug profiles.yml
+        run: |
+          echo "=== contenuto profiles.yml ==="
+          cat ~/.dbt/profiles.yml
+          echo "=== dbt debug output ==="
+
       - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
