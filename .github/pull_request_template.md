@@ -1,3 +1,8 @@
+## Description
+<prefix>: feature/, refactor/, docs/, bugfix/, hotfix/
+
+TARGET BRANCH | <prefix> | <Layer> | <optional: Sublayer> | <description>
+
 ## Checklist
 
 **PR from `feature/` → `develop`**
