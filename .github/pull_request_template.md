@@ -5,7 +5,7 @@
   ```
   git checkout feature/<feature_name>
   git fetch origin
-  git rebase origin/develop
+  git rebase origin/main
   git push --force-with-lease origin feature/<feature_name>
   ```
 
@@ -14,6 +14,6 @@
   ```
   git checkout develop
   git fetch origin
-  git merge origin/main
-  git push origin develop
+  git rebase origin/main
+  git push --force-with-lease origin develop
   ```
