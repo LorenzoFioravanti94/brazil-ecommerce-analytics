@@ -91,7 +91,7 @@ jobs:
           echo "=== provo list con state ==="
           dbt list \
             --select "state:modified+" \
-            --state brz_ecommerce_backend/persistent_state \
+            --state persistent_state \
             --project-dir brz_ecommerce_backend
 
       # SLIM CI: solo PR verso develop
@@ -110,7 +110,7 @@ jobs:
           dbt build \
             --select "state:modified+" \
             --defer \
-            --state brz_ecommerce_backend/persistent_state \
+            --state persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
 
