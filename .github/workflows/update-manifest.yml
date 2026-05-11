@@ -23,6 +23,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+          token: ${{ secrets.MANIFEST_PAT }}
 
       - name: Install dependencies
         run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
