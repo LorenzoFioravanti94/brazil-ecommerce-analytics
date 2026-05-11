@@ -11,16 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     name: Update persistent dbt manifest
 
+    # Esegui solo se dagster-cd ha avuto successo
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      # checkout esplicito di main (non del commit SHA dell'evento)
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
 
       - name: Install dependencies
-        run: pip install dbt-duckdb==1.10.1
+        run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
 
       - name: Create profiles.yml
         run: |
@@ -31,29 +36,35 @@ jobs:
             outputs:
               prod:
                 type: duckdb
+                # dbt parse non ha bisogno del db fisico,
+                # ma il path deve essere valido sintatticamente
                 path: /tmp/prod.duckdb
                 threads: 4
           EOF
 
-      - name: Generate production manifest
+      - name: Generate manifest from main (dbt parse — no DB needed)
         run: |
           dbt parse \
             --target prod \
             --project-dir brz_ecommerce_backend
 
-      - name: Update persistent manifest
+      - name: Update persistent_state
         run: |
           mkdir -p brz_ecommerce_backend/persistent_state
           cp brz_ecommerce_backend/target/manifest.json \
              brz_ecommerce_backend/persistent_state/manifest.json
 
-      - name: Commit updated manifest
+      - name: Commit and push to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add brz_ecommerce_backend/persistent_state/manifest.json
 
-          git diff --cached --quiet || git commit -m "Update production manifest"
-
-          git push
+          # Committa solo se c'è qualcosa di cambiato
+          if git diff --cached --quiet; then
+            echo "No changes to manifest — skipping commit"
+          else
+            git commit -m "chore(ci): update persistent_state manifest [skip ci]"
+            git push origin main
+          fi
