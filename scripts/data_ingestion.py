@@ -1,27 +1,15 @@
-# scripts/load_raw.py
-import duckdb
-import os
 from pathlib import Path
+import duckdb
 
-BASE_DIR = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path.cwd()
 
-DB_PATH    = BASE_DIR / "data/duckdb/prod.duckdb"
-OLIST_PATH = BASE_DIR / "data/raw/olist"
-IBGE_PATH  = BASE_DIR / "data/raw/ibge"
+DB_PATH = REPO_ROOT / "data/duckdb/prod.duckdb"
+OLIST_PATH = REPO_ROOT / "data/raw/olist"
+IBGE_PATH = REPO_ROOT / "data/raw/ibge"
 
-print("\n=== DEBUG PATHS ===")
-print("BASE_DIR:", BASE_DIR)
-print("DB_PATH:", DB_PATH)
+print("REPO_ROOT:", REPO_ROOT)
 print("OLIST_PATH:", OLIST_PATH)
 print("IBGE_PATH:", IBGE_PATH)
-
-print("\n=== FILE EXISTENCE CHECK (OLIST) ===")
-for f in os.listdir(OLIST_PATH):
-    print(" -", f)
-
-print("\n=== FILE EXISTENCE CHECK (IBGE) ===")
-for f in os.listdir(IBGE_PATH):
-    print(" -", f)
 
 con = duckdb.connect(str(DB_PATH))
 
