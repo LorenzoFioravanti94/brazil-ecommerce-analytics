@@ -9,7 +9,7 @@ DB_PATH    = BASE_DIR / "data/duckdb/prod.duckdb"
 OLIST_PATH = BASE_DIR / "data/raw/olist"
 IBGE_PATH  = BASE_DIR / "data/raw/ibge"
 
-con = duckdb.connect(DB_PATH)
+con = duckdb.connect(str(DB_PATH))
 
 con.execute("CREATE SCHEMA IF NOT EXISTS raw_olist")
 con.execute("CREATE SCHEMA IF NOT EXISTS raw_ibge")
