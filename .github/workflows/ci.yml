@@ -50,7 +50,7 @@ jobs:
 
       - name: Run DuckDB ingestion
         run: |
-          python brz_ecommerce_backend/scripts/data_ingestion.py
+          python scripts/data_ingestion.py
 
       - name: Create profiles.yml
         run: |
