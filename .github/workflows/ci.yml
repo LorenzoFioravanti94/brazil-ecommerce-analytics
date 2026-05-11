@@ -30,6 +30,11 @@ jobs:
           echo "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
           chmod 600 ~/.kaggle/access_token
 
+      - name: Debug working directory
+        run: |
+          pwd
+          ls -R
+
       - name: Download Olist dataset
         run: |
           mkdir -p brz_ecommerce_backend/data/raw/olist
@@ -39,6 +44,10 @@ jobs:
             -p brz_ecommerce_backend/data/raw/olist \
             --unzip
 
+      - name: Debug Olist download
+        run: |
+          ls -R brz_ecommerce_backend/data/raw/olist
+
       - name: Download Brazil states dataset
         run: |
           mkdir -p brz_ecommerce_backend/data/raw/ibge
@@ -47,6 +56,15 @@ jobs:
             -d thiagobodruk/brazilianstates \
             -p brz_ecommerce_backend/data/raw/ibge \
             --unzip
+      
+      - name: Debug Brazil states download
+        run: |
+          ls -R brz_ecommerce_backend/data/raw/ibge
+
+      - name: Debug ingestion input
+        run: |
+          ls -R data/raw || true
+          ls -R brz_ecommerce_backend/data/raw || true
 
       - name: Run DuckDB ingestion
         run: |
