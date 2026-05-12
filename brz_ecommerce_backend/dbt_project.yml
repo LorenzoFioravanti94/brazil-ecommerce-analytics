@@ -21,12 +21,6 @@ snapshot-paths: ["snapshots"]
 clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
-
-on-run-start:
-  - >
-    ATTACH IF NOT EXISTS
-    '{{ env_var("DBT_PROD_DB_PATH", "/tmp/prod.duckdb") }}'
-    AS prod (READ_ONLY)
     
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
