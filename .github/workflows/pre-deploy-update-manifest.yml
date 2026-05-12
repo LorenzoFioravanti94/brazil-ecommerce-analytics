@@ -1,0 +1,63 @@
+name: pre-deploy-update-manifest
+ 
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types:
+      - completed
+ 
+jobs:
+  refresh-prod-manifest:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          token: ${{ secrets.MANIFEST_PAT }}
+ 
+      - name: Install dependencies
+        run: |
+          pip install \
+            dbt-core==1.11.8 \
+            dbt-duckdb==1.10.1
+ 
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          brz_ecommerce_backend:
+            target: prod
+            outputs:
+              prod:
+                type: duckdb
+                path: /tmp/prod.duckdb
+                threads: 4
+          EOF
+ 
+      - name: Generate manifest with target prod
+        run: |
+          dbt parse \
+            --target prod \
+            --project-dir brz_ecommerce_backend
+ 
+      - name: Update persistent_state
+        run: |
+          cp brz_ecommerce_backend/target/manifest.json \
+             brz_ecommerce_backend/persistent_state/manifest.json
+ 
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add brz_ecommerce_backend/persistent_state/manifest.json
+          if git diff --cached --quiet; then
+            echo "No changes to manifest — skipping commit"
+          else
+            git commit -m "chore(ci): update persistent_state manifest"
+            git push origin main
+          fi
+ 
