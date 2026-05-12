@@ -14,7 +14,37 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
+        run: |
+          pip install \
+            dbt-core==1.11.8 \
+            dbt-duckdb==1.10.1 \
+            kaggle
+
+      - name: Configure Kaggle API Token
+        run: |
+          mkdir -p ~/.kaggle
+          echo "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
+          chmod 600 ~/.kaggle/access_token
+
+      - name: Download datasets
+        run: |
+          mkdir -p data/raw/olist
+          mkdir -p data/raw/ibge
+
+          kaggle datasets download \
+            -d olistbr/brazilian-ecommerce \
+            -p data/raw/olist \
+            --unzip
+
+          kaggle datasets download \
+            -d thiagobodruk/brazilianstates \
+            -p data/raw/ibge \
+            --unzip
+
+      - name: Run DuckDB ingestion
+        run: python scripts/data_ingestion.py
+        env:
+          DBT_TARGET: test
 
       - name: Create profiles.yml
         run: |
@@ -37,7 +67,6 @@ jobs:
         run: |
           if [ ! -f brz_ecommerce_backend/persistent_state/manifest.json ]; then
             echo "ERROR: persistent_state/manifest.json not found."
-            echo "Run the bootstrap step on main and push it first."
             exit 1
           fi
 
