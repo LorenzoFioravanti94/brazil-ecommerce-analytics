@@ -1,0 +1,182 @@
+version: 2
+
+sources:
+  - name: ibge
+    description: "The Brazilian Institute of Geography and Statistics (IBGE) is the main provider of data and statistics in Brazil. The dataset includes information about Brazilian municipalities, including population, area, and demographic indicators."
+    meta:
+        source_url: "https://www.kaggle.com/datasets/thiagobodruk/brazilianstates"
+    database: "{{ 'prod' if target.name == 'dev' else target.database }}"
+    schema: raw_ibge
+    tables:
+      - name: airports
+        description: "Information about airports in Brazil including UF and passengers rate."
+        columns:
+          - name: UF
+            description: "State where the airport is located."
+            tests:
+              - unique
+              - not_null
+          - name: "Passengers rate"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Rate of passengers at the airport."
+            tests:
+              - not_null
+      - name: hdi
+        description: "Human Development Index (HDI) data for Brazilian municipalities."
+        columns:
+          - name: UF
+            description: "State where the municipality is located."
+            tests:
+              - unique
+              - not_null
+          - name: "HDI 2017"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Human Development Index value for the municipality in 2017."
+            tests:
+              - not_null
+          - name: "HDI Education 2017"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Education component of the Human Development Index for the municipality."
+            tests:
+              - not_null
+          - name: "HDI Wealth 2017"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Wealth component of the Human Development Index for the municipality."
+            tests:
+              - not_null
+          - name: "HDI Health 2017"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Health component of the Human Development Index for the municipality."
+            tests:
+              - not_null
+          - name: "HDI 2010"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Human Development Index value for the municipality in 2010."
+            tests:
+              - not_null
+          - name: "HDI Education 2010"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Education component of the Human Development Index for the municipality in 2010."
+            tests:
+              - not_null
+          - name: "HDI Wealth 2010"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Wealth component of the Human Development Index for the municipality in 2010."
+            tests:
+              - not_null
+          - name: "HDI Health 2010"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Health component of the Human Development Index for the municipality in 2010."
+            tests:
+              - not_null
+          - name: "HDI 2000"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Human Development Index value for the municipality in 2000."
+            tests:
+              - not_null
+          - name: "HDI Education 2000"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Education component of the Human Development Index for the municipality in 2000."
+            tests:
+              - not_null
+          - name: "HDI Wealth 2000"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Wealth component of the Human Development Index for the municipality in 2000."
+            tests:
+              - not_null
+          - name: "HDI Health 2000"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Health component of the Human Development Index for the municipality in 2000."
+            tests:
+              - not_null
+          - name: "HDI 1991"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Human Development Index value for the municipality in 1991."
+            tests:
+              - not_null
+          - name: "HDI Education 1991"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Education component of the Human Development Index for the municipality in 1991."
+            tests:
+              - not_null
+          - name: "HDI Wealth 1991"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Wealth component of the Human Development Index for the municipality in 1991."
+            tests:
+              - not_null
+          - name: "HDI Health 1991"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Health component of the Human Development Index for the municipality in 1991."
+            tests:
+              - not_null
+      - name: icu_beds
+        description: "Information about ICU beds in Brazilian municipalities."
+        columns:
+          - name: UF
+            description: "State where the municipality is located."
+            tests:
+              - unique
+              - not_null
+          - name: "ICU beds"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of ICU beds available in the municipality."
+          - name: "Public beds"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of public ICU beds available in the municipality."
+          - name: "Private beds"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of private ICU beds available in the municipality."
+          - name: "Public beds per citizen"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of public ICU beds per citizen in the municipality."
+          - name: "Private beds per citizen"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of private ICU beds per citizen in the municipality."
+
+      - name: states
+        description: "Information about Brazilian states including UF, state name, and region, etc."
+        columns:
+          - name: UF
+            description: "State abbreviation (UF) for the Brazilian state."
+            tests:
+              - unique
+              - not_null
+          - name: State
+            description: "Full name of the Brazilian state."
+            tests:
+              - not_null
+          - name: Capital
+            description: "Capital city of the Brazilian state."
+            tests:
+              - not_null
+          - name: Region
+            description: "Region of Brazil where the state is located (e.g., North, Northeast, Southeast, South, Central-West)."
+            tests:
+              - not_null
+          - name: Area
+            description: "Total area of the state in square kilometers."
+          - name: Population
+            description: "Total population of the state."
+          - name: "Demographic Density"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Population density of the state (people per square kilometer)."
+          - name: "Cities count"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "Number of cities in the state."
+            tests:
+              - not_null
+          - name: GDP
+            description: "Gross Domestic Product (GDP) of the state in Brazilian Reais."
+          - name: "GDP rate"
+            quote: true  # needed because duckDB does not allow spaces in column names without quoting
+            description: "GDP growth rate for the state."
+          - name: Poverty
+            description: "Poverty rate in the state."
+          - name: Latitude
+            description: "Latitude coordinate for the state."
+            tests:
+              - not_null
+          - name: Longitude
+            description: "Longitude coordinate for the state."
+            tests:
+              - not_null
