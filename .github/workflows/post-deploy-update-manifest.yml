@@ -1,4 +1,4 @@
-name: update-manifest
+name: post-deploy-update-manifest
 
 on:
   workflow_run:
