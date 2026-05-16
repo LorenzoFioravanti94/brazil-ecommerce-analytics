@@ -16,11 +16,3 @@ def brz_ecommerce_assets(context: AssetExecutionContext, dbt: DbtCliResource, co
         dbt_args += ["--full-refresh"]
     yield from dbt.cli(dbt_args, context=context).stream()
     yield from dbt.cli(["docs", "generate"], context=context).stream()
-
-
-@dbt_assets(manifest=DBT_PROJECT_DIR / "target" / "manifest.json")
-def brz_ecommerce_freshness_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(
-        ["source", "freshness"],
-        context=context
-    ).stream()
