@@ -26,6 +26,9 @@ jobs:
           pip install \
             dbt-core==1.11.8 \
             dbt-duckdb==1.10.1
+
+      - name: Install dbt packages
+        run: dbt deps --project-dir brz_ecommerce_backend
  
       - name: Create profiles.yml
         run: |
