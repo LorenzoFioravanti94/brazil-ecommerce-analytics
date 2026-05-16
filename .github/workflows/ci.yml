@@ -20,6 +20,9 @@ jobs:
             dbt-duckdb==1.10.1 \
             kaggle
 
+      - name: Install dbt packages
+        run: dbt deps --project-dir brz_ecommerce_backend
+
       - name: Configure Kaggle API Token
         run: |
           mkdir -p ~/.kaggle
