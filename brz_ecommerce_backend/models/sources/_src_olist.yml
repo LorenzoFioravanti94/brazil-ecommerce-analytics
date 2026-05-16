@@ -52,6 +52,7 @@ sources:
 
       - name: order_items
         description: "Information about items in each order, including order ID, product ID, seller ID, price, and freight value."
+        freshness: null # No timestamp field available for freshness configuration in this table
         columns:
           - name: order_id
             description: "Identifier for the order to which the item belongs."
@@ -74,6 +75,7 @@ sources:
       
       - name: order_payments
         description: "Payment information for each order, including order ID, payment type, payment value, and number of installments."
+        freshness: null # No timestamp field available for freshness configuration in this table
         columns:
           - name: order_id
             description: "Identifier for the order associated with the payment."
@@ -90,6 +92,15 @@ sources:
     
       - name: order_reviews
         description: "Customer reviews for orders, including review ID, order ID, review score, and review comment."
+        config:
+          freshness:
+            warn_after:
+              count: 24
+              period: hour
+            error_after:
+              count: 2
+              period: day
+          loaded_at_field: review_creation_date
         columns:
           - name: review_id
             description: "Identifier for the review."
@@ -110,6 +121,15 @@ sources:
 
       - name: orders
         description: "Information about customer orders, including order ID, customer ID, order status, and order purchase timestamp."
+        config:
+          freshness:
+            warn_after:
+              count: 24
+              period: hour
+            error_after:
+              count: 2
+              period: day
+          loaded_at_field: order_purchase_timestamp
         columns:
           - name: order_id
             description: "Identifier for the order."

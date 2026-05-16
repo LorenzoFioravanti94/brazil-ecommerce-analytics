@@ -1,6 +1,8 @@
-from dagster import define_asset_job, AssetSelection, RunConfig
+from dagster import define_asset_job, AssetSelection, RunConfig, job
 from dagster_dbt import build_dbt_asset_selection
 from .assets import brz_ecommerce_assets, DbtConfig
+from .ops import check_source_freshness
+from .resources import dbt_resource
 
 # Standard Job — triggered by GitHub Actions after merge on main
 # full project incremental build
@@ -28,8 +30,6 @@ time_sensitive_job = define_asset_job(
     selection=build_dbt_asset_selection(
         [brz_ecommerce_assets],
         dbt_select="+fct_orders+"    # <model_name>
-        # +fct_<model_name>+ selects all upstream models (to ensure inputs are fresh)
-        # and all downstream models (to propagate the update)
     ),
 )
 
@@ -44,3 +44,8 @@ fresher_rebuild_job = define_asset_job(
     )
 )
 """
+
+# Source Freshness Job
+@job(resource_defs={"dbt": dbt_resource})
+def source_freshness_job():
+    check_source_freshness()

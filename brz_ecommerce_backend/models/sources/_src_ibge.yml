@@ -21,6 +21,10 @@ sources:
             description: "Rate of passengers at the airport."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
       - name: hdi
         description: "Human Development Index (HDI) data for Brazilian municipalities."
         columns:
@@ -34,81 +38,145 @@ sources:
             description: "Human Development Index value for the municipality in 2017."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Education 2017"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Education component of the Human Development Index for the municipality."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Wealth 2017"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Wealth component of the Human Development Index for the municipality."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Health 2017"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Health component of the Human Development Index for the municipality."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI 2010"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Human Development Index value for the municipality in 2010."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Education 2010"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Education component of the Human Development Index for the municipality in 2010."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Wealth 2010"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Wealth component of the Human Development Index for the municipality in 2010."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Health 2010"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Health component of the Human Development Index for the municipality in 2010."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI 2000"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Human Development Index value for the municipality in 2000."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Education 2000"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Education component of the Human Development Index for the municipality in 2000."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Wealth 2000"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Wealth component of the Human Development Index for the municipality in 2000."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Health 2000"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Health component of the Human Development Index for the municipality in 2000."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI 1991"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Human Development Index value for the municipality in 1991."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Education 1991"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Education component of the Human Development Index for the municipality in 1991."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Wealth 1991"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Wealth component of the Human Development Index for the municipality in 1991."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
           - name: "HDI Health 1991"
             quote: true  # needed because duckDB does not allow spaces in column names without quoting
             description: "Health component of the Human Development Index for the municipality in 1991."
             tests:
               - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1
+                  inclusive: true
       - name: icu_beds
         description: "Information about ICU beds in Brazilian municipalities."
         columns:
