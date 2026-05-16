@@ -1,8 +1,6 @@
 from dagster import Definitions
-from .defs.assets import (
-    brz_ecommerce_assets,
-    brz_ecommerce_freshness_assets
-)
+from .defs.assets import brz_ecommerce_assets
+from .defs.resources import dbt_resource
 
 from .defs.jobs import (
     standard_job,
@@ -18,10 +16,9 @@ from .defs.schedules import (
     freshness_schedule,
 )
 # from .defs.sensors import source_freshness_sensor
-from .defs.resources import dbt_resource
 
 defs = Definitions(
-    assets=[brz_ecommerce_assets, brz_ecommerce_freshness_assets],
+    assets=[brz_ecommerce_assets],
     jobs=[
         standard_job,
         full_refresh_job,
