@@ -30,6 +30,24 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   brz_ecommerce_backend:
-    # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
+    
+    bronze:
+      +schema: bronze
+      +materialized: table
+      +tags: ["bronze"]
+
+    silver:
+      +tags: ["silver"]
+      
+      staging:
+        +schema: silver_staging
+        +materialized: view
+        
+      intermediate:
+        +schema: silver_intermediate
+        +materialized: ephemeral
+
+    gold:
+      +schema: gold
+      +materialized: table
+      +tags: ["gold"]
