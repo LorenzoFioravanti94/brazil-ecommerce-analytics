@@ -4,7 +4,7 @@ import duckdb
 
 # ---------------------------------------------------------------------------
 # DB path selection — driven by DBT_TARGET env var
-# Locally DBT_TARGET is not set → defaults to "prod"
+# Locally DBT_TARGET is not set → defaults to "dev"
 # In CI the workflow sets DBT_TARGET=test
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).parent.parent  # scripts/ → repo root
