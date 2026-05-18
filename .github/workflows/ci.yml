@@ -36,78 +36,27 @@ jobs:
       - name: dbt debug
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      # =====================================================
-      # DOWNLOAD BASE MANIFEST (CRUCIALE PER SLIM CI)
-      # =====================================================
-      - name: Download manifest artifact (baseline state)
-        if: github.base_ref == 'develop'
-        uses: actions/download-artifact@v6
-        with:
-          name: dbt-manifest
-          path: state
-
-      # =====================================================
+      # =========================
       # SLIM CI (develop PR)
-      # =====================================================
+      # =========================
       - name: Slim CI
         if: github.base_ref == 'develop'
         run: |
+          git fetch origin develop
+
           dbt build \
-            --select "state:modified+" \
+            --select state:modified+ \
             --defer \
-            --state state \
+            --state . \
             --target test \
             --project-dir brz_ecommerce_backend
 
-      # =====================================================
+      # =========================
       # FULL CI (main PR)
-      # =====================================================
+      # =========================
       - name: Full CI
         if: github.base_ref == 'main'
         run: |
           dbt build \
             --target test \
             --project-dir brz_ecommerce_backend
-
-
-  # =====================================================
-  # GENERAZIONE MANIFEST (SEPARATA, SOLO SU MAIN MERGE)
-  # =====================================================
-  build-manifest:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install dependencies
-        run: |
-          pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
-
-      - name: dbt deps
-        run: dbt deps --project-dir brz_ecommerce_backend
-
-      - name: Create profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          brz_ecommerce_backend:
-            target: prod
-            outputs:
-              prod:
-                type: duckdb
-                path: /tmp/prod.duckdb
-                threads: 4
-          EOF
-
-      - name: Generate manifest
-        run: |
-          dbt parse \
-            --target prod \
-            --project-dir brz_ecommerce_backend
-
-      - name: Upload manifest artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: dbt-manifest
-          path: brz_ecommerce_backend/target/manifest.json
