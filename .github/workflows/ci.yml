@@ -29,7 +29,6 @@ jobs:
       - name: Download datasets
         run: |
           mkdir -p data/raw/olist data/raw/ibge
-
           kaggle datasets download -d olistbr/brazilian-ecommerce -p data/raw/olist --unzip
           kaggle datasets download -d thiagobodruk/brazilianstates -p data/raw/ibge --unzip
 
@@ -54,62 +53,52 @@ jobs:
       - name: dbt debug
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      # =========================
-      # SLIM CI (develop PR)
-      # =========================
+      # ======================================================
+      # BASELINE MANIFEST (MAIN)
+      # ======================================================
+      - name: Download baseline manifest (main)
+        if: github.base_ref == 'develop'
+        run: |
+          mkdir -p state
+          curl -L \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -o state/manifest.json \
+            https://github.com/${{ github.repository }}/releases/latest/download/manifest.json
+
+      # ======================================================
+      # SLIM CI (DEVELOP)
+      # ======================================================
       - name: Slim CI
         if: github.base_ref == 'develop'
         run: |
+          dbt parse --target test --project-dir brz_ecommerce_backend
+
           dbt build \
             --select state:modified+ \
             --defer \
-            --state .
+            --state state \
+            --target test \
+            --project-dir brz_ecommerce_backend
 
-      # =========================
-      # FULL CI (main PR)
-      # =========================
+      # ======================================================
+      # FULL CI (MAIN)
+      # ======================================================
       - name: Full CI
         if: github.base_ref == 'main'
         run: |
           dbt build \
-            --target test
+            --target test \
+            --project-dir brz_ecommerce_backend
 
-  # =========================
-  # MANIFEST GENERATION (NO GIT)
-  # =========================
-  build-manifest:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install dependencies
-        run: |
-          pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
-
-      - name: dbt deps
-        run: dbt deps --project-dir brz_ecommerce_backend
-
-      - name: Create profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          brz_ecommerce_backend:
-            target: prod
-            outputs:
-              prod:
-                type: duckdb
-                path: /tmp/prod.duckdb
-                threads: 4
-          EOF
-
+      # ======================================================
+      # GENERATE PR MANIFEST (FINAL SNAPSHOT)
+      # ======================================================
       - name: Generate manifest
         run: |
-          dbt parse --target prod --project-dir brz_ecommerce_backend
+          dbt parse --target test --project-dir brz_ecommerce_backend
 
-      - name: Upload manifest artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload PR manifest
+        uses: actions/upload-artifact@v6
         with:
           name: dbt-manifest
           path: brz_ecommerce_backend/target/manifest.json
