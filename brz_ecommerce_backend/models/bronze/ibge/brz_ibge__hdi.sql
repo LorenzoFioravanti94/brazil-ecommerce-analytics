@@ -1,0 +1,18 @@
+SELECT UF,
+       "HDI 2017",
+       "HDI Education 2017",
+       "HDI Wealth 2017",
+       "HDI Health 2017",
+       "HDI 2010",
+       "HDI Education 2010",
+       "HDI Wealth 2010",
+       "HDI Health 2010",
+       "HDI 2000",
+       "HDI Education 2000",
+       "HDI Wealth 2000",
+       "HDI Health 2000",
+       "HDI 1991",
+       "HDI Education 1991",
+       "HDI Wealth 1991",
+       "HDI Health 1991"
+FROM {{ source('ibge', 'hdi') }}
