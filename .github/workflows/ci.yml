@@ -15,10 +15,39 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install dbt-core==1.11.8 dbt-duckdb==1.10.1 kaggle
+          pip install \
+            dbt-core==1.11.8 \
+            dbt-duckdb==1.10.1 \
+            kaggle
 
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
+
+      - name: Configure Kaggle API Token
+        run: |
+          mkdir -p ~/.kaggle
+          echo "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
+          chmod 600 ~/.kaggle/access_token
+
+      - name: Download datasets
+        run: |
+          mkdir -p data/raw/olist
+          mkdir -p data/raw/ibge
+
+          kaggle datasets download \
+            -d olistbr/brazilian-ecommerce \
+            -p data/raw/olist \
+            --unzip
+
+          kaggle datasets download \
+            -d thiagobodruk/brazilianstates \
+            -p data/raw/ibge \
+            --unzip
+
+      - name: Run DuckDB ingestion
+        run: python scripts/data_ingestion.py
+        env:
+          DBT_TARGET: test
 
       - name: Create profiles.yml
         run: |
@@ -33,28 +62,28 @@ jobs:
                 threads: 2
           EOF
 
-      - name: dbt debug
+      - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      # =========================
-      # SLIM CI (develop PR)
-      # =========================
-      - name: Slim CI
+      - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
         run: |
-          git fetch origin develop
+          if [ ! -f ${{ github.workspace }}/persistent_state/manifest.json ]; then
+            echo "ERROR: persistent_state/manifest.json not found."
+            exit 1
+          fi
 
+      - name: Run dbt (Slim CI — PR towards develop)
+        if: github.base_ref == 'develop'
+        run: |
           dbt build \
-            --select state:modified+ \
+            --select "state:modified+" \
             --defer \
-            --state . \
+            --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
 
-      # =========================
-      # FULL CI (main PR)
-      # =========================
-      - name: Full CI
+      - name: Run dbt (Full CI — PR towards main)
         if: github.base_ref == 'main'
         run: |
           dbt build \
