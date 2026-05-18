@@ -1,0 +1,30 @@
+version: 2
+
+models:
+
+  - name: brz_olist__category_translation
+    description: "Mirrored model for category translation source table."
+
+  - name: brz_olist__customers
+    description: "Mirrored model for customers source table."
+
+  - name: brz_olist__geolocation
+    description: "Mirrored model for geolocation source table."
+
+  - name: brz_olist__order_items
+    description: "Mirrored model for order items source table."
+
+  - name: brz_olist__order_payments
+    description: "Mirrored model for order payments source table."
+
+  - name: brz_olist__order_reviews
+    description: "Mirrored model for order reviews source table."
+
+  - name: brz_olist__orders
+    description: "Mirrored model for orders source table."
+
+  - name: brz_olist__products
+    description: "Mirrored model for products source table."
+
+  - name: brz_olist__sellers
+    description: "Mirrored model for sellers source table."

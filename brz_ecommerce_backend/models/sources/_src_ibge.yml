@@ -4,7 +4,7 @@ sources:
   - name: ibge
     description: "The Brazilian Institute of Geography and Statistics (IBGE) is the main provider of data and statistics in Brazil. The dataset includes information about Brazilian municipalities, including population, area, and demographic indicators."
     meta:
-        source_url: "https://www.kaggle.com/datasets/thiagobodruk/brazilianstates"
+      source_url: "https://www.kaggle.com/datasets/thiagobodruk/brazilianstates"
     database: "{{ 'prod' if target.name == 'dev' else target.database }}"
     schema: raw_ibge
     tables:
