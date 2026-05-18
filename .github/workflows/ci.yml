@@ -20,23 +20,6 @@ jobs:
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
 
-      - name: Configure Kaggle API Token
-        run: |
-          mkdir -p ~/.kaggle
-          echo "${{ secrets.KAGGLE_API_TOKEN }}" > ~/.kaggle/access_token
-          chmod 600 ~/.kaggle/access_token
-
-      - name: Download datasets
-        run: |
-          mkdir -p data/raw/olist data/raw/ibge
-          kaggle datasets download -d olistbr/brazilian-ecommerce -p data/raw/olist --unzip
-          kaggle datasets download -d thiagobodruk/brazilianstates -p data/raw/ibge --unzip
-
-      - name: Run ingestion
-        run: python scripts/data_ingestion.py
-        env:
-          DBT_TARGET: test
-
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
@@ -53,36 +36,32 @@ jobs:
       - name: dbt debug
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      # ======================================================
-      # BASELINE MANIFEST (MAIN)
-      # ======================================================
-      - name: Download baseline manifest (main)
+      # =====================================================
+      # DOWNLOAD BASE MANIFEST (CRUCIALE PER SLIM CI)
+      # =====================================================
+      - name: Download manifest artifact (baseline state)
         if: github.base_ref == 'develop'
-        run: |
-          mkdir -p state
-          curl -L \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -o state/manifest.json \
-            https://github.com/${{ github.repository }}/releases/latest/download/manifest.json
+        uses: actions/download-artifact@v6
+        with:
+          name: dbt-manifest
+          path: state
 
-      # ======================================================
-      # SLIM CI (DEVELOP)
-      # ======================================================
+      # =====================================================
+      # SLIM CI (develop PR)
+      # =====================================================
       - name: Slim CI
         if: github.base_ref == 'develop'
         run: |
-          dbt parse --target test --project-dir brz_ecommerce_backend
-
           dbt build \
-            --select state:modified+ \
+            --select "state:modified+" \
             --defer \
             --state state \
             --target test \
             --project-dir brz_ecommerce_backend
 
-      # ======================================================
-      # FULL CI (MAIN)
-      # ======================================================
+      # =====================================================
+      # FULL CI (main PR)
+      # =====================================================
       - name: Full CI
         if: github.base_ref == 'main'
         run: |
@@ -90,14 +69,44 @@ jobs:
             --target test \
             --project-dir brz_ecommerce_backend
 
-      # ======================================================
-      # GENERATE PR MANIFEST (FINAL SNAPSHOT)
-      # ======================================================
+
+  # =====================================================
+  # GENERAZIONE MANIFEST (SEPARATA, SOLO SU MAIN MERGE)
+  # =====================================================
+  build-manifest:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
+
+      - name: dbt deps
+        run: dbt deps --project-dir brz_ecommerce_backend
+
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          brz_ecommerce_backend:
+            target: prod
+            outputs:
+              prod:
+                type: duckdb
+                path: /tmp/prod.duckdb
+                threads: 4
+          EOF
+
       - name: Generate manifest
         run: |
-          dbt parse --target test --project-dir brz_ecommerce_backend
+          dbt parse \
+            --target prod \
+            --project-dir brz_ecommerce_backend
 
-      - name: Upload PR manifest
+      - name: Upload manifest artifact
         uses: actions/upload-artifact@v6
         with:
           name: dbt-manifest
