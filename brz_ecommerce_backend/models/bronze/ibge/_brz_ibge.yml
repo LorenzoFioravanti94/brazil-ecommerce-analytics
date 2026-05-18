@@ -1,0 +1,15 @@
+version: 2
+
+models:
+
+  - name: brz_ibge__airports
+    description: "Mirrored model for airports source table."
+
+  - name: brz_ibge__hdi
+    description: "Mirrored model for HDI source table."
+
+  - name: brz_ibge__icu_beds
+    description: "Mirrored model for ICU beds source table."
+
+  - name: brz_ibge__states
+    description: "Mirrored model for states source table."
