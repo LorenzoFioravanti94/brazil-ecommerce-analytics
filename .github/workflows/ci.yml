@@ -71,7 +71,7 @@ jobs:
           dbt build \
             --select "state:modified+" \
             --defer \
-            --state persistent_state \
+            --state target \
             --target test \
             --project-dir brz_ecommerce_backend
 
