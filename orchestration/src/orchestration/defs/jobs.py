@@ -29,7 +29,7 @@ time_sensitive_job = define_asset_job(
     name="time_sensitive_job",
     selection=build_dbt_asset_selection(
         [brz_ecommerce_assets],
-        dbt_select="+fct_orders+"    # <model_name>
+        dbt_select="state: new+"    # <model_name>
     ),
 )
 
