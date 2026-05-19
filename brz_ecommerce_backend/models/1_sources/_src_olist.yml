@@ -110,6 +110,14 @@ sources:
             description: "Identifier for the order being reviewed."
           - name: review_score
             description: "Score given by the customer in the review (1 to 5)."
+            tests:
+              - accepted_values:
+                  values:
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 5
           - name: review_comment_title
             description: "Title of the customer's review comment."
           - name: review_comment_message
