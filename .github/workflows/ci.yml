@@ -65,6 +65,12 @@ jobs:
       - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
+      - name: Fetch manifest from main
+        if: github.base_ref == 'develop'
+        run: |
+          git fetch origin main
+          git checkout origin/main -- persistent_state/manifest.json
+
       - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
         run: |
