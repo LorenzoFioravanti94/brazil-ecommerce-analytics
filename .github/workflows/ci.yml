@@ -71,6 +71,19 @@ jobs:
           git fetch origin main
           git checkout origin/main -- persistent_state/manifest.json
 
+      - name: Debug manifest content
+        if: github.base_ref == 'develop'
+        run: |
+          echo "=== Numero modelli nel manifest ==="
+          cat ${{ github.workspace }}/persistent_state/manifest.json | python3 -c "
+          import json, sys
+          m = json.load(sys.stdin)
+          nodes = [k for k in m.get('nodes', {}).keys() if k.startswith('model.')]
+          print(f'Modelli nel manifest: {len(nodes)}')
+          for n in nodes:
+            print(n)
+          "
+
       - name: Check persistent_state exists (Slim CI guard)
         if: github.base_ref == 'develop'
         run: |
