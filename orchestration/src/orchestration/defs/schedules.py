@@ -1,5 +1,5 @@
 from dagster import ScheduleDefinition
-from .jobs import full_refresh_job, time_sensitive_job, source_freshness_job
+from .jobs import full_refresh_job, source_freshness_job # time_sensitive_job
 
 # standard_job has no schedule — it is triggered by GitHub Actions via cd.yml
 
@@ -14,9 +14,10 @@ full_refresh_schedule = ScheduleDefinition(
     job=full_refresh_job,
     cron_schedule="0 6 * * 0",
 )
-
+"""
 # Every hour
 time_sensitive_schedule = ScheduleDefinition(
     job=time_sensitive_job,
     cron_schedule="0 * * * *",
 )
+"""
