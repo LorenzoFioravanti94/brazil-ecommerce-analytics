@@ -9,8 +9,10 @@ TARGET BRANCH | <prefix> | <Layer> | <optional: Sublayer> | <description>
 - [ ] Before opening this PR, I ran:
   ```
   git checkout feature/<feature_name>
+  git add .
+  git commit -m "feat: descrizione modifica"
   git fetch origin
-  git rebase origin/develop
+  git rebase origin/main
   git push --force-with-lease origin feature/<feature_name>
   ```
 
@@ -18,6 +20,5 @@ TARGET BRANCH | <prefix> | <Layer> | <optional: Sublayer> | <description>
 - [ ] Before opening this PR, I ran:
   ```
   git checkout develop
-  git fetch origin
-  git merge origin/main
+  git pull origin develop
   ```
