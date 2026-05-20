@@ -101,6 +101,23 @@ jobs:
             --target test \
             --project-dir brz_ecommerce_backend
 
+      - name: Debug manifest metadata
+        if: github.base_ref == 'develop'
+        run: |
+          cat ${{ github.workspace }}/persistent_state/manifest.json | python3 -c "
+          import json, sys
+          m = json.load(sys.stdin)
+          meta = m.get('metadata', {})
+          print(f'dbt version nel manifest: {meta.get(\"dbt_version\")}')
+          print(f'generated_at: {meta.get(\"generated_at\")}')
+          print(f'adapter type: {meta.get(\"adapter_type\")}')
+          first_model = next(iter(m.get('nodes', {})), None)
+          if first_model:
+            node = m['nodes'][first_model]
+            print(f'Esempio schema nel manifest: {node.get(\"schema\")}')
+            print(f'Esempio config.schema: {node.get(\"config\", {}).get(\"schema\")}')
+          "
+
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
