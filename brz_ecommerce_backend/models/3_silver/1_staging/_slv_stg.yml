@@ -21,7 +21,7 @@ models:
         description: "Zip code prefix of the customer's location."
       - name: city
         description: "City where the customer is located."
-      - name: state
+      - name: state_id
         description: "State where the customer is located."
   - name: slv_stg_olist__geolocation
     description: "Staging model for geolocation data, with cleaned and standardized location information."
