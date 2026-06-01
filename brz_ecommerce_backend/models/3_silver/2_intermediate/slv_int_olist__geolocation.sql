@@ -15,7 +15,6 @@ geolocation_no_accents AS (
         latitude,
         longitude,
         state_id,
-        city_raw,
         -- Applichiamo la trasformazione esatta usata per il primo seed
         REGEXP_REPLACE(STRIP_ACCENTS(city_raw), '[^A-Z0-9 ]', '', 'g') AS city_no_accents
     FROM geolocation_raw
@@ -28,7 +27,6 @@ apply_seed_typos AS (
         g.latitude,
         g.longitude,
         g.state_id,
-        g.city_raw,
         -- Se c'è un typo nel seed usa quello corretto, altrimenti tieni la stringa normalizzata
         COALESCE(t.fixed_city, g.city_no_accents) AS city_corrected
     FROM geolocation_no_accents g
@@ -43,7 +41,6 @@ apply_seed_zip_rules AS (
         t.latitude,
         t.longitude,
         t.state_id,
-        t.city_raw,
         -- Se il CAP è problematico, il seed sovrascrive in modo assoluto la città
         COALESCE(z.city_associated, t.city_corrected) AS city_associated
     FROM apply_seed_typos t
@@ -58,7 +55,6 @@ apply_seed_municipality AS (
         z.latitude,
         z.longitude,
         z.state_id,
-        z.city_raw,
         -- Se la località è un distretto, mappa sul comune ufficiale IBGE
         COALESCE(m.municipality, z.city_associated) AS city_final
     FROM apply_seed_zip_rules z
