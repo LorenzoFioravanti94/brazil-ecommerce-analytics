@@ -77,13 +77,25 @@ hdi_union AS (
 
     SELECT *
     FROM hdi_1991
+),
+remove_redundancy AS (
+    SELECT
+        state_id,
+        education_index,
+        wealth_index,
+        health_index,
+        year,
+    FROM hdi_union
+),
+surrogate_key AS(
+        SELECT
+            {{ dbt_utils.generate_surrogate_key(['state_id', 'year']) }} AS hdi_id,
+            state_id,
+            education_index,
+            wealth_index,
+            health_index,
+            year
+        FROM remove_redundancy
 )
-SELECT
-    {{ dbt_utils.generate_surrogate_key(['state_id', 'year']) }} AS hdi_id,
-    state_id,
-    hdi,
-    education_index,
-    wealth_index,
-    health_index,
-    year
-FROM hdi_union
+SELECT *
+FROM surrogate_key
