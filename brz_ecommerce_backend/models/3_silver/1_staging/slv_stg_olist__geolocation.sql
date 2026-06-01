@@ -10,5 +10,5 @@ SELECT trim(geolocation_zip_code_prefix) AS zip_code_prefix,
        geolocation_lat AS latitude,
        geolocation_lng AS longitude,
        upper(trim(geolocation_city)) AS city,
-       upper(trim(geolocation_state)) AS state
+       upper(trim(geolocation_state)) AS state_id
 FROM geolocation

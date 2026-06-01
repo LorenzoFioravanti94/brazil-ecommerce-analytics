@@ -1,0 +1,136 @@
+version: 2
+
+models:
+
+  - name: slv_int_ibge__human_development_index
+    description: "Intermediate model for the Human Development Index (HDI) data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset."
+    columns:
+      - name: hdi_id
+        description: "Surrogate key for the HDI record, generated from the combination of state_id and year."
+        tests:
+          - unique
+          - not_null
+      - name: state_id
+        description: "Identifier for the Brazilian state, linking to the states dimension."
+      - name: education_index
+        description: "Education component of the Human Development Index, representing the level of education in the state."
+      - name: wealth_index
+        description: "Wealth component of the Human Development Index, representing the economic well-being of the state."
+      - name: health_index
+        description: "Health component of the Human Development Index, representing the life expectancy and health conditions in the state."
+      - name: year
+        description: "Year of the HDI measurement, indicating the time period for the data."
+
+  - name: slv_int_ibge__intensive_care_unit_beds
+    description: "Intermediate model for the intensive care unit (ICU) beds data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on healthcare infrastructure in Brazilian states."
+    columns:
+      - name: state_id
+        description: "Identifier for the Brazilian state, linking to the states dimension."
+        tests:
+          - unique
+          - not_null
+      - name: public_beds
+        description: "Number of public intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the public sector."
+      - name: private_beds
+        description: "Number of private intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the private sector."
+
+  - name: slv_int_ibge__states
+    description: "Intermediate model for the Brazilian states data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the states of Brazil."
+    columns:
+      - name: state_id
+        description: "Unique identifier for the Brazilian state, serving as the primary key for this model and linking to other models that reference states."
+        tests:
+          - unique
+          - not_null
+      - name: state_name
+        description: "Name of the Brazilian state, providing a human-readable identifier for the state."
+      - name: capital
+        description: "Capital city of the Brazilian state, providing additional context and information about the state."
+      - name: region
+        description: "Geographical region of Brazil where the state is located (e.g., North, Northeast, Central-West, Southeast, South), allowing for regional analysis and comparisons."
+      - name: area_km2
+        description: "Total area of the Brazilian state in square kilometers, providing information on the size of the state."
+      - name: population
+        description: "Total population of the Brazilian state, providing information on the number of inhabitants in the state."
+      - name: cities_number
+        description: "Number of cities within the Brazilian state, providing information on the administrative divisions within the state."
+      - name: gdp
+        description: "Gross Domestic Product (GDP) of the Brazilian state, providing information on the economic output of the state."
+      - name: gdp_world_share
+        description: "Share of the Brazilian state's GDP in relation to the total GDP of Brazil, providing information on the economic contribution of the state to the national economy."
+      - name: poverty_index
+        description: "Poverty index of the Brazilian state, indicating the level of poverty and economic hardship in the state."
+      - name: latitude
+        description: "Latitude coordinate of the Brazilian state, providing geographical information for mapping and spatial analysis."
+      - name: longitude
+        description: "Longitude coordinate of the Brazilian state, providing geographical information for mapping and spatial analysis."
+
+  - name: slv_int_olist__customers
+    description: "Intermediate model for the customers data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the customers of Olist."
+    columns:
+      - name: customer_id
+        description: "Unique identifier for the customer, serving as the primary key for this model and linking to other models that reference customers."
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "Zip code prefix of the customer's address, providing geographical information for potential analysis on customer distribution and regional trends."
+      - name: city
+        description: "City where the customer is located, providing geographical information for potential analysis on customer distribution and regional trends."
+      - name: state_id
+        description: "State where the customer is located, providing geographical information for potential analysis on customer distribution and regional trends."
+      - name: total_orders
+        description: "Total number of orders placed by the customer, providing a key metric for understanding customer behavior and value."
+
+  - name: slv_int_olist__orders
+    description: "Intermediate model for the orders data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the orders placed by customers of Olist."
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order, serving as the primary key for this model and linking to other models that reference orders."
+      - name: customer_id
+        description: "Identifier for the customer who placed the order, linking to the slv_int_olist__customers model to provide additional context and information about the customer who made the order."
+        tests:
+          - relationships:
+              to: ref('slv_int_olist__customers')
+              field: customer_id
+      - name: status
+        description: "Current status of the order (e.g., delivered, shipped, canceled), providing information on the state of the order in the fulfillment process."
+      - name: purchase_timestamp
+        description: "Timestamp of when the order was placed, providing information on the timing of customer purchases for potential analysis on purchasing patterns and seasonality."
+      - name: approved_at
+        description: "Timestamp of when the order was approved, providing information on the processing time of orders and potential delays in approval."
+      - name: delivered_carrier_date
+        description: "Timestamp of when the order was delivered to the carrier, providing information on the logistics and shipping process of orders."
+      - name: delivered_customer_date
+        description: "Timestamp of when the order was delivered to the customer, providing information on delivery times and customer satisfaction."
+      - name: estimated_delivery_date
+        description: "Estimated delivery date for the order, providing information on expected delivery times and potential delays."
+
+  - name: slv_int_olist__product_category
+    description: "Intermediate model for the product category names from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on product categories."
+    columns:
+      - name: local_name
+        description: "Original name of the product category as provided in the Olist staging data, serving as the primary key for this model and linking to other models that reference product categories."
+        tests:
+          - unique
+          - not_null
+      - name: english_name
+        description: "Translated name of the product category in English, providing a standardized and internationally understandable identifier for the category."
+      - name: business_area
+        description: "Business area or department to which the product category belongs, providing additional context and information about the category's role within the overall product catalog."
+  - name: slv_int_olist__geolocation
+    description: "Intermediate model for geolocation data, with corrected city names and associated zip codes."
+    columns:
+      - name: zip_code_prefix
+        description: "Zip code prefix associated with the geolocation."
+        tests:
+          - unique
+          - not_null
+      - name: latitude_mean
+        description: "Average latitude coordinate of the geolocation."
+      - name: longitude_mean
+        description: "Average longitude coordinate of the geolocation."
+      - name: city
+        description: "Final city name associated with the geolocation."
+      - name: state_id
+        description: "State identifier associated with the geolocation."
