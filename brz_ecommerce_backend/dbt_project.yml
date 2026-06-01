@@ -45,7 +45,7 @@ models:
         
       2_intermediate:
         +schema: silver_intermediate
-        +materialized: ephemeral
+        +materialized: view
 
     4_gold:
       +schema: gold
