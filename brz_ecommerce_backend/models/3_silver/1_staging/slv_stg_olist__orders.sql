@@ -11,7 +11,7 @@ WITH orders AS (
 ),
 orders_cleaned AS (
     SELECT trim(order_id) AS order_id,
-           trim(customer_id) AS customer_record_id,
+           trim(customer_id) AS customer_basket_id,
            CASE
              WHEN order_status == 'canceled' THEN 'cancelled'
              ELSE order_status
@@ -24,7 +24,7 @@ orders_cleaned AS (
     FROM orders
 )
 SELECT order_id,
-       customer_record_id,
+       customer_basket_id,
        upper(trim(status)) AS status,
        purchase_timestamp,
        approved_at,
