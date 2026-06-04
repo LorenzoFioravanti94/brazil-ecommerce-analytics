@@ -118,6 +118,7 @@ models:
         description: "Translated name of the product category in English, providing a standardized and internationally understandable identifier for the category."
       - name: business_area
         description: "Business area or department to which the product category belongs, providing additional context and information about the category's role within the overall product catalog."
+  
   - name: slv_int_olist__geolocation
     description: "Intermediate model for geolocation data, with corrected city names and associated zip codes."
     columns:
@@ -134,3 +135,68 @@ models:
         description: "Final city name associated with the geolocation."
       - name: state_id
         description: "State identifier associated with the geolocation."
+
+  - name: slv_int_olist__order_items
+    description: "Intermediate model for the order items data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the items included in each order placed by customers of Olist."
+    columns:
+      - name: order_item_id
+        description: "Unique identifier for the order item, serving as the primary key for this model and linking to other models that reference order items."
+        tests:
+            - unique
+            - not_null
+      - name: order_id
+        description: "Identifier for the order to which the item belongs, linking to the slv_int_olist__orders model to provide additional context and information about the order that includes this item."
+      - name: item_sequence_number
+        description: "Sequence number of the item within the order, indicating the position of the item in the list of items included in the order."
+      - name: product_id
+        description: "Identifier for the product included in the order item, linking to the slv_int_olist__products model to provide additional context and information about the product included in the order item."
+      - name: seller_id
+        description: "Identifier for the seller of the product included in the order item, linking to the slv_int_olist__sellers model to provide additional context and information about the seller of the product included in the order item."
+      - name: shipping_limit_date
+        description: "Date by which the order item must be shipped, providing information on the logistics and shipping process for the item."
+      - name: price
+        description: "Price of the order item, providing information on the cost of the item included in the order."
+      - name: freight_value
+        description: "Freight cost associated with the order item, providing information on the shipping cost for the item included in the order."
+      
+  - name: slv_int_olist__order_payments
+    description: "Intermediate model for the order payments data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the payments made for each order placed by customers of Olist."
+    columns:
+      - name: order_payment_id
+        description: "Unique identifier for the order payment, serving as the primary key for this model and linking to other models that reference order payments."
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Identifier for the order associated with the payment, linking to the slv_int_olist__orders model to provide additional context and information about the order for which the payment was made."
+      - name: sequence_number
+        description: "Sequential number of the payment for the order, indicating the order of payments made for the same order."
+      - name: type
+        description: "Type of payment used for the order (e.g., credit card, boleto, voucher), providing information on the payment methods preferred by customers."
+      - name: installments_count
+        description: "Number of installments for the payment, providing information on the payment terms chosen by customers."
+      - name: value
+        description: "Total value of the payment, providing information on the amount paid for the order."
+
+  - name: slv_int_olist__order_reviews
+    description: "Intermediate model for the order reviews data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the reviews provided by customers for their orders placed with Olist."
+    columns:
+      - name: order_review_id
+        description: "Uniquely identifies each review per order grain, as a single customer review can apply to multiple orders within the same transaction."
+        tests:
+          - unique
+          - not_null
+      - name: review_group_id
+        description: "Groups together all orders that shared and received the exact same review response from the customer."
+      - name: order_id
+        description: "Identifier for the order associated with the review, linking to the slv_int_olist__orders model to provide additional context and information about the order for which the review was made."
+      - name: score
+        description: "Score given by the customer in the review, typically on a scale from 1 to 5, providing information on customer satisfaction with their order."
+      - name: comment_title
+        description: "Title of the customer's comment in the review, providing a brief summary of the customer's feedback."
+      - name: comment_text
+        description: "Detailed message of the customer's comment in the review, providing more in-depth feedback from the customer about their experience with their order."
+      - name: creation_date
+        description: "Date when the review was created, providing information on when customers are providing feedback on their orders."
+      - name: review_answer_timestamp
+        description: "Timestamp of when the review was answered by Olist, providing information on the responsiveness of Olist to customer feedback and reviews."

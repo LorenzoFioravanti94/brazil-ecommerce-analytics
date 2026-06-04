@@ -7,8 +7,8 @@ WITH order_payments AS (
     FROM {{ ref('brz_olist__order_payments') }}
 )
 SELECT trim(order_id) AS order_id,
-       cast(payment_sequential AS INTEGER) AS sequential_order_id,
+       cast(payment_sequential AS INTEGER) AS sequence_number,
        lower(trim(payment_type)) AS type,
-       cast(payment_installments AS INTEGER) AS installments,
+       cast(payment_installments AS INTEGER) AS installments_count,
        payment_value AS value
 FROM order_payments

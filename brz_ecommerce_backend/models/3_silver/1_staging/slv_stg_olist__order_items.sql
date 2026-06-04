@@ -9,7 +9,7 @@ WITH order_items AS (
     FROM {{ ref('brz_olist__order_items') }}
 )
 SELECT trim(order_id) AS order_id,
-       cast(order_item_id AS INTEGER) AS order_item_id,
+       cast(order_item_id AS INTEGER) AS item_sequence_number,
        trim(product_id) AS product_id,
        trim(seller_id) AS seller_id,
        cast(shipping_limit_date AS TIMESTAMP) AS shipping_limit_date,
