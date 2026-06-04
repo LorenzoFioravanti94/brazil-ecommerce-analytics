@@ -45,7 +45,7 @@ models:
           - relationships:
               to: ref('slv_stg_olist__orders')
               field: order_id
-      - name: order_item_id
+      - name: item_sequence_number
         description: "Identifier for the specific item within an order."
       - name: product_id
         description: "Identifier for the product associated with the order item."
@@ -75,11 +75,11 @@ models:
           - relationships:
               to: ref('slv_stg_olist__orders')
               field: order_id
-      - name: sequential_order_id
+      - name: sequence_number
         description: "Sequential identifier for payments within an order."
       - name: type
         description: "Type of payment used for the order."
-      - name: installments
+      - name: installments_count
         description: "Number of installments for the payment."
       - name: value
         description: "Value of the payment for the order."
