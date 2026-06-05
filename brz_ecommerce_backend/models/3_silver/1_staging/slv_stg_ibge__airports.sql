@@ -1,3 +1,5 @@
+{{ config(materialized='ephemeral') }}
+
 WITH airports AS (
     SELECT
         UF,
