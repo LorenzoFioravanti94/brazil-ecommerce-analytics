@@ -5,7 +5,7 @@ sources:
     description: "Olist is a Brazilian e-commerce company that provides a platform for small and medium-sized businesses to sell their products online. The dataset includes information about customers, orders, products, and reviews."
     meta:
       source_url: "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce"
-    database: "{{ 'prod' if target.name == 'dev' else target.database }}"
+    database: "{{ target.database}}"                      #"{{ 'prod' if target.name == 'dev' else target.database }}"
     schema: raw_olist
     tables:
       - name: category_translation
