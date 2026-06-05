@@ -83,8 +83,7 @@ jobs:
         if: github.base_ref == 'develop'
         run: |
           dbt build \
-            --select "state:modified+" \
-            --defer \
+            --select "+state:modified+" "resource_type:seed" \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
