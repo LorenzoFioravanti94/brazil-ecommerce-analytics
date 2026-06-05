@@ -1,3 +1,5 @@
+{{ config(materialized='ephemeral') }}
+
 WITH customers AS (
     SELECT customer_id,
            customer_unique_id,
