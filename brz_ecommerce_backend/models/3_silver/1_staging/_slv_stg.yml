@@ -43,22 +43,25 @@ models:
         description: "Identifier for the order associated with the order item."
         tests:
           - relationships:
-              to: ref('slv_stg_olist__orders')
-              field: order_id
+              arguments:
+                to: ref('slv_stg_olist__orders')
+                field: order_id
       - name: item_sequence_number
         description: "Identifier for the specific item within an order."
       - name: product_id
         description: "Identifier for the product associated with the order item."
         tests:
           - relationships:
-              to: ref('slv_stg_olist__products')
-              field: product_id
+              arguments:
+                to: ref('slv_stg_olist__products')
+                field: product_id
       - name: seller_id
         description: "Identifier for the seller associated with the order item."
         tests:
           - relationships:
-              to: ref('slv_stg_olist__sellers')
-              field: seller_id
+              arguments:
+                to: ref('slv_stg_olist__sellers')
+                field: seller_id
       - name: shipping_limit_date
         description: "Date by which the order item must be shipped."
       - name: price
@@ -73,8 +76,9 @@ models:
         description: "Identifier for the order associated with the payment." 
         tests:
           - relationships:
-              to: ref('slv_stg_olist__orders')
-              field: order_id
+              arguments:
+                to: ref('slv_stg_olist__orders')
+                field: order_id
       - name: sequence_number
         description: "Sequential identifier for payments within an order."
       - name: type
@@ -93,8 +97,9 @@ models:
         description: "Identifier for the order associated with the review."
         tests:
           - relationships:
-              to: ref('slv_stg_olist__orders')
-              field: order_id
+              arguments:
+                to: ref('slv_stg_olist__orders')
+                field: order_id
       - name: score
         description: "Score given in the review, typically on a scale (e.g., 1 to 5)."
       - name: comment_title
@@ -114,8 +119,9 @@ models:
         description: "Identifier for the customer who placed the order."
         tests:
           - relationships:
-              to: ref('slv_stg_olist__customers')
-              field: customer_basket_id
+              arguments:
+                to: ref('slv_stg_olist__customers')
+                field: customer_basket_id
       - name: status
         description: "Current status of the order (e.g., delivered, shipped, canceled)."
       - name: purchase_timestamp
@@ -137,8 +143,9 @@ models:
         description: "Name of the product category associated with the product."
         tests:
           - relationships:
-              to: ref('slv_int_olist__product_category') # the test points the Intermediate layer because 'product_category' table needed an extra step before applying the relationships test.
-              field: local_name
+              arguments:
+                to: ref('slv_int_olist__product_category') # the test points the Intermediate layer because 'product_category' table needed an extra step before applying the relationships test.
+                field: local_name
       - name: name_lenght
         description: "Length of the product name."
       - name: description_lenght
