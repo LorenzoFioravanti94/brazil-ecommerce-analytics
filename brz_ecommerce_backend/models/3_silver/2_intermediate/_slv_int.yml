@@ -91,8 +91,9 @@ models:
         description: "Identifier for the customer who placed the order, linking to the slv_int_olist__customers model to provide additional context and information about the customer who made the order."
         tests:
           - relationships:
-              to: ref('slv_int_olist__customers')
-              field: customer_id
+              arguments:
+                to: ref('slv_int_olist__customers')
+                field: customer_id
       - name: status
         description: "Current status of the order (e.g., delivered, shipped, canceled), providing information on the state of the order in the fulfillment process."
       - name: purchase_timestamp
