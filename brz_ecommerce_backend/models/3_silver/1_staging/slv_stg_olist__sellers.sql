@@ -1,3 +1,5 @@
+{{ config(materialized='ephemeral') }}
+
 WITH sellers AS (
     SELECT seller_id,
            seller_zip_code_prefix,
