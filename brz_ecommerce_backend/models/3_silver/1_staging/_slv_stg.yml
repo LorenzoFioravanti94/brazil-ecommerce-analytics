@@ -181,32 +181,28 @@ models:
   - name: slv_stg_ibge__human_development_index
     description: "Staging model for IBGE human development"
     tests:
-      - assert_hdi_mean_consistency:
-          description: "Test to validate the consistency of the Human Development Index (HDI) mean values with its components (education, wealth, health) for the year 2017."
+      - test_mean_consistency:
           arguments:
             hdi: hdi_2017
             hdi_education: hdi_education_2017
             hdi_wealth: hdi_wealth_2017
             hdi_health: hdi_health_2017
             tolerance: 0.1
-      - assert_hdi_mean_consistency:
-          description: "Test to validate the consistency of the Human Development Index (HDI) mean values with its components (education, wealth, health) for the year 2010."
+      - test_mean_consistency:
           arguments:
             hdi: hdi_2010
             hdi_education: hdi_education_2010
             hdi_wealth: hdi_wealth_2010
             hdi_health: hdi_health_2010
             tolerance: 0.1
-      - assert_hdi_mean_consistency:
-          description: "Test to validate the consistency of the Human Development Index (HDI) mean values with its components (education, wealth, health) for the year 2000."
+      - test_mean_consistency:
           arguments:
             hdi: hdi_2000
             hdi_education: hdi_education_2000
             hdi_wealth: hdi_wealth_2000
             hdi_health: hdi_health_2000
             tolerance: 0.1
-      - assert_hdi_mean_consistency:
-          description: "Test to validate the consistency of the Human Development Index (HDI) mean values with its components (education, wealth, health) for the year 1991."
+      - test_mean_consistency:
           arguments:
             hdi: hdi_1991
             hdi_education: hdi_education_1991
