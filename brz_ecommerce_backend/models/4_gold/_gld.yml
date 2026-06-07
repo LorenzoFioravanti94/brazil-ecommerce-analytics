@@ -46,3 +46,23 @@ models:
                         values:
                             - TRUE
                             - FALSE
+
+    - name: dim_hdi
+      description: "Dimension table for Human Development Index (HDI) data, including attributes such as country, education index, wealth index, and health index for the year 2017."
+      columns:
+        - name: state_id
+          description: "The ID of the state."
+          tests:
+            - unique
+            - not_null
+            #- relationships:
+             #   arguments:
+              #      to: ref('dim_states')
+               #     field: state_id
+        - name: education_index
+          description: "The education index for the state in 2017."
+        - name: wealth_index
+          description: "The wealth index for the state in 2017."
+        - name: health_index
+          description: "The health index for the state in 2017."
+          
