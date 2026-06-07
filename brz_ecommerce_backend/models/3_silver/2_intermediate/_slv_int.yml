@@ -87,6 +87,9 @@ models:
     columns:
       - name: order_id
         description: "Unique identifier for the order, serving as the primary key for this model and linking to other models that reference orders."
+        tests:
+          - unique
+          - not_null
       - name: customer_id
         description: "Identifier for the customer who placed the order, linking to the slv_int_olist__customers model to provide additional context and information about the customer who made the order."
         tests:
@@ -117,6 +120,8 @@ models:
           - not_null
       - name: english_name
         description: "Translated name of the product category in English, providing a standardized and internationally understandable identifier for the category."
+        tests:
+          - not_null
       - name: business_area
         description: "Business area or department to which the product category belongs, providing additional context and information about the category's role within the overall product catalog."
   
@@ -174,6 +179,15 @@ models:
         description: "Sequential number of the payment for the order, indicating the order of payments made for the same order."
       - name: type
         description: "Type of payment used for the order (e.g., credit card, boleto, voucher), providing information on the payment methods preferred by customers."
+        tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - credit_card
+                  - boleto
+                  - voucher
+                  - debit_card
+                  - not_defined
       - name: installments_count
         description: "Number of installments for the payment, providing information on the payment terms chosen by customers."
       - name: value
@@ -201,3 +215,18 @@ models:
         description: "Date when the review was created, providing information on when customers are providing feedback on their orders."
       - name: review_answer_timestamp
         description: "Timestamp of when the review was answered by Olist, providing information on the responsiveness of Olist to customer feedback and reviews."
+
+  - name: slv_int_olist__sellers
+    description: "Intermediate model for the sellers data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the sellers who offer products on the Olist platform."
+    columns:
+      - name: seller_id
+        description: "Unique identifier for the seller, serving as the primary key for this model and linking to other models that reference sellers."
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "Zip code prefix of the seller's address, providing geographical information for potential analysis on seller distribution and regional trends."
+      - name: city
+        description: "City where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."
+      - name: state_id
+        description: "State where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."

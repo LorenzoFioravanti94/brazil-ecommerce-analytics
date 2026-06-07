@@ -6,7 +6,7 @@
 -- - dataset precision
 --
 -- The test fails when the absolute difference exceeds 0.05.
-{% test assert_hdi_mean_consistency(model, hdi, hdi_education, hdi_wealth, hdi_health, tolerance=0.05) %}
+{% test test_mean_consistency(model, hdi, hdi_education, hdi_wealth, hdi_health, tolerance=0.05) %}
 
 WITH mean_comparison AS (
     SELECT
