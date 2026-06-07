@@ -1,5 +1,5 @@
 WITH source AS (
-    {{ dbt_date.get_date_dimension('2016-09-01', '2018-10-31') }}
+    {{ dbt_date.get_date_dimension('2016-09-01', '2020-05-01') }}
 ),
 dates AS (
     SELECT
