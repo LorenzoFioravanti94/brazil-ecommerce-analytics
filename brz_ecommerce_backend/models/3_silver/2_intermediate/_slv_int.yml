@@ -87,6 +87,9 @@ models:
     columns:
       - name: order_id
         description: "Unique identifier for the order, serving as the primary key for this model and linking to other models that reference orders."
+        tests:
+          - unique
+          - not_null
       - name: customer_id
         description: "Identifier for the customer who placed the order, linking to the slv_int_olist__customers model to provide additional context and information about the customer who made the order."
         tests:
@@ -176,6 +179,15 @@ models:
         description: "Sequential number of the payment for the order, indicating the order of payments made for the same order."
       - name: type
         description: "Type of payment used for the order (e.g., credit card, boleto, voucher), providing information on the payment methods preferred by customers."
+        tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - credit_card
+                  - boleto
+                  - voucher
+                  - debit_card
+                  - not_defined
       - name: installments_count
         description: "Number of installments for the payment, providing information on the payment terms chosen by customers."
       - name: value
