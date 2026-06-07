@@ -201,3 +201,18 @@ models:
         description: "Date when the review was created, providing information on when customers are providing feedback on their orders."
       - name: review_answer_timestamp
         description: "Timestamp of when the review was answered by Olist, providing information on the responsiveness of Olist to customer feedback and reviews."
+
+  - name: slv_int_olist__sellers
+    description: "Intermediate model for the sellers data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the sellers who offer products on the Olist platform."
+    columns:
+      - name: seller_id
+        description: "Unique identifier for the seller, serving as the primary key for this model and linking to other models that reference sellers."
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "Zip code prefix of the seller's address, providing geographical information for potential analysis on seller distribution and regional trends."
+      - name: city
+        description: "City where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."
+      - name: state_id
+        description: "State where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."

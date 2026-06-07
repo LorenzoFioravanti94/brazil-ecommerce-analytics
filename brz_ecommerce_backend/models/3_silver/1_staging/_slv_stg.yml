@@ -169,7 +169,7 @@ models:
         description: "Zip code prefix of the seller's location."
       - name: city
         description: "City where the seller is located."
-      - name: state
+      - name: state_id
         description: "State where the seller is located."
   - name: slv_stg_ibge__airports
     description: "Staging model for IBGE airport data, with cleaned and standardized location information."
