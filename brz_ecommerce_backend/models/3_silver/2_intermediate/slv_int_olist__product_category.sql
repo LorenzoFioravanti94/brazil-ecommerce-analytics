@@ -19,6 +19,7 @@ final AS (
         local_name,
         CASE
             WHEN local_name = 'pc_gamer' THEN 'pc_gamer'
+            WHEN local_name = 'portateis_cozinha_e_preparadores_de_alimentos' THEN 'small_kitchen_appliances_and_food_processors'
             ELSE english_name
         END AS english_name,
         business_area
