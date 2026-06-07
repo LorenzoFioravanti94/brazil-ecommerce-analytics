@@ -12,6 +12,8 @@ models:
             - unique
         - name: year
           description: "The year (e.g., 2024)."
+          tests:
+            - not_null
         - name: quarter
           description: "The quarter of the year (Q1, Q2, Q3, Q4)."
         - name: month
@@ -28,5 +30,19 @@ models:
           description: "The name of the day of the week (e.g., Monday, Tuesday)."
         - name: is_weekend
           description: "Boolean indicating whether the date falls on a weekend."
+          tests:
+            - not_null
+            - accepted_values:
+                    arguments:
+                        values:
+                            - TRUE
+                            - FALSE
         - name: is_holiday_brazil
           description: "Boolean indicating whether the date is a holiday in Brazil."
+          tests:
+            - not_null
+            - accepted_values:
+                    arguments:
+                        values:
+                            - TRUE
+                            - FALSE
