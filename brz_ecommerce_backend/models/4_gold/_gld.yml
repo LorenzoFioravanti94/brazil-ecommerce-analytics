@@ -65,4 +65,20 @@ models:
           description: "The wealth index for the state in 2017."
         - name: health_index
           description: "The health index for the state in 2017."
-          
+
+    - name: dim_icu_beds
+      description: "ICU bed availability per Brazilian state, sourced from IBGE data. Covers both public (SUS) and private facilities. Used in dim_states to enrich the socioeconomic profile of each state."
+      columns:
+        - name: state_id
+          description: "The ID of the state."
+          tests:
+            - unique
+            - not_null
+            #- relationships:
+             #   arguments:
+              #      to: ref('dim_states')
+               #     field: state_id
+        - name: public_beds
+          description: "Number of ICU beds available in public facilities (SUS) in the state."
+        - name: private_beds
+          description: "Number of ICU beds available in private facilities in the state."
