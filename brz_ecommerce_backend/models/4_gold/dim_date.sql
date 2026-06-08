@@ -1,3 +1,15 @@
+-- `always_build` tag — Slim CI requirement:
+-- dim_date is a standalone date dimension (no upstream project models), so
+-- `state:modified+` never selects it. The fact tables' relationship tests
+-- reference it, and Slim CI builds only the selected subgraph in a fresh DB.
+-- This tag forces dim_date to always be built, so those tests do not fail on a
+-- missing table. Consumed by the Slim CI selector in .github/workflows/ci.yml.
+{{
+    config(
+        tags=['always_build']
+    )
+}}
+
 WITH source AS (
     {{ dbt_date.get_date_dimension('2016-09-01', '2020-05-01') }}
 ),

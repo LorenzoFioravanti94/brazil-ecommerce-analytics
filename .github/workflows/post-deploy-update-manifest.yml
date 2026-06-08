@@ -26,7 +26,11 @@ jobs:
           token: ${{ secrets.MANIFEST_PAT }}
 
       - name: Install dependencies
-        run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1
+        # duckdb is pinned (dbt-duckdb only requires >=1.0.0): a newer duckdb
+        # injects the `javascript` language into the `function` materialization,
+        # producing a manifest that dbt-core 1.11.8 cannot read back as state.
+        # This must match the version used by Slim CI and prod for round-tripping.
+        run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1 duckdb==1.0.0
 
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
@@ -34,22 +38,28 @@ jobs:
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
+          # This manifest is ONLY consumed as the Slim CI comparison state, and
+          # Slim CI runs with --target test. The reference must therefore be
+          # parsed with the SAME target/profile (identical duckdb path => same
+          # database name "test"), otherwise every source's relation differs by
+          # database name (prod vs test) and state:modified flags ALL sources,
+          # cascading state:modified+ onto the whole DAG. Must match ci.yml.
           cat > ~/.dbt/profiles.yml << 'EOF'
           brz_ecommerce_backend:
-            target: prod
+            target: test
             outputs:
-              prod:
+              test:
                 type: duckdb
-                # dbt parse non ha bisogno del db fisico,
-                # ma il path deve essere valido sintatticamente
-                path: /tmp/prod.duckdb
-                threads: 4
+                # dbt parse needs no physical DB, but the path must be valid and
+                # its stem must match ci.yml so the database name aligns.
+                path: /tmp/test.duckdb
+                threads: 2
           EOF
 
       - name: Generate manifest from main (dbt parse — no DB needed)
         run: |
           dbt parse \
-            --target prod \
+            --target test \
             --project-dir brz_ecommerce_backend
 
       - name: Update persistent_state
@@ -69,5 +79,8 @@ jobs:
             echo "No changes to manifest — skipping commit"
           else
             git commit -m "chore(ci): update persistent_state manifest"
+            # Rebase onto any commits that landed on main since checkout,
+            # otherwise a concurrent push leaves the manifest stale with no retry.
+            git pull --rebase origin main
             git push origin main
           fi
