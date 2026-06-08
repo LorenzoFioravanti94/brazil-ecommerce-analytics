@@ -69,5 +69,8 @@ jobs:
             echo "No changes to manifest — skipping commit"
           else
             git commit -m "chore(ci): update persistent_state manifest"
+            # Rebase onto any commits that landed on main since checkout,
+            # otherwise a concurrent push leaves the manifest stale with no retry.
+            git pull --rebase origin main
             git push origin main
           fi
