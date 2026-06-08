@@ -18,9 +18,14 @@ jobs:
           # Pin manifest-affecting transitive deps to keep manifest hashing
           # byte-compatible with the prod manifest in persistent_state/.
           # A drift here is what silently breaks state:modified selection.
+          # NOTE: duckdb is pinned because dbt-duckdb only requires duckdb>=1.0.0.
+          # A newer duckdb makes the `function` materialization advertise the
+          # `javascript` language, which dbt-core 1.11.8 cannot read back from
+          # the comparison manifest (InvalidFieldValue) — breaking Slim CI.
           pip install \
             dbt-core==1.11.8 \
             dbt-duckdb==1.10.1 \
+            duckdb==1.0.0 \
             dbt-adapters==1.22.10 \
             dbt-common==1.37.3 \
             dbt-extractor==0.6.0 \
@@ -97,9 +102,14 @@ jobs:
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
+          # IMPORTANT: dbt resolves --state RELATIVE TO --project-dir, not to the
+          # working dir. persistent_state/ lives in the repo root (outside the dbt
+          # project), so an absolute path is required — a bare "persistent_state"
+          # would be looked up under brz_ecommerce_backend/ and fail with
+          # "no comparison manifest".
           dbt build \
             --select state:modified+ resource_type:seed \
-            --state persistent_state \
+            --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
 
