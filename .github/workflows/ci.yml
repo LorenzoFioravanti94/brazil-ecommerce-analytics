@@ -107,8 +107,12 @@ jobs:
           # project), so an absolute path is required — a bare "persistent_state"
           # would be looked up under brz_ecommerce_backend/ and fail with
           # "no comparison manifest".
+          # tag:always_build pulls in standalone models (e.g. dim_date) that
+          # state:modified+ never selects but whose tables are referenced by
+          # selected relationship tests — without --defer (no prod DB in CI)
+          # they must be built here or those tests fail on a missing table.
           dbt build \
-            --select state:modified+ resource_type:seed \
+            --select state:modified+ tag:always_build resource_type:seed \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
