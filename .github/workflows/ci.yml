@@ -69,21 +69,21 @@ jobs:
         if: github.base_ref == 'develop'
         run: |
           git fetch origin main
-          git checkout origin/main -- persistent_state/manifest.json
+          git checkout origin/main -- brz_ecommerce_backend
 
-      - name: Check persistent_state exists (Slim CI guard)
-        if: github.base_ref == 'develop'
-        run: |
-          if [ ! -f ${{ github.workspace }}/persistent_state/manifest.json ]; then
-            echo "ERROR: persistent_state/manifest.json not found."
-            exit 1
-          fi
+          dbt parse \
+            --project-dir brz_ecommerce_backend \
+            --target test
+
+          mkdir -p persistent_state
+          cp target/manifest.json persistent_state/manifest.json
+
 
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
           dbt build \
-            --select +state:modified+ resource_type:seed \
+            --select state:modified+ resource_type:seed \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
