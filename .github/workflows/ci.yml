@@ -9,28 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Default fetch-depth (1) is enough: no step reads git history, and the
+      # prod manifest is fetched explicitly from origin/main further below.
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Install dependencies
-        run: |
-          # Pin manifest-affecting transitive deps to keep manifest hashing
-          # byte-compatible with the prod manifest in persistent_state/.
-          # A drift here is what silently breaks state:modified selection.
-          # NOTE: duckdb is pinned because dbt-duckdb only requires duckdb>=1.0.0.
-          # A newer duckdb makes the `function` materialization advertise the
-          # `javascript` language, which dbt-core 1.11.8 cannot read back from
-          # the comparison manifest (InvalidFieldValue) — breaking Slim CI.
-          pip install \
-            dbt-core==1.11.8 \
-            dbt-duckdb==1.10.1 \
-            duckdb==1.0.0 \
-            dbt-adapters==1.22.10 \
-            dbt-common==1.37.3 \
-            dbt-extractor==0.6.0 \
-            dbt-semantic-interfaces==0.9.0 \
-            kaggle
+        # dbt pins live in requirements-dbt.txt (shared with post-deploy) to
+        # keep the manifest byte-compatible with the prod comparison state.
+        # kaggle is CI-only (raw data ingestion) and installed alongside.
+        run: pip install -r requirements-dbt.txt kaggle
 
       - name: Verify dbt version (guard against silent version skew)
         run: |
@@ -48,10 +35,8 @@ jobs:
           chmod 600 ~/.kaggle/access_token
 
       - name: Download datasets
+        # `kaggle ... -p <dir>` creates the target directory itself.
         run: |
-          mkdir -p data/raw/olist
-          mkdir -p data/raw/ibge
-
           kaggle datasets download \
             -d olistbr/brazilian-ecommerce \
             -p data/raw/olist \
@@ -79,9 +64,6 @@ jobs:
                 path: /tmp/test.duckdb
                 threads: 2
           EOF
-
-      - name: Debug dbt
-        run: dbt debug --project-dir brz_ecommerce_backend
 
       # ==============================
       # 🔄 FETCH PROD REFERENCE STATE
