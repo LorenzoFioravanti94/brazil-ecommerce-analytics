@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Update persistent dbt manifest
 
-    # Esegui solo se dagster-cd ha avuto successo
+    # Run only if dagster-cd succeeded.
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     permissions:
       contents: write
 
     steps:
-      # checkout esplicito di main (non del commit SHA dell'evento)
+      # Check out main explicitly (not the event's commit SHA).
       - uses: actions/checkout@v6
         with:
           ref: main
@@ -26,11 +26,9 @@ jobs:
           token: ${{ secrets.MANIFEST_PAT }}
 
       - name: Install dependencies
-        # duckdb is pinned (dbt-duckdb only requires >=1.0.0): a newer duckdb
-        # injects the `javascript` language into the `function` materialization,
-        # producing a manifest that dbt-core 1.11.8 cannot read back as state.
-        # This must match the version used by Slim CI and prod for round-tripping.
-        run: pip install dbt-core==1.11.8 dbt-duckdb==1.10.1 duckdb==1.0.0
+        # Shared dbt pins (incl. duckdb==1.0.0) — must match Slim CI so the
+        # reference manifest round-trips. See requirements-dbt.txt.
+        run: pip install -r requirements-dbt.txt
 
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
