@@ -60,6 +60,18 @@ jobs:
             --target test \
             --project-dir brz_ecommerce_backend
 
+      - name: Guard against an unreadable reference manifest
+        # dbt-core's ModelLanguage enum is {sql, python}; a duckdb other than
+        # 1.0.0 advertises 'javascript' on the function materialization, which
+        # cannot be read back from --state and breaks every Slim CI run that
+        # loads this manifest. Fail loudly here instead of committing a poisoned
+        # reference to main. See requirements-dbt.txt (duckdb==1.0.0).
+        run: |
+          if grep -q '"javascript"' brz_ecommerce_backend/target/manifest.json; then
+            echo "ERROR: generated manifest contains 'javascript' — duckdb is not pinned to 1.0.0"
+            exit 1
+          fi
+
       - name: Update persistent_state
         run: |
           mkdir -p ${{ github.workspace }}/persistent_state
