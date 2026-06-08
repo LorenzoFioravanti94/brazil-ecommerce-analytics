@@ -47,7 +47,7 @@ models:
                             - TRUE
                             - FALSE
 
-    - name: dim_socioeconomics
+    - name: dim_socio_economics
       description: "Dimension table for socioeconomic indicators of Brazilian states"
       columns:
         - name: state_id

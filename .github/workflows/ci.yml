@@ -15,10 +15,28 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Pin manifest-affecting transitive deps to keep manifest hashing
+          # byte-compatible with the prod manifest in persistent_state/.
+          # A drift here is what silently breaks state:modified selection.
+          # NOTE: duckdb is pinned because dbt-duckdb only requires duckdb>=1.0.0.
+          # A newer duckdb makes the `function` materialization advertise the
+          # `javascript` language, which dbt-core 1.11.8 cannot read back from
+          # the comparison manifest (InvalidFieldValue) — breaking Slim CI.
           pip install \
             dbt-core==1.11.8 \
             dbt-duckdb==1.10.1 \
+            duckdb==1.0.0 \
+            dbt-adapters==1.22.10 \
+            dbt-common==1.37.3 \
+            dbt-extractor==0.6.0 \
+            dbt-semantic-interfaces==0.9.0 \
             kaggle
+
+      - name: Verify dbt version (guard against silent version skew)
+        run: |
+          # Fail loudly if the installed dbt-core differs from the version
+          # that produced the prod manifest — never fall back to "select all".
+          python -c "import dbt.version as v; assert v.__version__ == '1.11.8', f'dbt-core is {v.__version__}, expected 1.11.8'"
 
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
@@ -65,29 +83,49 @@ jobs:
       - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      - name: Fetch manifest from main
+      # ==============================
+      # 🔄 FETCH PROD REFERENCE STATE
+      # ==============================
+      - name: Fetch prod manifest from main (Slim CI reference state)
         if: github.base_ref == 'develop'
         run: |
-          git fetch origin main
+          # The Slim CI state must be the PROD manifest (what is already
+          # deployed on main), NOT the current branch. Overwrite only this
+          # single file from origin/main, leaving the PR's model code intact,
+          # so state:modified compares the feature branch against production.
+          git fetch origin main --depth=1
           git checkout origin/main -- persistent_state/manifest.json
 
-      - name: Check persistent_state exists (Slim CI guard)
-        if: github.base_ref == 'develop'
-        run: |
-          if [ ! -f ${{ github.workspace }}/persistent_state/manifest.json ]; then
-            echo "ERROR: persistent_state/manifest.json not found."
-            exit 1
-          fi
-
+      # ==============================
+      # 🚀 SLIM CI RUN
+      # ==============================
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
+          # Slim CI without --defer (no prod DB is reachable from CI), so the
+          # fresh DB must contain everything the selected nodes touch:
+          #   • LEADING + on state:modified -> build the ANCESTORS of changed
+          #     nodes, so modified models (e.g. facts that read silver) and the
+          #     models behind modified tests can actually be built here.
+          #   • NO trailing + -> do not graph-select downstream tests that would
+          #     reference unbuilt star-schema dimensions (facts FK every dim, and
+          #     dims are not ancestors of facts, so they would never be built).
+          #   • --indirect-selection cautious -> attach a test only when ALL the
+          #     models it references are in the build set; cross-dimension FK
+          #     tests are skipped here and covered by Full CI on develop -> main.
+          #   • tag:always_build -> force standalone models like dim_date.
+          # IMPORTANT: --state is resolved RELATIVE TO --project-dir, so the
+          # repo-root persistent_state/ needs an ABSOLUTE path here.
           dbt build \
-            --select "+state:modified+" "resource_type:seed" \
+            --select +state:modified tag:always_build resource_type:seed \
+            --indirect-selection cautious \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
 
+      # ==============================
+      # 🚀 FULL CI
+      # ==============================
       - name: Run dbt (Full CI — PR towards main)
         if: github.base_ref == 'main'
         run: |
