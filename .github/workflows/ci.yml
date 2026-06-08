@@ -15,10 +15,23 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Pin manifest-affecting transitive deps to keep manifest hashing
+          # byte-compatible with the prod manifest in persistent_state/.
+          # A drift here is what silently breaks state:modified selection.
           pip install \
             dbt-core==1.11.8 \
             dbt-duckdb==1.10.1 \
+            dbt-adapters==1.22.10 \
+            dbt-common==1.37.3 \
+            dbt-extractor==0.6.0 \
+            dbt-semantic-interfaces==0.9.0 \
             kaggle
+
+      - name: Verify dbt version (guard against silent version skew)
+        run: |
+          # Fail loudly if the installed dbt-core differs from the version
+          # that produced the prod manifest — never fall back to "select all".
+          python -c "import dbt.version as v; assert v.__version__ == '1.11.8', f'dbt-core is {v.__version__}, expected 1.11.8'"
 
       - name: Install dbt packages
         run: dbt deps --project-dir brz_ecommerce_backend
@@ -66,21 +79,17 @@ jobs:
         run: dbt debug --project-dir brz_ecommerce_backend
 
       # ==============================
-      # 🔥 CLEAN SLIM CI STATE (SAFE)
+      # 🔄 FETCH PROD REFERENCE STATE
       # ==============================
-      - name: Build state for Slim CI (develop only)
+      - name: Fetch prod manifest from main (Slim CI reference state)
         if: github.base_ref == 'develop'
         run: |
-          mkdir -p persistent_state
-
-          # 👉 IMPORTANT: NON mescolare repo state
-          # usiamo SOLO il branch corrente (no checkout di main)
-
-          dbt parse \
-            --project-dir brz_ecommerce_backend \
-            --target test
-
-          cp brz_ecommerce_backend/target/manifest.json persistent_state/manifest.json
+          # The Slim CI state must be the PROD manifest (what is already
+          # deployed on main), NOT the current branch. Overwrite only this
+          # single file from origin/main, leaving the PR's model code intact,
+          # so state:modified compares the feature branch against production.
+          git fetch origin main --depth=1
+          git checkout origin/main -- persistent_state/manifest.json
 
       # ==============================
       # 🚀 SLIM CI RUN
