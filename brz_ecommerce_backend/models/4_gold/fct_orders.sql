@@ -1,3 +1,5 @@
+{{ config(materialized='incremental') }}
+
 WITH orders AS (
     SELECT
         order_id,
