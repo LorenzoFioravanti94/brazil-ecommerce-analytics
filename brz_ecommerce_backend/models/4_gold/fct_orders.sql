@@ -1,3 +1,8 @@
+{{ config(
+    materialized='incremental',
+    unique_key='order_id'
+) }}
+
 WITH orders AS (
     SELECT
         order_id,
@@ -94,3 +99,10 @@ final AS (
 )
 SELECT *
 FROM final
+{% if is_incremental() %}
+  -- Process only new or recently updated records using a 3-day lookback window
+  WHERE approved_at >= (
+      SELECT {{ dbt.dateadd(datepart='day', interval=-3, from_date_or_timestamp='MAX(approved_at)') }} 
+      FROM {{ this }}
+  )
+{% endif %}
