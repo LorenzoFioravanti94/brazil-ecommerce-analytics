@@ -1,4 +1,7 @@
-{{ config(materialized='incremental') }}
+{{ config(
+    materialized='incremental',
+    unique_key='order_item_id'
+) }}
 
 WITH order_items AS (
     SELECT
@@ -31,3 +34,10 @@ final AS (
 )
 SELECT *
 FROM final
+{% if is_incremental() %}
+  -- Filter for new or recently updated records using a 3-day lookback window
+  WHERE shipping_date_id >= (
+      SELECT {{ dbt.dateadd(datepart='day', interval=-3, from_date_or_timestamp='MAX(shipping_date_id)') }} 
+      FROM {{ this }}
+  )
+{% endif %}
