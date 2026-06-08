@@ -1,15 +1,16 @@
 from dagster import AssetExecutionContext, Config
 from dagster_dbt import DbtCliResource, dbt_assets
-from pathlib import Path
 
-DBT_PROJECT_DIR = (
-    Path(__file__).parent.parent.parent.parent.parent / "brz_ecommerce_backend"  # <project_name>
-)
+from .resources import dbt_project
+
 
 class DbtConfig(Config):
-    full_refresh: bool = False    # default: incremental run
+    full_refresh: bool = False  # default: incremental run
 
-@dbt_assets(manifest=DBT_PROJECT_DIR / "target" / "manifest.json")
+
+# Manifest path comes from the shared DbtProject, so it always reflects the
+# manifest prepare_if_dev() (re)generates at code-location load time.
+@dbt_assets(manifest=dbt_project.manifest_path)
 def brz_ecommerce_assets(context: AssetExecutionContext, dbt: DbtCliResource, config: DbtConfig):  # <project_name>_assets
     dbt_args = ["build"]
     if config.full_refresh:
