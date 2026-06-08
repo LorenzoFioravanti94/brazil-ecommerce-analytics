@@ -65,29 +65,38 @@ jobs:
       - name: Debug dbt
         run: dbt debug --project-dir brz_ecommerce_backend
 
-      - name: Fetch manifest from main
+      # ==============================
+      # 🔥 CLEAN SLIM CI STATE (SAFE)
+      # ==============================
+      - name: Build state for Slim CI (develop only)
         if: github.base_ref == 'develop'
         run: |
-          git fetch origin main
-          git checkout origin/main -- brz_ecommerce_backend
+          mkdir -p persistent_state
+
+          # 👉 IMPORTANT: NON mescolare repo state
+          # usiamo SOLO il branch corrente (no checkout di main)
 
           dbt parse \
             --project-dir brz_ecommerce_backend \
             --target test
 
-          mkdir -p persistent_state
-          cp target/manifest.json persistent_state/manifest.json
+          cp brz_ecommerce_backend/target/manifest.json persistent_state/manifest.json
 
-
+      # ==============================
+      # 🚀 SLIM CI RUN
+      # ==============================
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
           dbt build \
             --select state:modified+ resource_type:seed \
-            --state ${{ github.workspace }}/persistent_state \
+            --state persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
 
+      # ==============================
+      # 🚀 FULL CI
+      # ==============================
       - name: Run dbt (Full CI — PR towards main)
         if: github.base_ref == 'main'
         run: |
