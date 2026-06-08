@@ -102,17 +102,23 @@ jobs:
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
-          # IMPORTANT: dbt resolves --state RELATIVE TO --project-dir, not to the
-          # working dir. persistent_state/ lives in the repo root (outside the dbt
-          # project), so an absolute path is required — a bare "persistent_state"
-          # would be looked up under brz_ecommerce_backend/ and fail with
-          # "no comparison manifest".
-          # tag:always_build pulls in standalone models (e.g. dim_date) that
-          # state:modified+ never selects but whose tables are referenced by
-          # selected relationship tests — without --defer (no prod DB in CI)
-          # they must be built here or those tests fail on a missing table.
+          # Slim CI without --defer (no prod DB is reachable from CI), so the
+          # fresh DB must contain everything the selected nodes touch:
+          #   • LEADING + on state:modified -> build the ANCESTORS of changed
+          #     nodes, so modified models (e.g. facts that read silver) and the
+          #     models behind modified tests can actually be built here.
+          #   • NO trailing + -> do not graph-select downstream tests that would
+          #     reference unbuilt star-schema dimensions (facts FK every dim, and
+          #     dims are not ancestors of facts, so they would never be built).
+          #   • --indirect-selection cautious -> attach a test only when ALL the
+          #     models it references are in the build set; cross-dimension FK
+          #     tests are skipped here and covered by Full CI on develop -> main.
+          #   • tag:always_build -> force standalone models like dim_date.
+          # IMPORTANT: --state is resolved RELATIVE TO --project-dir, so the
+          # repo-root persistent_state/ needs an ABSOLUTE path here.
           dbt build \
-            --select state:modified+ tag:always_build resource_type:seed \
+            --select +state:modified tag:always_build resource_type:seed \
+            --indirect-selection cautious \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir brz_ecommerce_backend
