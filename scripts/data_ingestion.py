@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
+
 import duckdb
 
 # ---------------------------------------------------------------------------
-# DB path selection — driven by DBT_TARGET env var
-# Locally DBT_TARGET is not set → defaults to "dev"
-# In CI the workflow sets DBT_TARGET=test
+# DB path selection — driven by the DBT_TARGET env var.
+# Locally DBT_TARGET is unset -> defaults to "dev"; CI sets DBT_TARGET=test.
 # ---------------------------------------------------------------------------
-REPO_ROOT = Path(__file__).parent.parent  # scripts/ → repo root
+REPO_ROOT = Path(__file__).parent.parent  # scripts/ -> repo root
 TARGET = os.environ.get("DBT_TARGET", "dev")
 
 DB_PATHS = {
@@ -19,20 +19,12 @@ DB_PATHS = {
 if TARGET not in DB_PATHS:
     raise ValueError(f"Unknown DBT_TARGET: '{TARGET}'. Must be one of: {list(DB_PATHS)}")
 
-DB_PATH   = DB_PATHS[TARGET]
+DB_PATH = DB_PATHS[TARGET]
 OLIST_PATH = REPO_ROOT / "data/raw/olist"
-IBGE_PATH  = REPO_ROOT / "data/raw/ibge"
+IBGE_PATH = REPO_ROOT / "data/raw/ibge"
 
-print(f"[ingestion] target={TARGET}  db={DB_PATH}")
-
-con = duckdb.connect(str(DB_PATH))
-con.execute("CREATE SCHEMA IF NOT EXISTS raw_olist")
-con.execute("CREATE SCHEMA IF NOT EXISTS raw_ibge")
-
-# ---------------------------------------------------------------------------
-# Olist tables
-# ---------------------------------------------------------------------------
-olist_tables = {
+# Raw source CSVs grouped by destination schema (logical table name -> filename).
+OLIST_TABLES = {
     "orders":               "olist_orders_dataset.csv",
     "order_items":          "olist_order_items_dataset.csv",
     "order_payments":       "olist_order_payments_dataset.csv",
@@ -44,37 +36,40 @@ olist_tables = {
     "category_translation": "product_category_name_translation.csv",
 }
 
-print("\n=== OLIST INGESTION ===")
-for table_name, filename in olist_tables.items():
-    filepath = OLIST_PATH / filename
-    if not filepath.exists():
-        raise FileNotFoundError(f"Missing file: {filepath}")
-    con.execute(f"""
-        CREATE OR REPLACE TABLE raw_olist.{table_name} AS
-        SELECT * FROM read_csv_auto('{filepath}')
-    """)
-    print(f"  ✔ raw_olist.{table_name}")
-
-# ---------------------------------------------------------------------------
-# IBGE tables
-# ---------------------------------------------------------------------------
-ibge_tables = {
+IBGE_TABLES = {
     "airports": "airports.csv",
     "hdi":      "hdi.csv",
     "icu_beds": "icu-beds.csv",
     "states":   "states.csv",
 }
 
-print("\n=== IBGE INGESTION ===")
-for table_name, filename in ibge_tables.items():
-    filepath = IBGE_PATH / filename
-    if not filepath.exists():
-        raise FileNotFoundError(f"Missing file: {filepath}")
-    con.execute(f"""
-        CREATE OR REPLACE TABLE raw_ibge.{table_name} AS
-        SELECT * FROM read_csv_auto('{filepath}')
-    """)
-    print(f"  ✔ raw_ibge.{table_name}")
 
-con.close()
-print("\n✅ All raw tables loaded successfully.")
+def load_csvs(con, schema: str, base_path: Path, tables: dict[str, str]) -> None:
+    """Load each CSV into `schema` as a CREATE OR REPLACE TABLE (idempotent)."""
+    con.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
+    for table_name, filename in tables.items():
+        filepath = base_path / filename
+        if not filepath.exists():
+            raise FileNotFoundError(f"Missing file: {filepath}")
+        con.execute(
+            f"CREATE OR REPLACE TABLE {schema}.{table_name} AS "
+            f"SELECT * FROM read_csv_auto('{filepath}')"
+        )
+        print(f"  loaded {schema}.{table_name}")
+
+
+def main() -> None:
+    print(f"[ingestion] target={TARGET}  db={DB_PATH}")
+    con = duckdb.connect(str(DB_PATH))
+    try:
+        print("\n=== OLIST INGESTION ===")
+        load_csvs(con, "raw_olist", OLIST_PATH, OLIST_TABLES)
+        print("\n=== IBGE INGESTION ===")
+        load_csvs(con, "raw_ibge", IBGE_PATH, IBGE_TABLES)
+    finally:
+        con.close()
+    print("\nAll raw tables loaded successfully.")
+
+
+if __name__ == "__main__":
+    main()

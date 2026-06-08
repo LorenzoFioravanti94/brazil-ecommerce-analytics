@@ -1,0 +1,14 @@
+# dbt runtime for CI and the post-deploy manifest refresh.
+# These exact pins keep the parsed manifest byte-compatible with the prod
+# manifest used as the Slim CI comparison state; a drift here silently breaks
+# state:modified selection.
+# duckdb is pinned because dbt-duckdb only requires duckdb>=1.0.0: a newer
+# duckdb makes the `function` materialization advertise the `javascript`
+# language, which dbt-core 1.11.8 cannot read back from the manifest.
+dbt-core==1.11.8
+dbt-duckdb==1.10.1
+duckdb==1.0.0
+dbt-adapters==1.22.10
+dbt-common==1.37.3
+dbt-extractor==0.6.0
+dbt-semantic-interfaces==0.9.0
