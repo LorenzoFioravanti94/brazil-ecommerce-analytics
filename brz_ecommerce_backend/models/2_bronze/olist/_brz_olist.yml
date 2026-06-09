@@ -1,30 +1,27 @@
-version: 2
-
 models:
-
   - name: brz_olist__category_translation
-    description: "Mirrored model for category translation source table."
+    description: 1:1 bronze mirror of the olist category_translation source.
 
   - name: brz_olist__customers
-    description: "Mirrored model for customers source table."
+    description: 1:1 bronze mirror of the olist customers source.
 
   - name: brz_olist__geolocation
-    description: "Mirrored model for geolocation source table."
+    description: 1:1 bronze mirror of the olist geolocation source.
 
   - name: brz_olist__order_items
-    description: "Mirrored model for order items source table."
+    description: 1:1 bronze mirror of the olist order_items source.
 
   - name: brz_olist__order_payments
-    description: "Mirrored model for order payments source table."
+    description: 1:1 bronze mirror of the olist order_payments source.
 
   - name: brz_olist__order_reviews
-    description: "Mirrored model for order reviews source table."
+    description: 1:1 bronze mirror of the olist order_reviews source.
 
   - name: brz_olist__orders
-    description: "Mirrored model for orders source table."
+    description: 1:1 bronze mirror of the olist orders source.
 
   - name: brz_olist__products
-    description: "Mirrored model for products source table."
+    description: 1:1 bronze mirror of the olist products source.
 
   - name: brz_olist__sellers
-    description: "Mirrored model for sellers source table."
+    description: 1:1 bronze mirror of the olist sellers source.
