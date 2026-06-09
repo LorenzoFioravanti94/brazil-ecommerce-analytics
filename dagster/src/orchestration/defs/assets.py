@@ -11,7 +11,7 @@ class DbtConfig(Config):
 # Manifest path comes from the shared DbtProject, so it always reflects the
 # manifest prepare_if_dev() (re)generates at code-location load time.
 @dbt_assets(manifest=dbt_project.manifest_path)
-def warehouse_assets(context: AssetExecutionContext, dbt: DbtCliResource, config: DbtConfig):  # <project_name>_assets
+def warehouse_assets(context: AssetExecutionContext, dbt: DbtCliResource, config: DbtConfig):
     dbt_args = ["build"]
     if config.full_refresh:
         dbt_args += ["--full-refresh"]
