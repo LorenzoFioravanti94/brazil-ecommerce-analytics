@@ -4,7 +4,7 @@ warehouse/dbt_packages/
 warehouse/logs/
 
 # ─── DAGSTER ───────────────────────────────────────────────────────────────────
-orchestration/.dg/
+dagster/.dg/
 .tmp_dagster_home*/
 
 # ─── DATA ──────────────────────────────────────────────────────────────────────
