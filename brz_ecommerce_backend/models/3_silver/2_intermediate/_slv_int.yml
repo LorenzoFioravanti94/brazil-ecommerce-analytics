@@ -1,184 +1,181 @@
-version: 2
-
 models:
-
   - name: slv_int_ibge__human_development_index
-    description: "Intermediate model for the Human Development Index (HDI) data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset."
+    description: Analysis-ready Human Development Index, cleaned and reshaped from staging.
     columns:
       - name: hdi_id
-        description: "Surrogate key for the HDI record, generated from the combination of state_id and year."
+        description: Surrogate key built from state_id and year.
         tests:
           - unique
           - not_null
       - name: state_id
-        description: "Identifier for the Brazilian state, linking to the states dimension."
+        description: "{{ doc('state_abbreviation') }}"
       - name: education_index
-        description: "Education component of the Human Development Index, representing the level of education in the state."
+        description: Education component of the HDI for the state.
       - name: wealth_index
-        description: "Wealth component of the Human Development Index, representing the economic well-being of the state."
+        description: Wealth component of the HDI for the state.
       - name: health_index
-        description: "Health component of the Human Development Index, representing the life expectancy and health conditions in the state."
+        description: Health component of the HDI for the state.
       - name: year
-        description: "Year of the HDI measurement, indicating the time period for the data."
+        description: Census year of the HDI measurement.
 
   - name: slv_int_ibge__intensive_care_unit_beds
-    description: "Intermediate model for the intensive care unit (ICU) beds data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on healthcare infrastructure in Brazilian states."
+    description: Analysis-ready ICU bed capacity per state, cleaned from staging.
     columns:
       - name: state_id
-        description: "Identifier for the Brazilian state, linking to the states dimension."
+        description: "{{ doc('state_abbreviation') }}"
         tests:
           - unique
           - not_null
       - name: public_beds
-        description: "Number of public intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the public sector."
+        description: Public ICU beds per 10,000 citizens in the state.
       - name: private_beds
-        description: "Number of private intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the private sector."
+        description: Private ICU beds per 10,000 citizens in the state.
 
   - name: slv_int_ibge__states
-    description: "Intermediate model for the Brazilian states data from IBGE, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the states of Brazil."
+    description: Analysis-ready Brazilian state attributes, cleaned from staging.
     columns:
       - name: state_id
-        description: "Unique identifier for the Brazilian state, serving as the primary key for this model and linking to other models that reference states."
+        description: "{{ doc('state_abbreviation') }}"
         tests:
           - unique
           - not_null
       - name: state_name
-        description: "Name of the Brazilian state, providing a human-readable identifier for the state."
+        description: Full name of the state.
       - name: capital
-        description: "Capital city of the Brazilian state, providing additional context and information about the state."
+        description: Capital city of the state.
       - name: region
-        description: "Geographical region of Brazil where the state is located (e.g., North, Northeast, Central-West, Southeast, South), allowing for regional analysis and comparisons."
+        description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
       - name: area_km2
-        description: "Total area of the Brazilian state in square kilometers, providing information on the size of the state."
+        description: Total area of the state in square kilometers.
       - name: population
-        description: "Total population of the Brazilian state, providing information on the number of inhabitants in the state."
+        description: Total population of the state.
       - name: cities_number
-        description: "Number of cities within the Brazilian state, providing information on the administrative divisions within the state."
+        description: Number of cities in the state.
       - name: gdp
-        description: "Gross Domestic Product (GDP) of the Brazilian state, providing information on the economic output of the state."
+        description: Gross Domestic Product of the state.
       - name: gdp_world_share
-        description: "Share of the Brazilian state's GDP in relation to the total GDP of Brazil, providing information on the economic contribution of the state to the national economy."
+        description: Share of the state's GDP in Brazil's total GDP.
       - name: poverty_index
-        description: "Poverty index of the Brazilian state, indicating the level of poverty and economic hardship in the state."
+        description: Share of the state's population living below the poverty line.
       - name: latitude
-        description: "Latitude coordinate of the Brazilian state, providing geographical information for mapping and spatial analysis."
+        description: Latitude coordinate of the state.
       - name: longitude
-        description: "Longitude coordinate of the Brazilian state, providing geographical information for mapping and spatial analysis."
+        description: Longitude coordinate of the state.
 
   - name: slv_int_olist__customers
-    description: "Intermediate model for the customers data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the customers of Olist."
+    description: Analysis-ready customers with order counts, cleaned from staging.
     columns:
       - name: customer_id
-        description: "Unique identifier for the customer, serving as the primary key for this model and linking to other models that reference customers."
+        description: "{{ doc('customer_unique_id') }}"
         tests:
           - unique
           - not_null
       - name: zip_code_prefix
-        description: "Zip code prefix of the customer's address, providing geographical information for potential analysis on customer distribution and regional trends."
+        description: "{{ doc('zip_code_prefix') }}"
       - name: city
-        description: "City where the customer is located, providing geographical information for potential analysis on customer distribution and regional trends."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State where the customer is located, providing geographical information for potential analysis on customer distribution and regional trends."
+        description: "{{ doc('state_abbreviation') }}"
       - name: total_orders
-        description: "Total number of orders placed by the customer, providing a key metric for understanding customer behavior and value."
+        description: Total number of orders placed by the customer.
 
   - name: slv_int_olist__orders
-    description: "Intermediate model for the orders data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the orders placed by customers of Olist."
+    description: Analysis-ready orders, cleaned from staging.
     columns:
       - name: order_id
-        description: "Unique identifier for the order, serving as the primary key for this model and linking to other models that reference orders."
+        description: "{{ doc('order_id') }}"
         tests:
           - unique
           - not_null
       - name: customer_id
-        description: "Identifier for the customer who placed the order, linking to the slv_int_olist__customers model to provide additional context and information about the customer who made the order."
+        description: "{{ doc('customer_unique_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_int_olist__customers')
                 field: customer_id
       - name: status
-        description: "Current status of the order (e.g., delivered, shipped, canceled), providing information on the state of the order in the fulfillment process."
+        description: Current status of the order in the fulfillment process.
       - name: purchase_timestamp
-        description: "Timestamp of when the order was placed, providing information on the timing of customer purchases for potential analysis on purchasing patterns and seasonality."
+        description: Timestamp the order was placed.
       - name: approved_at
-        description: "Timestamp of when the order was approved, providing information on the processing time of orders and potential delays in approval."
+        description: Timestamp the order was approved.
       - name: delivered_carrier_date
-        description: "Timestamp of when the order was delivered to the carrier, providing information on the logistics and shipping process of orders."
+        description: Date the order was handed to the carrier.
       - name: delivered_customer_date
-        description: "Timestamp of when the order was delivered to the customer, providing information on delivery times and customer satisfaction."
+        description: Date the order was delivered to the customer.
       - name: estimated_delivery_date
-        description: "Estimated delivery date for the order, providing information on expected delivery times and potential delays."
+        description: Estimated delivery date for the order.
 
   - name: slv_int_olist__product_category
-    description: "Intermediate model for the product category names from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on product categories."
+    description: Analysis-ready product categories with business areas, cleaned from staging.
     columns:
       - name: local_name
-        description: "Original name of the product category as provided in the Olist staging data, serving as the primary key for this model and linking to other models that reference product categories."
+        description: Product category name in Portuguese.
         tests:
           - unique
           - not_null
       - name: english_name
-        description: "Translated name of the product category in English, providing a standardized and internationally understandable identifier for the category."
+        description: Product category name in English.
         tests:
           - not_null
       - name: business_area
-        description: "Business area or department to which the product category belongs, providing additional context and information about the category's role within the overall product catalog."
-  
+        description: Business area the product category belongs to.
+
   - name: slv_int_olist__geolocation
-    description: "Intermediate model for geolocation data, with corrected city names and associated zip codes."
+    description: Analysis-ready geolocation with corrected city names and averaged coordinates.
     columns:
       - name: zip_code_prefix
-        description: "Zip code prefix associated with the geolocation."
+        description: "{{ doc('zip_code_prefix') }}"
         tests:
           - unique
           - not_null
       - name: latitude_mean
-        description: "Average latitude coordinate of the geolocation."
+        description: Average latitude coordinate for the zip code prefix.
       - name: longitude_mean
-        description: "Average longitude coordinate of the geolocation."
+        description: Average longitude coordinate for the zip code prefix.
       - name: city
-        description: "Final city name associated with the geolocation."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State identifier associated with the geolocation."
+        description: "{{ doc('state_abbreviation') }}"
 
   - name: slv_int_olist__order_items
-    description: "Intermediate model for the order items data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the items included in each order placed by customers of Olist."
+    description: Analysis-ready order items, cleaned from staging.
     columns:
       - name: order_item_id
-        description: "Unique identifier for the order item, serving as the primary key for this model and linking to other models that reference order items."
-        tests:
-            - unique
-            - not_null
-      - name: order_id
-        description: "Identifier for the order to which the item belongs, linking to the slv_int_olist__orders model to provide additional context and information about the order that includes this item."
-      - name: item_sequence_number
-        description: "Sequence number of the item within the order, indicating the position of the item in the list of items included in the order."
-      - name: product_id
-        description: "Identifier for the product included in the order item, linking to the slv_int_olist__products model to provide additional context and information about the product included in the order item."
-      - name: seller_id
-        description: "Identifier for the seller of the product included in the order item, linking to the slv_int_olist__sellers model to provide additional context and information about the seller of the product included in the order item."
-      - name: shipping_limit_date
-        description: "Date by which the order item must be shipped, providing information on the logistics and shipping process for the item."
-      - name: price
-        description: "Price of the order item, providing information on the cost of the item included in the order."
-      - name: freight_value
-        description: "Freight cost associated with the order item, providing information on the shipping cost for the item included in the order."
-      
-  - name: slv_int_olist__order_payments
-    description: "Intermediate model for the order payments data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the payments made for each order placed by customers of Olist."
-    columns:
-      - name: order_payment_id
-        description: "Unique identifier for the order payment, serving as the primary key for this model and linking to other models that reference order payments."
+        description: Surrogate key for the order item.
         tests:
           - unique
           - not_null
       - name: order_id
-        description: "Identifier for the order associated with the payment, linking to the slv_int_olist__orders model to provide additional context and information about the order for which the payment was made."
+        description: "{{ doc('order_id') }}"
+      - name: item_sequence_number
+        description: Sequence number of the item within the order.
+      - name: product_id
+        description: "{{ doc('product_id') }}"
+      - name: seller_id
+        description: "{{ doc('seller_id') }}"
+      - name: shipping_limit_date
+        description: Deadline for the seller to ship the item.
+      - name: price
+        description: Price of the item.
+      - name: freight_value
+        description: Freight cost charged for the item.
+
+  - name: slv_int_olist__order_payments
+    description: Analysis-ready order payments, cleaned from staging.
+    columns:
+      - name: order_payment_id
+        description: Surrogate key for the order payment.
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "{{ doc('order_id') }}"
       - name: sequence_number
-        description: "Sequential number of the payment for the order, indicating the order of payments made for the same order."
+        description: Sequence number of the payment within the order.
       - name: type
-        description: "Type of payment used for the order (e.g., credit card, boleto, voucher), providing information on the payment methods preferred by customers."
+        description: Payment method used for the order.
         tests:
           - accepted_values:
               arguments:
@@ -189,44 +186,44 @@ models:
                   - debit_card
                   - not_defined
       - name: installments_count
-        description: "Number of installments for the payment, providing information on the payment terms chosen by customers."
+        description: Number of installments for the payment.
       - name: value
-        description: "Total value of the payment, providing information on the amount paid for the order."
+        description: Total value of the payment.
 
   - name: slv_int_olist__order_reviews
-    description: "Intermediate model for the order reviews data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the reviews provided by customers for their orders placed with Olist."
+    description: Analysis-ready order reviews, deduplicated to a stable per-order grain.
     columns:
       - name: order_review_id
-        description: "Uniquely identifies each review per order grain, as a single customer review can apply to multiple orders within the same transaction."
+        description: Identifies each review at the order grain; one customer review can span multiple orders in the same transaction.
         tests:
           - unique
           - not_null
       - name: review_group_id
-        description: "Groups together all orders that shared and received the exact same review response from the customer."
+        description: Groups the orders that shared the same customer review.
       - name: order_id
-        description: "Identifier for the order associated with the review, linking to the slv_int_olist__orders model to provide additional context and information about the order for which the review was made."
+        description: "{{ doc('order_id') }}"
       - name: score
-        description: "Score given by the customer in the review, typically on a scale from 1 to 5, providing information on customer satisfaction with their order."
+        description: Score given by the customer, from 1 to 5.
       - name: comment_title
-        description: "Title of the customer's comment in the review, providing a brief summary of the customer's feedback."
+        description: Title of the customer's review comment.
       - name: comment_text
-        description: "Detailed message of the customer's comment in the review, providing more in-depth feedback from the customer about their experience with their order."
+        description: Body of the customer's review comment.
       - name: creation_date
-        description: "Date when the review was created, providing information on when customers are providing feedback on their orders."
+        description: Date the review was created.
       - name: review_answer_timestamp
-        description: "Timestamp of when the review was answered by Olist, providing information on the responsiveness of Olist to customer feedback and reviews."
+        description: Timestamp the review was answered.
 
   - name: slv_int_olist__sellers
-    description: "Intermediate model for the sellers data from Olist, combining and cleaning the original staging data to create a more structured and analysis-ready dataset on the sellers who offer products on the Olist platform."
+    description: Analysis-ready sellers, cleaned from staging.
     columns:
       - name: seller_id
-        description: "Unique identifier for the seller, serving as the primary key for this model and linking to other models that reference sellers."
+        description: "{{ doc('seller_id') }}"
         tests:
           - unique
           - not_null
       - name: zip_code_prefix
-        description: "Zip code prefix of the seller's address, providing geographical information for potential analysis on seller distribution and regional trends."
+        description: "{{ doc('zip_code_prefix') }}"
       - name: city
-        description: "City where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State where the seller is located, providing geographical information for potential analysis on seller distribution and regional trends."
+        description: "{{ doc('state_abbreviation') }}"
