@@ -1,185 +1,191 @@
-version: 2
-
 models:
-
   - name: slv_stg_olist__product_category
-    description: "Staging model for product category, with cleaned and trimmed names."
+    description: Cleaned product category names, trimmed and standardized.
     columns:
       - name: local_name
-        description: "Name of the product category, cleaned and standardized."
+        description: Product category name in Portuguese.
       - name: english_name
-        description: "English translation of the product category name, cleaned and standardized."
+        description: Product category name in English.
 
   - name: slv_stg_olist__customers
-    description: "Staging model for customers, with cleaned and standardized data."
+    description: Cleaned and standardized customers.
     columns:
       - name: customer_basket_id
-        description: "Technical identifier for a customer record. May not be stable across multiple customer accounts."
+        description: "{{ doc('customer_record_id') }}"
       - name: customer_id
-        description: "Stable business identifier representing the unique customer."
+        description: "{{ doc('customer_unique_id') }}"
       - name: zip_code_prefix
-        description: "Zip code prefix of the customer's location."
+        description: "{{ doc('zip_code_prefix') }}"
       - name: city
-        description: "City where the customer is located."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State where the customer is located."
+        description: "{{ doc('state_abbreviation') }}"
+
   - name: slv_stg_olist__geolocation
-    description: "Staging model for geolocation data, with cleaned and standardized location information."
+    description: Cleaned and standardized geolocation reference data.
     columns:
       - name: zip_code_prefix
-        description: "Zip code prefix associated with the geolocation."
+        description: "{{ doc('zip_code_prefix') }}"
       - name: latitude
-        description: "Latitude coordinate of the geolocation."
+        description: Latitude coordinate.
       - name: longitude
-        description: "Longitude coordinate of the geolocation."
+        description: Longitude coordinate.
       - name: city
-        description: "City associated with the geolocation."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State associated with the geolocation."   
+        description: "{{ doc('state_abbreviation') }}"
+
   - name: slv_stg_olist__order_items
-    description: "Staging model for order items, with cleaned and standardized data."
+    description: Cleaned and standardized order items.
     columns:
       - name: order_id
-        description: "Identifier for the order associated with the order item."
+        description: "{{ doc('order_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
                 field: order_id
       - name: item_sequence_number
-        description: "Identifier for the specific item within an order."
+        description: Sequence number of the item within the order.
       - name: product_id
-        description: "Identifier for the product associated with the order item."
+        description: "{{ doc('product_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__products')
                 field: product_id
       - name: seller_id
-        description: "Identifier for the seller associated with the order item."
+        description: "{{ doc('seller_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__sellers')
                 field: seller_id
       - name: shipping_limit_date
-        description: "Date by which the order item must be shipped."
+        description: Deadline for the seller to ship the item.
       - name: price
-        description: "Price of the order item."
+        description: Price of the item.
       - name: freight_value
-        description: "Freight value for the order item."
+        description: Freight cost charged for the item.
 
   - name: slv_stg_olist__order_payments
-    description: "Staging model for order payments, with cleaned and standardized data."
+    description: Cleaned and standardized order payments.
     columns:
       - name: order_id
-        description: "Identifier for the order associated with the payment." 
+        description: "{{ doc('order_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
                 field: order_id
       - name: sequence_number
-        description: "Sequential identifier for payments within an order."
+        description: Sequence number of the payment within the order.
       - name: type
-        description: "Type of payment used for the order."
+        description: Payment method used (e.g. credit card or boleto).
       - name: installments_count
-        description: "Number of installments for the payment."
+        description: Number of installments for the payment.
       - name: value
-        description: "Value of the payment for the order."
-  
+        description: Total value of the payment.
+
   - name: slv_stg_olist__order_reviews
-    description: "Staging model for order reviews, with cleaned and standardized data."
+    description: Cleaned and standardized order reviews.
     columns:
       - name: review_id
-        description: "Identifier for the review associated with an order."
+        description: Identifier of a review.
       - name: order_id
-        description: "Identifier for the order associated with the review."
+        description: "{{ doc('order_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
                 field: order_id
       - name: score
-        description: "Score given in the review, typically on a scale (e.g., 1 to 5)."
+        description: Score given by the customer, from 1 to 5.
       - name: comment_title
-        description: "Title of the review comment provided by the customer."
+        description: Title of the customer's review comment.
       - name: comment_text
-        description: "Text content of the review comment provided by the customer."
+        description: Body of the customer's review comment.
       - name: creation_date
-        description: "Date when the review was created."
+        description: Date the review was created.
       - name: answer_timestamp
-        description: "Timestamp when the review was answered by the seller or platform."
+        description: Timestamp the review was answered.
+
   - name: slv_stg_olist__orders
-    description: "Staging model for orders, with cleaned and standardized data."
+    description: Cleaned and standardized orders.
     columns:
       - name: order_id
-        description: "Identifier for the order."
+        description: "{{ doc('order_id') }}"
       - name: customer_basket_id
-        description: "Identifier for the customer who placed the order."
+        description: "{{ doc('customer_record_id') }}"
         tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__customers')
                 field: customer_basket_id
       - name: status
-        description: "Current status of the order (e.g., delivered, shipped, canceled)."
+        description: Current status of the order in the fulfillment process.
       - name: purchase_timestamp
-        description: "Timestamp when the order was placed."
+        description: Timestamp the order was placed.
       - name: approved_at
-        description: "Timestamp when the order was approved."
+        description: Timestamp the order was approved.
       - name: delivered_carrier_date
-        description: "Date when the order was delivered to the carrier."
+        description: Date the order was handed to the carrier.
       - name: delivered_customer_date
-        description: "Date when the order was delivered to the customer."
+        description: Date the order was delivered to the customer.
       - name: estimated_delivery_date
-        description: "Estimated date for the order delivery."
+        description: Estimated delivery date for the order.
+
   - name: slv_stg_olist__products
-    description: "Staging model for products, with cleaned and standardized data."
+    description: Cleaned and standardized products.
     columns:
       - name: product_id
-        description: "Identifier for the product."
+        description: "{{ doc('product_id') }}"
       - name: local_category_name
-        description: "Name of the product category associated with the product."
+        description: Product category name in Portuguese.
         tests:
+          # Points to the intermediate layer: product_category needs an extra
+          # step before the relationships test can be applied.
           - relationships:
               arguments:
-                to: ref('slv_int_olist__product_category') # the test points the Intermediate layer because 'product_category' table needed an extra step before applying the relationships test.
+                to: ref('slv_int_olist__product_category')
                 field: local_name
       - name: name_lenght
-        description: "Length of the product name."
+        description: Character length of the product name.
       - name: description_lenght
-        description: "Length of the product description."
+        description: Character length of the product description.
       - name: photos_qty
-        description: "Quantity of photos available for the product."
+        description: Number of photos available for the product.
       - name: weight_g
-        description: "Weight of the product in grams."
+        description: Weight of the product in grams.
       - name: length_cm
-        description: "Length of the product in centimeters."
+        description: Length of the product in centimeters.
       - name: height_cm
-        description: "Height of the product in centimeters."
+        description: Height of the product in centimeters.
       - name: width_cm
-        description: "Width of the product in centimeters."
+        description: Width of the product in centimeters.
+
   - name: slv_stg_olist__sellers
-    description: "Staging model for sellers, with cleaned and standardized data."
+    description: Cleaned and standardized sellers.
     columns:
       - name: seller_id
-        description: "Identifier for the seller."
+        description: "{{ doc('seller_id') }}"
       - name: zip_code_prefix
-        description: "Zip code prefix of the seller's location."
+        description: "{{ doc('zip_code_prefix') }}"
       - name: city
-        description: "City where the seller is located."
+        description: "{{ doc('city_name') }}"
       - name: state_id
-        description: "State where the seller is located."
+        description: "{{ doc('state_abbreviation') }}"
+
   - name: slv_stg_ibge__airports
-    description: "Staging model for IBGE airport data, with cleaned and standardized location information."
+    description: Cleaned and standardized IBGE airport data.
     columns:
       - name: state_id
-        description: "State where the airport is located."
+        description: "{{ doc('state_abbreviation') }}"
       - name: passengers_rate
-        description: "Passenger rate associated with the airport."
+        description: Normalized rate of airport passengers in the state.
+
   - name: slv_stg_ibge__human_development_index
-    description: "Staging model for IBGE human development"
+    description: Cleaned and standardized IBGE Human Development Index data.
     tests:
       - test_mean_consistency:
           arguments:
@@ -211,44 +217,45 @@ models:
             tolerance: 0.1
     columns:
       - name: state_id
-        description: "State for which the human development index is calculated."
+        description: "{{ doc('state_abbreviation') }}"
       - name: hdi_2017
-        description: "Human Development Index (HDI) for the year 2017, representing the overall development level of the state."
+        description: Overall HDI for the state in 2017.
       - name: hdi_education_2017
-        description: "Education component of the Human Development Index (HDI) for the year 2017, reflecting the educational attainment and quality in the state."
+        description: Education component of the HDI for the state in 2017.
       - name: hdi_wealth_2017
-        description: "Wealth component of the Human Development Index (HDI) for the year 2017, indicating the economic prosperity and income levels in the state."
+        description: Wealth component of the HDI for the state in 2017.
       - name: hdi_health_2017
-        description: "Health component of the Human Development Index (HDI) for the year 2017, measuring the life expectancy and overall health conditions in the state."
+        description: Health component of the HDI for the state in 2017.
       - name: hdi_2010
-        description: "Human Development Index (HDI) for the year 2010, representing the overall development level of the state."
+        description: Overall HDI for the state in 2010.
       - name: hdi_education_2010
-        description: "Education component of the Human Development Index (HDI) for the year 2010, reflecting the educational attainment and quality in the state."
+        description: Education component of the HDI for the state in 2010.
       - name: hdi_wealth_2010
-        description: "Wealth component of the Human Development Index (HDI) for the year 2010, indicating the economic prosperity and income levels in the state."
+        description: Wealth component of the HDI for the state in 2010.
       - name: hdi_health_2010
-        description: "Health component of the Human Development Index (HDI) for the year 2010, measuring the life expectancy and overall health conditions in the state."
+        description: Health component of the HDI for the state in 2010.
       - name: hdi_2000
-        description: "Human Development Index (HDI) for the year 2000, representing the overall development level of the state."
+        description: Overall HDI for the state in 2000.
       - name: hdi_education_2000
-        description: "Education component of the Human Development Index (HDI) for the year 2000, reflecting the educational attainment and quality in the state."
+        description: Education component of the HDI for the state in 2000.
       - name: hdi_wealth_2000
-        description: "Wealth component of the Human Development Index (HDI) for the year 2000, indicating the economic prosperity and income levels in the state."
+        description: Wealth component of the HDI for the state in 2000.
       - name: hdi_health_2000
-        description: "Health component of the Human Development Index (HDI) for the year 2000, measuring the life expectancy and overall health conditions in the state."
+        description: Health component of the HDI for the state in 2000.
       - name: hdi_1991
-        description: "Human Development Index (HDI) for the year 1991, representing the overall development level of the state."
+        description: Overall HDI for the state in 1991.
       - name: hdi_education_1991
-        description: "Education component of the Human Development Index (HDI) for the year 1991, reflecting the educational attainment and quality in the state."
+        description: Education component of the HDI for the state in 1991.
       - name: hdi_wealth_1991
-        description: "Wealth component of the Human Development Index (HDI) for the year 1991, indicating the economic prosperity and income levels in the state."
+        description: Wealth component of the HDI for the state in 1991.
       - name: hdi_health_1991
-        description: "Health component of the Human Development Index (HDI) for the year 1991, measuring the life expectancy and overall health conditions in the state."
+        description: Health component of the HDI for the state in 1991.
+
   - name: slv_stg_ibge__intensive_care_unit_beds
-    description: "Staging model for IBGE intensive care unit (ICU) beds data, with cleaned and standardized information on healthcare infrastructure."
+    description: Cleaned and standardized IBGE ICU bed data.
     tests:
       - test_ratio_consistency:
-          description: "Test to validate the consistency of the `public_beds_per_10k_citizens` metric with the total number of public beds and population for each state."
+          description: Validates public_beds_per_10k_citizens against total public beds and state population.
           arguments:
             numerator: public_beds
             denominator: population
@@ -257,7 +264,7 @@ models:
             join_to: slv_stg_ibge__states
             join_on: state_id
       - test_ratio_consistency:
-          description: "Test to validate the consistency of the `private_beds_per_10k_citizens` metric with the total number of private beds and population for each state."
+          description: Validates private_beds_per_10k_citizens against total private beds and state population.
           arguments:
             numerator: private_beds
             denominator: population
@@ -267,51 +274,51 @@ models:
             join_on: state_id
     columns:
       - name: state_id
-        description: "State for which the intensive care unit (ICU) beds data is recorded."
+        description: "{{ doc('state_abbreviation') }}"
       - name: icu_beds
-        description: "Number of intensive care unit (ICU) beds available in the state, indicating the healthcare infrastructure capacity."
+        description: Total number of ICU beds in the state.
       - name: public_beds
-        description: "Number of public intensive care unit (ICU) beds available in the state, indicating the healthcare infrastructure capacity in the public sector."
+        description: Number of public ICU beds in the state.
       - name: private_beds
-        description: "Number of private intensive care unit (ICU) beds available in the state, indicating the healthcare infrastructure capacity in the private sector."
+        description: Number of private ICU beds in the state.
       - name: public_beds_per_10k_citizens
-        description: "Number of public intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the public sector."
+        description: Public ICU beds per 10,000 citizens in the state.
       - name: private_beds_per_10k_citizens
-        description: "Number of private intensive care unit (ICU) beds available per 10,000 citizens in the state, indicating the accessibility of healthcare services in the private sector."
+        description: Private ICU beds per 10,000 citizens in the state.
+
   - name: slv_stg_ibge__states
-    description: "Staging model for IBGE states data, with cleaned and standardized information on Brazilian states."
+    description: Cleaned and standardized IBGE state data.
     tests:
       - test_ratio_consistency:
-          description: "Test to validate the consistency of the `demographic_density_per_km2` metric with the population and area of each state."
+          description: Validates demographic_density_per_km2 against state population and area.
           arguments:
             numerator: population
             denominator: area_km2
             given_ratio: demographic_density_per_km2
     columns:
       - name: state_id
-        description: "Identifier for the Brazilian state."
+        description: "{{ doc('state_abbreviation') }}"
       - name: state_name
-        description: "Full name of the Brazilian state."
+        description: Full name of the state.
       - name: capital
-        description: "Capital city of the Brazilian state."
+        description: Capital city of the state.
       - name: region
-        description: "Geographical region of Brazil to which the state belongs (e.g., North, Northeast, Southeast, South, Central-West)."
+        description: Region of Brazil the state belongs to (e.g. North, Northeast, Southeast, South, Central-West).
       - name: area_km2
-        description: "Total area of the state in square kilometers."
+        description: Total area of the state in square kilometers.
       - name: population
-        description: "Total population of the state."
+        description: Total population of the state.
       - name: demographic_density_per_km2
-        description: "Population density of the state, calculated as population divided by area (people per square kilometer)."
+        description: Population per square kilometer in the state.
       - name: cities_number
-        description: "Total number of cities within the state."
+        description: Number of cities in the state.
       - name: gdp
-        description: "Gross Domestic Product (GDP) of the state, representing the total economic output."
+        description: Gross Domestic Product of the state.
       - name: gdp_world_share
-        description: "Share of the state's GDP in relation to the total GDP of Brazil, expressed as a percentage."
+        description: Share of the state's GDP in Brazil's total GDP.
       - name: poverty_index
-        description: "Poverty index of the state, indicating the percentage of the population living below the poverty line."
+        description: Share of the state's population living below the poverty line.
       - name: latitude
-        description: "Latitude coordinate representing the geographical location of the state."
+        description: Latitude coordinate of the state.
       - name: longitude
-        description: "Longitude coordinate representing the geographical location of the state."
-        
+        description: Longitude coordinate of the state.
