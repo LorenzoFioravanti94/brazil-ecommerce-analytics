@@ -1,0 +1,85 @@
+seeds:
+  - name: brazil_holidays
+    description: Brazilian national holidays used to flag holiday dates in dim_date.
+    config:
+      column_types:
+        holiday_date: date
+        holiday_name: varchar
+    columns:
+      - name: holiday_date
+        description: Calendar date of the holiday. Join key against dim_date.date_id.
+        tests:
+          - unique
+          - not_null
+      - name: holiday_name
+        description: Official name of the Brazilian holiday.
+        tests:
+          - not_null
+
+  - name: category_map
+    description: Maps raw Olist product categories to curated business areas.
+    config:
+      column_types:
+        raw_category: varchar
+        business_area: varchar
+    columns:
+      - name: raw_category
+        description: Raw product category as found in the Olist source data. Lookup key.
+        tests:
+          - unique
+          - not_null
+      - name: business_area
+        description: Curated business area the raw category is grouped into.
+        tests:
+          - not_null
+
+  - name: municipality_map
+    description: Maps district/locality names to their official IBGE municipality.
+    config:
+      column_types:
+        locality: varchar
+        municipality: varchar
+    columns:
+      - name: locality
+        description: "{{ doc('city_name') }}"
+        tests:
+          - unique
+          - not_null
+      - name: municipality
+        description: "{{ doc('city_name') }}"
+        tests:
+          - not_null
+
+  - name: typo_cure
+    description: Corrects misspelled city names to their canonical spelling.
+    config:
+      column_types:
+        original_city: varchar
+        fixed_city: varchar
+    columns:
+      - name: original_city
+        description: "{{ doc('city_name') }}"
+        tests:
+          - unique
+          - not_null
+      - name: fixed_city
+        description: "{{ doc('city_name') }}"
+        tests:
+          - not_null
+
+  - name: zip_code_fix
+    description: Overrides the city associated with problematic zip code prefixes.
+    config:
+      column_types:
+        zip_code_prefix: varchar
+        city_associated: varchar
+    columns:
+      - name: zip_code_prefix
+        description: "{{ doc('zip_code_prefix') }}"
+        tests:
+          - unique
+          - not_null
+      - name: city_associated
+        description: "{{ doc('city_name') }}"
+        tests:
+          - not_null
