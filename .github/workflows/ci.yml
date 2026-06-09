@@ -26,7 +26,7 @@ jobs:
           python -c "import dbt.version as v; assert v.__version__ == '1.11.8', f'dbt-core is {v.__version__}, expected 1.11.8'"
 
       - name: Install dbt packages
-        run: dbt deps --project-dir brz_ecommerce_backend
+        run: dbt deps --project-dir warehouse
 
       - name: Configure Kaggle API Token
         run: |
@@ -56,7 +56,7 @@ jobs:
         run: |
           mkdir -p ~/.dbt
           cat > ~/.dbt/profiles.yml << 'EOF'
-          brz_ecommerce_backend:
+          warehouse:
             target: test
             outputs:
               test:
@@ -103,7 +103,7 @@ jobs:
             --indirect-selection cautious \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
-            --project-dir brz_ecommerce_backend
+            --project-dir warehouse
 
       # ==============================
       # 🚀 FULL CI
@@ -113,4 +113,4 @@ jobs:
         run: |
           dbt build \
             --target test \
-            --project-dir brz_ecommerce_backend
+            --project-dir warehouse
