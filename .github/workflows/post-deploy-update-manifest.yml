@@ -31,7 +31,7 @@ jobs:
         run: pip install -r requirements-dbt.txt
 
       - name: Install dbt packages
-        run: dbt deps --project-dir brz_ecommerce_backend
+        run: dbt deps --project-dir warehouse
 
       - name: Create profiles.yml
         run: |
@@ -43,7 +43,7 @@ jobs:
           # database name (prod vs test) and state:modified flags ALL sources,
           # cascading state:modified+ onto the whole DAG. Must match ci.yml.
           cat > ~/.dbt/profiles.yml << 'EOF'
-          brz_ecommerce_backend:
+          warehouse:
             target: test
             outputs:
               test:
@@ -58,7 +58,7 @@ jobs:
         run: |
           dbt parse \
             --target test \
-            --project-dir brz_ecommerce_backend
+            --project-dir warehouse
 
       - name: Guard against an unreadable reference manifest
         # dbt-core's ModelLanguage enum is {sql, python}; a duckdb other than
@@ -67,7 +67,7 @@ jobs:
         # loads this manifest. Fail loudly here instead of committing a poisoned
         # reference to main. See requirements-dbt.txt (duckdb==1.0.0).
         run: |
-          if grep -q '"javascript"' brz_ecommerce_backend/target/manifest.json; then
+          if grep -q '"javascript"' warehouse/target/manifest.json; then
             echo "ERROR: generated manifest contains 'javascript' — duckdb is not pinned to 1.0.0"
             exit 1
           fi
@@ -75,7 +75,7 @@ jobs:
       - name: Update persistent_state
         run: |
           mkdir -p ${{ github.workspace }}/persistent_state
-          cp brz_ecommerce_backend/target/manifest.json \
+          cp warehouse/target/manifest.json \
              ${{ github.workspace }}/persistent_state/manifest.json
 
       - name: Commit and push to main

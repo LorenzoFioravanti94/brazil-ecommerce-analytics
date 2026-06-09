@@ -4,7 +4,7 @@ from dagster_dbt import DbtCliResource, DbtProject
 
 # Repo-root dbt project, resolved relative to this file so it works regardless
 # of the cwd Dagster is launched from.
-DBT_PROJECT_DIR = Path(__file__).parents[4] / "brz_ecommerce_backend"
+DBT_PROJECT_DIR = Path(__file__).parents[4] / "warehouse"
 DBT_PROFILES_DIR = Path.home() / ".dbt"
 
 # DbtProject centralizes project + manifest handling. prepare_if_dev()

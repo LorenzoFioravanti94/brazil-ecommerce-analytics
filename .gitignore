@@ -1,10 +1,10 @@
 # ─── DBT ───────────────────────────────────────────────────────────────────────
-brz_ecommerce_backend/target/
-brz_ecommerce_backend/dbt_packages/
-brz_ecommerce_backend/logs/
+warehouse/target/
+warehouse/dbt_packages/
+warehouse/logs/
 
 # ─── DAGSTER ───────────────────────────────────────────────────────────────────
-orchestration/.dg/
+dagster/.dg/
 .tmp_dagster_home*/
 
 # ─── DATA ──────────────────────────────────────────────────────────────────────
