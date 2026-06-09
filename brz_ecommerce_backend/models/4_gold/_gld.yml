@@ -1,314 +1,313 @@
-version: 2
-
 models:
+  - name: dim_date
+    description: Date dimension with calendar attributes and Brazilian holiday flags.
+    columns:
+      - name: date_id
+        description: Calendar date in YYYY-MM-DD format.
+        tests:
+          - not_null
+          - unique
+      - name: year
+        description: Calendar year.
+        tests:
+          - not_null
+      - name: quarter
+        description: Quarter of the year (Q1-Q4).
+      - name: month
+        description: Month of the year (1-12).
+      - name: month_name
+        description: Name of the month.
+      - name: week
+        description: Week number of the year.
+      - name: day_of_month
+        description: Day of the month (1-31).
+      - name: day_of_week
+        description: Day of the week (1-7, Monday to Sunday).
+      - name: day_of_week_name
+        description: Name of the day of the week.
+      - name: is_weekend
+        description: Whether the date falls on a weekend.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - TRUE
+                  - FALSE
+      - name: is_holiday_brazil
+        description: Whether the date is a public holiday in Brazil.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - TRUE
+                  - FALSE
 
-    - name: dim_date
-      description: "Dimension table for dates, including attributes such as day, month, year, and quarter."
-      columns:
-        - name: date_id
-          description: "The date in YYYY-MM-DD format."
-          tests:
-            - not_null
-            - unique
-        - name: year
-          description: "The year (e.g., 2024)."
-          tests:
-            - not_null
-        - name: quarter
-          description: "The quarter of the year (Q1, Q2, Q3, Q4)."
-        - name: month
-          description: "The month of the year (1-12)."
-        - name: month_name
-          description: "The name of the month (e.g., January, February)."
-        - name: week
-          description: "The week number of the year (1-52)."
-        - name: day_of_month
-          description: "The day of the month (1-31)."
-        - name: day_of_week
-          description: "The day of the week (1-7, where 1 is Monday and 7 is Sunday)."
-        - name: day_of_week_name
-          description: "The name of the day of the week (e.g., Monday, Tuesday)."
-        - name: is_weekend
-          description: "Boolean indicating whether the date falls on a weekend."
-          tests:
-            - not_null
-            - accepted_values:
-                    arguments:
-                        values:
-                            - TRUE
-                            - FALSE
-        - name: is_holiday_brazil
-          description: "Boolean indicating whether the date is a holiday in Brazil."
-          tests:
-            - not_null
-            - accepted_values:
-                    arguments:
-                        values:
-                            - TRUE
-                            - FALSE
+  - name: dim_socio_economics
+    description: Socioeconomic indicators per Brazilian state, for 2017.
+    columns:
+      - name: state_id
+        description: Brazilian state (UF). References dim_states.
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_states')
+                field: state_id
+      - name: population
+        description: Population of the state in 2017.
+      - name: gdp
+        description: GDP of the state in 2017.
+      - name: gdp_world_share
+        description: Share of the state's GDP in the world GDP in 2017.
+      - name: education_index
+        description: Education index of the state in 2017.
+      - name: wealth_index
+        description: Wealth index of the state in 2017.
+      - name: health_index
+        description: Health index of the state in 2017.
+      - name: poverty_index
+        description: Poverty index of the state in 2017.
+      - name: airports_passengers_rate
+        description: Airport passenger rate of the state in 2017.
+      - name: public_icu_beds
+        description: Number of public ICU beds in the state in 2017.
+      - name: private_icu_beds
+        description: Number of private ICU beds in the state in 2017.
 
-    - name: dim_socio_economics
-      description: "Dimension table for socioeconomic indicators of Brazilian states"
-      columns:
-        - name: state_id
-          description: "The ID of the state."
-          tests:
-            - unique
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_states')
-                    field: state_id
-        - name: population
-          description: "The population of the state in 2017."
-        - name: gdp
-          description: "The GDP of the state in 2017."
-        - name: gdp_world_share
-          description: "The share of the state's GDP in the world GDP in 2017."
-        - name: education_index
-          description: "The education index for the state in 2017."
-        - name: wealth_index
-          description: "The wealth index for the state in 2017."
-        - name: health_index
-          description: "The health index for the state in 2017."
-        - name: poverty_index
-          description: "The poverty index for the state in 2017."
-        - name: airports_passengers_rate
-          description: "The rate of airports passengers in the state in 2017."
-        - name: public_icu_beds
-          description: "The number of public ICU beds in the state in 2017."
-        - name: private_icu_beds
-          description: "The number of private ICU beds in the state in 2017."
+  - name: dim_states
+    description: State dimension for Brazilian states.
+    columns:
+      - name: state_id
+        description: "{{ doc('state_abbreviation') }}"
+        tests:
+          - unique
+          - not_null
+      - name: state_name
+        description: Full name of the state (e.g. São Paulo, Rio de Janeiro).
+        tests:
+          - not_null
+      - name: capital
+        description: Capital city of the state.
+        tests:
+          - not_null
+      - name: region
+        description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
+      - name: area_km2
+        description: Total area of the state in square kilometers.
+      - name: cities_number
+        description: Number of cities in the state.
+      - name: latitude
+        description: Latitude coordinate of the state.
+      - name: longitude
+        description: Longitude coordinate of the state.
 
-    - name: dim_states
-      description: "Dimension table for Brazilian states."
-      columns:
-        - name: state_id
-          description: "The unique identifier for the state."
-          tests:
-            - unique
-            - not_null
-        - name: state_name
-          description: "The name of the state (e.g., São Paulo, Rio de Janeiro)."
-          tests:
-            - not_null
-        - name: capital
-          description: "The capital city of the state."
-          tests:
-            - not_null
-        - name: region
-          description: "The region of Brazil where the state is located (e.g., North, Northeast, Central-West, Southeast, South)."
-        - name: area_km2
-          description: "The total area of the state in square kilometers."
-        - name: cities_number
-          description: "The number of cities in the state."
-        - name: latitude
-          description: "The latitude coordinate of the state."
-        - name: longitude
-          description: "The longitude coordinate of the state."
-        
-    - name: dim_customers
-      description: "Dimension table for customers."
-      columns:
-        - name: customer_id
-          description: "The unique identifier for the customer."
-          tests:
-            - unique
-            - not_null
-        - name: zip_code_prefix
-          description: "The zip code prefix of the customer's address."
-          tests:
-            - not_null
-        - name: city
-          description: "The city of the customer's address."
-          tests:
-            - not_null
-        - name: state_id
-          description: "The ID of the state where the customer is located."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_states')
-                    field: state_id
-        - name: latitude
-          description: "The latitude coordinate of the customer's location."
-        - name: longitude
-          description: "The longitude coordinate of the customer's location."
-        - name: total_orders
-          description: "The total number of orders placed by the customer."
-        
-    - name: dim_sellers
-      description: "Dimension table for sellers."
-      columns:
-        - name: seller_id
-          description: "The unique identifier for the seller."
-          tests:
-            - unique
-            - not_null
-        - name: zip_code_prefix
-          description: "The zip code prefix of the seller's address."
-          tests:
-            - not_null
-        - name: city
-          description: "The city of the seller's address."
-        - name: state_id
-          description: "The ID of the state where the seller is located."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_states')
-                    field: state_id
-        - name: latitude
-          description: "The latitude coordinate of the seller's location."
-        - name: longitude
-          description: "The longitude coordinate of the seller's location."
+  - name: dim_customers
+    description: Customer dimension.
+    columns:
+      - name: customer_id
+        description: "{{ doc('customer_unique_id') }}"
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "{{ doc('zip_code_prefix') }}"
+        tests:
+          - not_null
+      - name: city
+        description: "{{ doc('city_name') }}"
+        tests:
+          - not_null
+      - name: state_id
+        description: Brazilian state (UF) of the customer. References dim_states.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_states')
+                field: state_id
+      - name: latitude
+        description: Latitude coordinate of the customer's location.
+      - name: longitude
+        description: Longitude coordinate of the customer's location.
+      - name: total_orders
+        description: Total number of orders placed by the customer.
 
-    - name: dim_products
-      description: "Dimension table for products."
-      columns:
-        - name: product_id
-          description: "The unique identifier for the product."
-          tests:
-            - unique
-            - not_null
-        - name: category_name
-          description: "The category name of the product."
-        - name: business_area
-          description: "The business area of the product."
-        - name: name_length
-          description: "The length of the product name."
-        - name: description_length
-          description: "The length of the product description."
-        - name: photos_qty
-          description: "The quantity of photos available for the product."
-        - name: weight_g
-          description: "The weight of the product in grams."
-        - name: length_cm
-          description: "The length of the product in centimeters."
-        - name: height_cm
-          description: "The height of the product in centimeters."
-        - name: width_cm
-          description: "The width of the product in centimeters."
-    
-    - name: fct_orders
-      description: "Fact table for orders, containing measures such as total payment value, delivery metrics, and review scores, along with foreign keys to the relevant dimensions."
-      columns:
-        - name: order_id
-          description: "The unique identifier for the order."
-          tests:
-            - unique
-            - not_null
-        - name: customer_id
-          description: "The ID of the customer who placed the order."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_customers')
-                    field: customer_id
-        - name: order_date_id
-          description: "The date ID corresponding to the order's purchase timestamp."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_date')
-                    field: date_id
-        - name: status
-          description: "The status of the order (e.g., delivered, shipped, canceled)."
-          tests:
-            - not_null
-        - name: approved_at
-          description: "The timestamp when the order was approved."
-        - name: delivered_carrier_date
-          description: "The date when the order was delivered to the carrier."
-        - name: delivered_customer_date
-          description: "The date when the order was delivered to the customer."
-        - name: estimated_delivery_date
-          description: "The estimated delivery date for the order."
-        - name: days_to_deliver
-          description: "The number of days it took to deliver the order to the customer."
-          tests:
-            - dbt_utils.accepted_range:
-                    arguments:
-                        min_value: 0
-                        inclusive: true
-        - name: delivery_delay_days
-          description: "The number of days the delivery was delayed compared to the estimated delivery date (negative if delivered before the estimated date)." 
-        - name: installments_count
-          description: "The number of installments for the payment of the order."
-        - name: credit_card_value
-          description: "The total value paid with a credit card for the order."
-        - name: boleto_value
-          description: "The total value paid with a boleto for the order."
-        - name: voucher_value
-          description: "The total value paid with a voucher for the order."
-        - name: debit_card_value
-          description: "The total value paid with a debit card for the order."
-        - name: total_payment_value
-          description: "The total value paid for the order across all payment types."
-        - name: review_score
-          description: "The score given in the review for the order (1-5)."
-        - name: review_creation_date
-          description: "The date when the review was created."
-        - name: review_answer_timestamp
-          description: "The timestamp when the review was answered by the seller."
+  - name: dim_sellers
+    description: Seller dimension.
+    columns:
+      - name: seller_id
+        description: "{{ doc('seller_id') }}"
+        tests:
+          - unique
+          - not_null
+      - name: zip_code_prefix
+        description: "{{ doc('zip_code_prefix') }}"
+        tests:
+          - not_null
+      - name: city
+        description: "{{ doc('city_name') }}"
+      - name: state_id
+        description: Brazilian state (UF) of the seller. References dim_states.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_states')
+                field: state_id
+      - name: latitude
+        description: Latitude coordinate of the seller's location.
+      - name: longitude
+        description: Longitude coordinate of the seller's location.
 
-    - name: fct_order_items
-      description: "Fact table for order items. Grain: one row per item within an order."
-      columns:
-        - name: order_item_id
-          description: "Surrogate key on (order_id, item_sequence_number)."
-          tests:
-            - unique
-            - not_null
-        - name: order_id
-          description: "FK → fct_orders."
-          tests:
-            - not_null
-            - relationships:
-                    arguments:
-                        to: ref('fct_orders')
-                        field: order_id
-        - name: product_id
-          description: "FK → dim_products."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_products')
-                    field: product_id
-        - name: seller_id
-          description: "FK → dim_sellers."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_sellers')
-                    field: seller_id
-        - name: shipping_date_id
-          description: "FK → dim_date. Date by which the seller must ship the item."
-          tests:
-            - not_null
-            - relationships:
-                arguments:
-                    to: ref('dim_date')
-                    field: date_id
-        - name: item_sequence_number
-          description: "Position of the item within the order (degenerate dimension)."
-          tests:
-            - not_null
-        - name: price
-          description: "Price of the item in BRL."
-          tests:
-            - not_null
-        - name: freight_value
-          description: "Freight cost for the item in BRL."
-          tests:
-            - not_null
-        - name: total_item_value
-          description: "Sum of price and freight_value."
-          tests:
-            - not_null
+  - name: dim_products
+    description: Product dimension.
+    columns:
+      - name: product_id
+        description: "{{ doc('product_id') }}"
+        tests:
+          - unique
+          - not_null
+      - name: category_name
+        description: Category name of the product.
+      - name: business_area
+        description: Business area the product belongs to.
+      - name: name_length
+        description: Character length of the product name.
+      - name: description_length
+        description: Character length of the product description.
+      - name: photos_qty
+        description: Number of photos available for the product.
+      - name: weight_g
+        description: Weight of the product in grams.
+      - name: length_cm
+        description: Length of the product in centimeters.
+      - name: height_cm
+        description: Height of the product in centimeters.
+      - name: width_cm
+        description: Width of the product in centimeters.
+
+  - name: fct_orders
+    description: >
+      Order fact table, with payment, delivery, and review measures plus foreign
+      keys to the relevant dimensions. Grain: one row per order.
+    columns:
+      - name: order_id
+        description: "{{ doc('order_id') }}"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order. References dim_customers.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date_id
+        description: Purchase date of the order. References dim_date.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: status
+        description: Current status of the order in the fulfillment process.
+        tests:
+          - not_null
+      - name: approved_at
+        description: Timestamp the order was approved.
+      - name: delivered_carrier_date
+        description: Date the order was handed to the carrier.
+      - name: delivered_customer_date
+        description: Date the order was delivered to the customer.
+      - name: estimated_delivery_date
+        description: Estimated delivery date for the order.
+      - name: days_to_deliver
+        description: Days taken to deliver the order to the customer.
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: delivery_delay_days
+        description: Days the delivery was late versus the estimate (negative if early).
+      - name: installments_count
+        description: Number of installments for the order payment.
+      - name: credit_card_value
+        description: Total amount paid by credit card for the order.
+      - name: boleto_value
+        description: Total amount paid by boleto for the order.
+      - name: voucher_value
+        description: Total amount paid by voucher for the order.
+      - name: debit_card_value
+        description: Total amount paid by debit card for the order.
+      - name: total_payment_value
+        description: Total amount paid for the order across all payment types.
+      - name: review_score
+        description: Review score for the order, from 1 to 5.
+      - name: review_creation_date
+        description: Date the review was created.
+      - name: review_answer_timestamp
+        description: Timestamp the review was answered.
+
+  - name: fct_order_items
+    description: "Order item fact table. Grain: one row per item within an order."
+    columns:
+      - name: order_item_id
+        description: Surrogate key on (order_id, item_sequence_number).
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: Order the item belongs to. References fct_orders.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+      - name: product_id
+        description: Product of the item. References dim_products.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+      - name: seller_id
+        description: Seller of the item. References dim_sellers.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+      - name: shipping_date_id
+        description: Shipping deadline for the item. References dim_date.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_id
+      - name: item_sequence_number
+        description: Position of the item within the order (degenerate dimension).
+        tests:
+          - not_null
+      - name: price
+        description: Price of the item in BRL.
+        tests:
+          - not_null
+      - name: freight_value
+        description: Freight cost for the item in BRL.
+        tests:
+          - not_null
+      - name: total_item_value
+        description: Sum of price and freight_value.
+        tests:
+          - not_null
