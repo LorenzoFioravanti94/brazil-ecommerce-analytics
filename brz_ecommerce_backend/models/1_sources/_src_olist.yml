@@ -1,97 +1,99 @@
-version: 2
-
 sources:
   - name: olist
-    description: "Olist is a Brazilian e-commerce company that provides a platform for small and medium-sized businesses to sell their products online. The dataset includes information about customers, orders, products, and reviews."
+    description: >
+      Olist is a Brazilian e-commerce company providing a marketplace for small
+      and medium-sized businesses to sell online. The dataset covers customers,
+      orders, products, payments, and reviews.
     meta:
       source_url: "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce"
     database: "{{ 'prod' if target.name == 'dev' else target.database }}"
     schema: raw_olist
     tables:
       - name: category_translation
-        description: "Translation of product category names from Portuguese to English."
+        description: Mapping of product category names from Portuguese to English.
         columns:
           - name: product_category_name
-            description: "Original category name in Portuguese."
+            description: Original category name in Portuguese.
           - name: product_category_name_english
-            description: "Translated category name in English."
+            description: Translated category name in English.
+
       - name: customers
-        description: "Customer information including customer ID, zip code, city, and state."
+        description: Customer records, including identifiers and location.
         columns:
           - name: customer_id
-            description: "Technical identifier for a customer record. May not be stable across multiple customer accounts."
+            description: "{{ doc('customer_record_id') }}"
             tests:
               - unique
               - not_null
           - name: customer_unique_id
-            description: "Stable business identifier representing the unique customer."
+            description: "{{ doc('customer_unique_id') }}"
             tests:
               - not_null
           - name: customer_zip_code_prefix
-            description: "Zip code prefix of the customer's location."
+            description: "{{ doc('zip_code_prefix') }}"
           - name: customer_city
-            description: "City where the customer is located."
+            description: "{{ doc('city_name') }}"
           - name: customer_state
-            description: "State where the customer is located."
+            description: "{{ doc('state_abbreviation') }}"
 
       - name: geolocation
-        description: "Geolocation information including zip code prefix, latitude, longitude, city, and state."
+        description: Geolocation reference mapping zip code prefixes to coordinates and place names.
         columns:
           - name: geolocation_zip_code_prefix
-            description: "Zip code prefix for geolocation data."
+            description: "{{ doc('zip_code_prefix') }}"
             tests:
               - not_null
           - name: geolocation_lat
-            description: "Latitude coordinate for the geolocation."
+            description: Latitude coordinate.
           - name: geolocation_lng
-            description: "Longitude coordinate for the geolocation."
+            description: Longitude coordinate.
           - name: geolocation_city
-            description: "City associated with the geolocation."
+            description: "{{ doc('city_name') }}"
           - name: geolocation_state
-            description: "State associated with the geolocation."
+            description: "{{ doc('state_abbreviation') }}"
 
       - name: order_items
-        description: "Information about items in each order, including order ID, product ID, seller ID, price, and freight value."
-        freshness: null # No timestamp field available for freshness configuration in this table
+        description: Items belonging to each order, with product, seller, price, and freight.
+        freshness: null  # No timestamp field available for a freshness check.
         columns:
           - name: order_id
-            description: "Identifier for the order to which the item belongs."
+            description: "{{ doc('order_id') }}"
             tests:
               - not_null
           - name: order_item_id
-            description: "Identifier for the specific item within the order."
+            description: Sequence number of the item within the order.
             tests:
               - not_null
           - name: product_id
-            description: "Identifier for the product being ordered."
+            description: "{{ doc('product_id') }}"
           - name: seller_id
-            description: "Identifier for the seller providing the product."
+            description: "{{ doc('seller_id') }}"
           - name: shipping_limit_date
-            description: "Deadline for shipping the item."
+            description: Deadline for the seller to ship the item.
           - name: price
-            description: "Price of the item."
+            description: Price of the item.
           - name: freight_value
-            description: "Freight cost associated with shipping the item."
-      
+            description: Freight cost charged for the item.
+
       - name: order_payments
-        description: "Payment information for each order, including order ID, payment type, payment value, and number of installments."
-        freshness: null # No timestamp field available for freshness configuration in this table
+        description: Payment transactions for each order.
+        freshness: null  # No timestamp field available for a freshness check.
         columns:
           - name: order_id
-            description: "Identifier for the order associated with the payment."
+            description: "{{ doc('order_id') }}"
             tests:
               - not_null
           - name: payment_sequential
-            description: "Sequential number indicating the order of payments for the same order."
+            description: Sequence number of the payment within the order.
           - name: payment_type
-            description: "Type of payment used (e.g., credit card, boleto)."
+            description: Payment method used (e.g. credit card or boleto).
           - name: payment_installments
-            description: "Number of installments for the payment."
+            description: Number of installments for the payment.
           - name: payment_value
-            description: "Total value of the payment."
-    
+            description: Total value of the payment.
+
       - name: order_reviews
-        description: "Customer reviews for orders, including review ID, order ID, review score, and review comment."
+        description: Customer reviews submitted for orders.
         config:
           freshness:
             warn_after:
@@ -103,13 +105,13 @@ sources:
           loaded_at_field: review_creation_date
         columns:
           - name: review_id
-            description: "Identifier for the review."
+            description: Identifier of a review.
             tests:
               - not_null
           - name: order_id
-            description: "Identifier for the order being reviewed."
+            description: "{{ doc('order_id') }}"
           - name: review_score
-            description: "Score given by the customer in the review (1 to 5)."
+            description: Score given by the customer, from 1 to 5.
             tests:
               - accepted_values:
                   arguments:
@@ -120,16 +122,16 @@ sources:
                       - 4
                       - 5
           - name: review_comment_title
-            description: "Title of the customer's review comment."
+            description: Title of the customer's review comment.
           - name: review_comment_message
-            description: "Message content of the customer's review comment."
+            description: Body of the customer's review comment.
           - name: review_creation_date
-            description: "Date when the review was created."
+            description: Date the review was created.
           - name: review_answer_timestamp
-            description: "Timestamp when the seller responded to the review (if applicable)."
+            description: Timestamp the review was answered, if any.
 
       - name: orders
-        description: "Information about customer orders, including order ID, customer ID, order status, and order purchase timestamp."
+        description: Customer orders, with status and lifecycle timestamps.
         config:
           freshness:
             warn_after:
@@ -141,14 +143,14 @@ sources:
           loaded_at_field: order_purchase_timestamp
         columns:
           - name: order_id
-            description: "Identifier for the order."
+            description: "{{ doc('order_id') }}"
             tests:
               - unique
               - not_null
           - name: customer_id
-            description: "Identifier for the customer who placed the order."
+            description: "{{ doc('customer_record_id') }}"
           - name: order_status
-            description: "Current status of the order (e.g., delivered, shipped)."
+            description: Current status of the order in the fulfillment process.
             tests:
               - not_null
               - accepted_values:
@@ -163,52 +165,52 @@ sources:
                       - created
                       - approved
           - name: order_purchase_timestamp
-            description: "Timestamp when the order was placed."
+            description: Timestamp the order was placed.
           - name: order_approved_at
-            description: "Timestamp when the order was approved."
+            description: Timestamp the order was approved.
           - name: order_delivered_carrier_date
-            description: "Timestamp when the order was delivered by the carrier."
+            description: Timestamp the order was handed to the carrier.
           - name: order_delivered_customer_date
-            description: "Timestamp when the order was delivered by the customer."
+            description: Timestamp the order was delivered to the customer.
           - name: order_estimated_delivery_date
-            description: "Estimated date when the order will be delivered."
+            description: Estimated delivery date for the order.
 
       - name: products
-        description: "Information about products, including product ID, category name, and product name."
+        description: Product catalog, with category and physical attributes.
         columns:
           - name: product_id
-            description: "Identifier for the product."
+            description: "{{ doc('product_id') }}"
             tests:
               - unique
               - not_null
           - name: product_category_name
-            description: "Category name of the product in Portuguese."
+            description: Category name of the product, in Portuguese.
           - name: product_name_lenght
-            description: "Length of the product name."
+            description: Character length of the product name.
           - name: product_description_lenght
-            description: "Length of the product description."
+            description: Character length of the product description.
           - name: product_photos_qty
-            description: "Quantity of photos available for the product."
+            description: Number of photos available for the product.
           - name: product_weight_g
-            description: "Weight of the product in grams."
+            description: Weight of the product in grams.
           - name: product_length_cm
-            description: "Length of the product in centimeters."
+            description: Length of the product in centimeters.
           - name: product_height_cm
-            description: "Height of the product in centimeters."
+            description: Height of the product in centimeters.
           - name: product_width_cm
-            description: "Width of the product in centimeters."
+            description: Width of the product in centimeters.
 
       - name: sellers
-        description: "Information about sellers, including seller ID, zip code prefix, city, and state."
+        description: Seller records, including identifiers and location.
         columns:
           - name: seller_id
-            description: "Identifier for the seller."
+            description: "{{ doc('seller_id') }}"
             tests:
               - unique
               - not_null
           - name: seller_zip_code_prefix
-            description: "Zip code prefix of the seller's location."
+            description: "{{ doc('zip_code_prefix') }}"
           - name: seller_city
-            description: "City where the seller is located."
+            description: "{{ doc('city_name') }}"
           - name: seller_state
-            description: "State where the seller is located."
+            description: "{{ doc('state_abbreviation') }}"
