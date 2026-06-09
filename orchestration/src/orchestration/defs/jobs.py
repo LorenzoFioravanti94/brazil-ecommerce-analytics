@@ -1,6 +1,6 @@
 from dagster import define_asset_job, AssetSelection, RunConfig, job
 from dagster_dbt import build_dbt_asset_selection
-from .assets import brz_ecommerce_assets, DbtConfig
+from .assets import warehouse_assets, DbtConfig
 from .ops import check_source_freshness
 from .resources import dbt_resource
 
@@ -18,7 +18,7 @@ full_refresh_job = define_asset_job(
     selection=AssetSelection.all(),
     config=RunConfig(
         ops={
-            "brz_ecommerce_assets": DbtConfig(full_refresh=True)  # <project_name>_assets
+            "warehouse_assets": DbtConfig(full_refresh=True)  # <project_name>_assets
         }
     )
 )
@@ -29,7 +29,7 @@ full_refresh_job = define_asset_job(
 time_sensitive_job = define_asset_job(
     name="time_sensitive_job",
     selection=build_dbt_asset_selection(
-        [brz_ecommerce_assets],
+        [warehouse_assets],
         dbt_select="state: new+"    # <model_name>
     ),
 )
@@ -40,7 +40,7 @@ time_sensitive_job = define_asset_job(
 fresher_rebuild_job = define_asset_job(
     name="fresher_rebuild_job",
     selection=build_dbt_asset_selection(
-        [brz_ecommerce_assets],
+        [warehouse_assets],
         dbt_select="source_status:fresher+"
     )
 )
