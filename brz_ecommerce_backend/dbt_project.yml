@@ -17,6 +17,7 @@ test-paths: ["tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]  # look for doc blocks only in the dedicated docs/ directory
 
 clean-targets:         # directories to be removed by `dbt clean`
   - "target"
