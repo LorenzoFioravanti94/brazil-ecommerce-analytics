@@ -14,11 +14,3 @@ full_refresh_schedule = ScheduleDefinition(
     job=full_refresh_job,
     cron_schedule="0 6 * * 0",
 )
-
-
-# ── Future work (deferred — see Phase I) ────────────────────────────────────
-# Time Sensitive Schedule — hourly; pairs with time_sensitive_job.
-# time_sensitive_schedule = ScheduleDefinition(
-#     job=time_sensitive_job,
-#     cron_schedule="0 * * * *",
-# )

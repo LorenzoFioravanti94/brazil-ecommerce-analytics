@@ -1,25 +1,30 @@
-"""Future work (deferred — see Phase I): source-freshness sensor.
+"""Run-failure sensor — lightweight observability.
 
-DuckDB has no native data-arrival notification (unlike Snowflake, S3, etc.), so
-this sensor would poll the raw source files and trigger a rebuild whenever any
-of them changes. Kept commented until the time-sensitive jobs are introduced.
+A previous design polled the raw CSV files' mtimes to trigger rebuilds. That
+was dropped in Phase I: the sources here are a static Kaggle/IBGE dump, so a
+data-arrival sensor would only ever be theatre. What *is* always useful, even
+on static data, is being told when a run fails.
+
+This sensor is deliberately minimal: it logs failures rather than paging an
+external service, so it adds real observability without pulling Slack/email
+infrastructure into a portfolio project. Swapping the log for a notification
+is a one-line change if this ever runs against live data.
 """
-# from dagster import sensor, RunRequest, SensorEvaluationContext
-# from pathlib import Path
-# import os
-# from .jobs import fresher_rebuild_job
-#
-# SOURCE_DIR = Path("data/raw")
-#
-# @sensor(job=fresher_rebuild_job, minimum_interval_seconds=86400)  # poll every 24h
-# def source_freshness_sensor(context: SensorEvaluationContext):
-#     last_mtime = float(context.cursor) if context.cursor else 0.0
-#     latest_mtime = max(
-#         os.path.getmtime(os.path.join(root, f))
-#         for root, _, files in os.walk(SOURCE_DIR)
-#         for f in files
-#         if f.endswith(".csv")
-#     )
-#     if latest_mtime > last_mtime:
-#         context.update_cursor(str(latest_mtime))
-#         yield RunRequest(run_key=str(latest_mtime))
+
+from dagster import (
+    DefaultSensorStatus,
+    RunFailureSensorContext,
+    run_failure_sensor,
+)
+
+
+# monitor_all_code_locations defaults to this location's runs; default_status
+# RUNNING means the sensor is live as soon as the code location loads, with no
+# manual toggle in the UI.
+@run_failure_sensor(default_status=DefaultSensorStatus.RUNNING)
+def run_failure_sensor_logger(context: RunFailureSensorContext):
+    run = context.dagster_run
+    context.log.error(
+        f"Run failed — job '{run.job_name}' (run_id {run.run_id}): "
+        f"{context.failure_event.message}"
+    )
