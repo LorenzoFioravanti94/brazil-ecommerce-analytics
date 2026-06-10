@@ -6,15 +6,12 @@ from .defs.jobs import (
     standard_job,
     full_refresh_job,
     source_freshness_job,
-    # time_sensitive_job,     # deferred — see Phase I
-    # fresher_rebuild_job,    # deferred — see Phase I
 )
 from .defs.schedules import (
     full_refresh_schedule,
     freshness_schedule,
-    # time_sensitive_schedule,    # deferred — see Phase I
 )
-# from .defs.sensors import source_freshness_sensor    # deferred — see Phase I
+from .defs.sensors import run_failure_sensor_logger
 
 defs = Definitions(
     assets=[warehouse_assets],
@@ -22,15 +19,12 @@ defs = Definitions(
         standard_job,
         full_refresh_job,
         source_freshness_job,
-        # time_sensitive_job,     # deferred — see Phase I
-        # fresher_rebuild_job,    # deferred — see Phase I
     ],
     schedules=[
         full_refresh_schedule,
         freshness_schedule,
-        # time_sensitive_schedule,    # deferred — see Phase I
     ],
-    # sensors=[source_freshness_sensor],    # deferred — see Phase I
+    sensors=[run_failure_sensor_logger],
     resources={
         "dbt": dbt_resource,
     },
