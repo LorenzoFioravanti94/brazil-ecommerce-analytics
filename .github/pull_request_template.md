@@ -9,8 +9,14 @@
 - [ ] Release / Promotion (`develop` → `main`)
 
 ## dbt layers impacted
-- [ ] Sources &nbsp; - [ ] Bronze &nbsp; - [ ] Silver &nbsp; - [ ] Gold &nbsp; - [ ] Seeds
-- [ ] CI / Dagster / tooling
+- [ ] Sources
+- [ ] Bronze
+- [ ] Silver
+- [ ] Gold
+- [ ] Seeds
+- [ ] CI
+- [ ] CD - Dagster
+- [ ] Tooling
 
 ## How verified
 <!-- e.g. `dbt build -s <selector>`, Slim CI green, lineage screenshot -->
