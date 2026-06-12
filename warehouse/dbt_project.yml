@@ -52,3 +52,10 @@ models:
       +schema: gold
       +materialized: table
       +tags: ["gold"]
+
+# Static reference / mapping data. Without an explicit +schema, seeds land in
+# target.schema ("main" on DuckDB), which carries no meaning -> give them a
+# dedicated, self-describing schema.
+seeds:
+  warehouse:
+    +schema: seeds
