@@ -1,0 +1,13 @@
+version: 2
+
+macros:
+  - name: show_target
+    description: >
+      Developer utility macro. Logs the attributes of the currently active dbt
+      target (name, database, schema, type, threads) to the console.
+
+
+      Standalone: meant to be run on demand via `dbt run-operation show_target`.
+      It is NOT referenced by any model and must not be used inside `ref`/SQL --
+      it produces no relation and returns nothing.
+    arguments: []

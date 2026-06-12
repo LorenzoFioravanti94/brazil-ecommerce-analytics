@@ -30,26 +30,15 @@ payments_aggregated AS (
         order_id,
         SUM(value)                                                    AS total_payment_value,
         MAX(installments_count)                                       AS installments_count,
-        SUM(
-            CASE
-                WHEN type = 'credit_card' THEN value
-                ELSE 0
-            END)                                                      AS credit_card_value,
-        SUM(
-            CASE
-                WHEN type = 'boleto' THEN value
-                ELSE 0
-            END)                                                      AS boleto_value,
-        SUM(
-            CASE
-                WHEN type = 'voucher' THEN value
-                ELSE 0
-            END)                                                      AS voucher_value,
-        SUM(
-            CASE
-                WHEN type = 'debit_card'  THEN value
-                ELSE 0
-            END)                                                      AS debit_card_value
+        -- one summed column per payment type (credit_card_value, boleto_value, ...)
+        {{ dbt_utils.pivot(
+            column='type',
+            values=['credit_card', 'boleto', 'voucher', 'debit_card'],
+            agg='sum',
+            then_value='value',
+            suffix='_value',
+            quote_identifiers=false
+        ) }}
     FROM payments
     WHERE type <> 'not_defined'
     GROUP BY order_id
