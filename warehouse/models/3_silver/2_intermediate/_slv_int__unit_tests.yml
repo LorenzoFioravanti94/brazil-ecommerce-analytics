@@ -1,0 +1,37 @@
+unit_tests:
+  - name: test_slv_int_customers_keeps_latest_order_record
+    description: >
+      A customer with multiple basket records (one per order) must collapse to a
+      single row: the geography of the most recent order wins, and total_orders
+      reflects the count of records. Seeds are mocked empty so the COALESCE
+      city-correction chain falls through and the dedup logic is tested in isolation.
+    model: slv_int_olist__customers
+    # Every input is mocked with format: sql (explicit columns/types) so the test
+    # is fully self-contained: it never introspects a warehouse relation and runs
+    # in isolation (e.g. the dbt Power User single-test runner) without first
+    # building the upstream staging models or seeds.
+    given:
+      - input: ref('slv_stg_olist__customers')
+        format: sql
+        rows: |
+          SELECT 'B1' AS customer_basket_id, 'CUST1' AS customer_id, '01000' AS zip_code_prefix, 'SAO PAULO' AS city, 'SP' AS state_id
+          UNION ALL
+          SELECT 'B2' AS customer_basket_id, 'CUST1' AS customer_id, '02000' AS zip_code_prefix, 'CAMPINAS' AS city, 'SP' AS state_id
+      - input: ref('slv_stg_olist__orders')
+        format: sql
+        rows: |
+          SELECT 'O1' AS order_id, 'B1' AS customer_basket_id, CAST('2018-01-01 10:00:00' AS TIMESTAMP) AS purchase_timestamp
+          UNION ALL
+          SELECT 'O2' AS order_id, 'B2' AS customer_basket_id, CAST('2018-06-01 10:00:00' AS TIMESTAMP) AS purchase_timestamp
+      - input: ref('typo_cure')
+        format: sql
+        rows: "SELECT CAST(NULL AS VARCHAR) AS original_city, CAST(NULL AS VARCHAR) AS fixed_city LIMIT 0"
+      - input: ref('zip_code_fix')
+        format: sql
+        rows: "SELECT CAST(NULL AS VARCHAR) AS zip_code_prefix, CAST(NULL AS VARCHAR) AS city_associated LIMIT 0"
+      - input: ref('municipality_map')
+        format: sql
+        rows: "SELECT CAST(NULL AS VARCHAR) AS locality, CAST(NULL AS VARCHAR) AS municipality LIMIT 0"
+    expect:
+      rows:
+        - {customer_id: 'CUST1', zip_code_prefix: '02000', city: 'CAMPINAS', state_id: 'SP', total_orders: 2}
