@@ -40,7 +40,7 @@ models:
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
@@ -49,14 +49,14 @@ models:
         description: Sequence number of the item within the order.
       - name: product_id
         description: "{{ doc('product_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__products')
                 field: product_id
       - name: seller_id
         description: "{{ doc('seller_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__sellers')
@@ -73,7 +73,7 @@ models:
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
@@ -94,7 +94,7 @@ models:
         description: Identifier of a review.
       - name: order_id
         description: "{{ doc('order_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
@@ -117,7 +117,7 @@ models:
         description: "{{ doc('order_id') }}"
       - name: customer_basket_id
         description: "{{ doc('customer_record_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__customers')
@@ -142,7 +142,7 @@ models:
         description: "{{ doc('product_id') }}"
       - name: local_category_name
         description: Product category name in Portuguese.
-        tests:
+        data_tests:
           # Points to the intermediate layer: product_category needs an extra
           # step before the relationships test can be applied.
           - relationships:
@@ -186,7 +186,7 @@ models:
 
   - name: slv_stg_ibge__human_development_index
     description: Cleaned and standardized IBGE Human Development Index data.
-    tests:
+    data_tests:
       - test_mean_consistency:
           arguments:
             hdi: hdi_2017
@@ -253,7 +253,7 @@ models:
 
   - name: slv_stg_ibge__intensive_care_unit_beds
     description: Cleaned and standardized IBGE ICU bed data.
-    tests:
+    data_tests:
       - test_ratio_consistency:
           description: Validates public_beds_per_10k_citizens against total public beds and state population.
           arguments:
@@ -288,7 +288,7 @@ models:
 
   - name: slv_stg_ibge__states
     description: Cleaned and standardized IBGE state data.
-    tests:
+    data_tests:
       - test_ratio_consistency:
           description: Validates demographic_density_per_km2 against state population and area.
           arguments:
