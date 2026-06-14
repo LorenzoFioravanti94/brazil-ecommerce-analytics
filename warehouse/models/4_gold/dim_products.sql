@@ -1,4 +1,4 @@
-WItH products_staging AS (
+WITH products AS (
     SELECT
         product_id,
         local_category_name,
@@ -11,7 +11,7 @@ WItH products_staging AS (
         width_cm
     FROM {{ ref('slv_stg_olist__products') }}
 ),
-product_category_intermediate AS (
+product_category AS (
     SELECT
         local_name,
         english_name,
@@ -31,10 +31,10 @@ final AS (
         p.weight_g,
         p.length_cm,
         p.height_cm,
-        p.width_cm,   
-    FROM products_staging AS p
-    LEFT JOIN product_category_intermediate AS pc
-    ON p.local_category_name = pc.local_name
+        p.width_cm
+    FROM products AS p
+    LEFT JOIN product_category AS pc
+        ON p.local_category_name = pc.local_name
 )
 SELECT *
 FROM final

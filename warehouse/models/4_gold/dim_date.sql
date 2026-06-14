@@ -13,6 +13,10 @@
 WITH source AS (
     {{ dbt_date.get_date_dimension('2016-09-01', '2020-05-01') }}
 ),
+brazil_holidays AS (
+    SELECT *
+    FROM {{ ref('brazil_holidays') }}
+),
 dates AS (
     SELECT
         date_day            AS date_id,
@@ -20,17 +24,17 @@ dates AS (
         quarter_of_year     AS quarter,
         month_of_year       AS month,
         month_name,
-        iso_week_of_year        AS week,
+        iso_week_of_year    AS week,
         day_of_month,
-        day_of_week_iso AS day_of_week,
+        day_of_week_iso     AS day_of_week,
         day_of_week_name,
-        CASE 
-            WHEN day_of_week_iso IN (6, 7) THEN TRUE 
-            ELSE FALSE 
+        CASE
+            WHEN day_of_week_iso IN (6, 7) THEN TRUE
+            ELSE FALSE
         END AS is_weekend
     FROM source
 ),
-add_holidays AS (
+final AS (
     SELECT
         date_id,
         year,
@@ -42,13 +46,13 @@ add_holidays AS (
         day_of_week,
         day_of_week_name,
         is_weekend,
-        CASE 
+        CASE
             WHEN h.holiday_date IS NOT NULL THEN TRUE
-            ELSE FALSE 
+            ELSE FALSE
         END AS is_holiday_brazil
     FROM dates d
-    LEFT JOIN {{ ref('brazil_holidays') }} h
+    LEFT JOIN brazil_holidays h
         ON d.date_id = h.holiday_date
 )
 SELECT *
-FROM add_holidays
+FROM final

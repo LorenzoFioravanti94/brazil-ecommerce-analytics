@@ -12,10 +12,10 @@ WITH orders AS (
         approved_at,
         delivered_carrier_date,
         delivered_customer_date,
-        estimated_delivery_date,
+        estimated_delivery_date
     FROM {{ ref('slv_int_olist__orders') }}
 ),
-payments AS (
+order_payments AS (
     SELECT
         order_payment_id,
         order_id,
@@ -24,6 +24,14 @@ payments AS (
         installments_count,
         value
     FROM {{ ref('slv_int_olist__order_payments') }}
+),
+order_reviews AS (
+    SELECT
+        order_id,
+        score,
+        creation_date,
+        answer_timestamp
+    FROM {{ ref('slv_int_olist__order_reviews') }}
 ),
 payments_aggregated AS (
     SELECT
@@ -39,7 +47,7 @@ payments_aggregated AS (
             suffix='_value',
             quote_identifiers=false
         ) }}
-    FROM payments
+    FROM order_payments
     WHERE type <> 'not_defined'
     GROUP BY order_id
 ),
@@ -50,7 +58,7 @@ reviews_deduplicated AS (
         creation_date,
         answer_timestamp,
         ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY creation_date DESC) AS rn -- Assuming we want the most recent review per order
-    FROM {{ ref('slv_int_olist__order_reviews') }}
+    FROM order_reviews
 ),
 final AS (
     SELECT
@@ -91,7 +99,7 @@ FROM final
 {% if is_incremental() %}
   -- Process only new or recently updated records using a 3-day lookback window
   WHERE approved_at >= (
-      SELECT {{ dbt.dateadd(datepart='day', interval=-3, from_date_or_timestamp='MAX(approved_at)') }} 
+      SELECT {{ dbt.dateadd(datepart='day', interval=-3, from_date_or_timestamp='MAX(approved_at)') }}
       FROM {{ this }}
   )
 {% endif %}

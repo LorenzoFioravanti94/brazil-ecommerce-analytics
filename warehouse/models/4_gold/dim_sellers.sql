@@ -1,4 +1,4 @@
-WITH sellers_intermediate AS (
+WITH sellers AS (
     SELECT
         seller_id,
         zip_code_prefix,
@@ -6,7 +6,7 @@ WITH sellers_intermediate AS (
         state_id
     FROM {{ ref('slv_int_olist__sellers') }}
 ),
-geolocations_intermediate AS (
+geolocation AS (
     SELECT
         zip_code_prefix,
         city AS city,
@@ -23,8 +23,8 @@ final AS (
         s.state_id,
         g.latitude,
         g.longitude
-    FROM sellers_intermediate s
-    LEFT JOIN geolocations_intermediate g 
+    FROM sellers s
+    LEFT JOIN geolocation g
         ON s.zip_code_prefix = g.zip_code_prefix
 )
 SELECT *
