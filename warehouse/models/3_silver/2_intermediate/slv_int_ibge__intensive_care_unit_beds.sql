@@ -8,7 +8,7 @@ WITH intensive_care_unit_beds AS (
         private_beds_per_10k_citizens
     FROM {{ ref('slv_stg_ibge__intensive_care_unit_beds') }}
 ),
-remove_redundancy AS (
+final AS (
     SELECT
         state_id,
         public_beds,
@@ -16,4 +16,4 @@ remove_redundancy AS (
     FROM intensive_care_unit_beds
 )
 SELECT *
-FROM remove_redundancy
+FROM final

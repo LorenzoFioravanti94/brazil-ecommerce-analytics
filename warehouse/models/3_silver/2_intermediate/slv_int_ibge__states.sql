@@ -32,7 +32,7 @@ remove_redundancy AS (
     FROM states
 ),
 -- 1. Standardizzazione del testo coerente con il Seed 1
-states_capital_state_name_no_accents AS (
+final AS (
     SELECT
         state_id,
         REGEXP_REPLACE(STRIP_ACCENTS(state_name), '[^A-Z0-9 ]', '', 'g') AS state_name,
@@ -49,4 +49,4 @@ states_capital_state_name_no_accents AS (
     FROM remove_redundancy
 )
 SELECT *
-FROM states_capital_state_name_no_accents
+FROM final
