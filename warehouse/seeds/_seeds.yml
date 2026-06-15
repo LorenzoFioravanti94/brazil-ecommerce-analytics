@@ -8,12 +8,12 @@ seeds:
     columns:
       - name: holiday_date
         description: Calendar date of the holiday. Join key against dim_date.date_id.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: holiday_name
         description: Official name of the Brazilian holiday.
-        tests:
+        data_tests:
           - not_null
 
   - name: category_map
@@ -25,12 +25,12 @@ seeds:
     columns:
       - name: raw_category
         description: Raw product category as found in the Olist source data. Lookup key.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: business_area
         description: Curated business area the raw category is grouped into.
-        tests:
+        data_tests:
           - not_null
 
   - name: municipality_map
@@ -42,12 +42,12 @@ seeds:
     columns:
       - name: locality
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: municipality
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - not_null
 
   - name: typo_cure
@@ -59,12 +59,12 @@ seeds:
     columns:
       - name: original_city
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: fixed_city
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - not_null
 
   - name: zip_code_fix
@@ -76,10 +76,10 @@ seeds:
     columns:
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: city_associated
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - not_null

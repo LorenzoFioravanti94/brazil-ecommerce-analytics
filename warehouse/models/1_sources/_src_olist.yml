@@ -22,12 +22,12 @@ sources:
         columns:
           - name: customer_id
             description: "{{ doc('customer_record_id') }}"
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: customer_unique_id
             description: "{{ doc('customer_unique_id') }}"
-            tests:
+            data_tests:
               - not_null
           - name: customer_zip_code_prefix
             description: "{{ doc('zip_code_prefix') }}"
@@ -41,7 +41,7 @@ sources:
         columns:
           - name: geolocation_zip_code_prefix
             description: "{{ doc('zip_code_prefix') }}"
-            tests:
+            data_tests:
               - not_null
           - name: geolocation_lat
             description: Latitude coordinate.
@@ -58,11 +58,11 @@ sources:
         columns:
           - name: order_id
             description: "{{ doc('order_id') }}"
-            tests:
+            data_tests:
               - not_null
           - name: order_item_id
             description: Sequence number of the item within the order.
-            tests:
+            data_tests:
               - not_null
           - name: product_id
             description: "{{ doc('product_id') }}"
@@ -81,7 +81,7 @@ sources:
         columns:
           - name: order_id
             description: "{{ doc('order_id') }}"
-            tests:
+            data_tests:
               - not_null
           - name: payment_sequential
             description: Sequence number of the payment within the order.
@@ -106,13 +106,13 @@ sources:
         columns:
           - name: review_id
             description: Identifier of a review.
-            tests:
+            data_tests:
               - not_null
           - name: order_id
             description: "{{ doc('order_id') }}"
           - name: review_score
             description: Score given by the customer, from 1 to 5.
-            tests:
+            data_tests:
               - accepted_values:
                   arguments:
                     values:
@@ -144,14 +144,14 @@ sources:
         columns:
           - name: order_id
             description: "{{ doc('order_id') }}"
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: customer_id
             description: "{{ doc('customer_record_id') }}"
           - name: order_status
             description: Current status of the order in the fulfillment process.
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   arguments:
@@ -180,7 +180,7 @@ sources:
         columns:
           - name: product_id
             description: "{{ doc('product_id') }}"
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: product_category_name
@@ -205,7 +205,7 @@ sources:
         columns:
           - name: seller_id
             description: "{{ doc('seller_id') }}"
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: seller_zip_code_prefix

@@ -4,7 +4,7 @@ models:
     columns:
       - name: hdi_id
         description: Surrogate key built from state_id and year.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: state_id
@@ -23,7 +23,7 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: public_beds
@@ -36,7 +36,7 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: state_name
@@ -67,7 +67,7 @@ models:
     columns:
       - name: customer_id
         description: "{{ doc('customer_unique_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: zip_code_prefix
@@ -84,12 +84,12 @@ models:
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: customer_id
         description: "{{ doc('customer_unique_id') }}"
-        tests:
+        data_tests:
           - relationships:
               arguments:
                 to: ref('slv_int_olist__customers')
@@ -112,12 +112,12 @@ models:
     columns:
       - name: local_name
         description: Product category name in Portuguese.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: english_name
         description: Product category name in English.
-        tests:
+        data_tests:
           - not_null
       - name: business_area
         description: Business area the product category belongs to.
@@ -127,7 +127,7 @@ models:
     columns:
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: latitude_mean
@@ -144,7 +144,7 @@ models:
     columns:
       - name: order_item_id
         description: Surrogate key for the order item.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: order_id
@@ -167,7 +167,7 @@ models:
     columns:
       - name: order_payment_id
         description: Surrogate key for the order payment.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: order_id
@@ -176,7 +176,7 @@ models:
         description: Sequence number of the payment within the order.
       - name: type
         description: Payment method used for the order.
-        tests:
+        data_tests:
           - accepted_values:
               arguments:
                 values:
@@ -195,7 +195,7 @@ models:
     columns:
       - name: order_review_id
         description: Identifies each review at the order grain; one customer review can span multiple orders in the same transaction.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: review_group_id
@@ -218,7 +218,7 @@ models:
     columns:
       - name: seller_id
         description: "{{ doc('seller_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: zip_code_prefix

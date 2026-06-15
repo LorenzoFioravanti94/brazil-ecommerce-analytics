@@ -1,4 +1,4 @@
-WITH states_intermediate AS (
+WITH states AS (
     SELECT
         state_id,
         state_name,
@@ -24,7 +24,7 @@ final AS (
         cities_number,
         latitude,
         longitude
-    FROM states_intermediate
+    FROM states
 )
 SELECT *
 FROM final
