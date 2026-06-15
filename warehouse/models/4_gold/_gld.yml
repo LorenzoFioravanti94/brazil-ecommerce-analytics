@@ -4,12 +4,12 @@ models:
     columns:
       - name: date_id
         description: Calendar date in YYYY-MM-DD format.
-        tests:
+        data_tests:
           - not_null
           - unique
       - name: year
         description: Calendar year.
-        tests:
+        data_tests:
           - not_null
       - name: quarter
         description: Quarter of the year (Q1-Q4).
@@ -27,7 +27,7 @@ models:
         description: Name of the day of the week.
       - name: is_weekend
         description: Whether the date falls on a weekend.
-        tests:
+        data_tests:
           - not_null
           - accepted_values:
               arguments:
@@ -36,7 +36,7 @@ models:
                   - FALSE
       - name: is_holiday_brazil
         description: Whether the date is a public holiday in Brazil.
-        tests:
+        data_tests:
           - not_null
           - accepted_values:
               arguments:
@@ -49,7 +49,7 @@ models:
     columns:
       - name: state_id
         description: Brazilian state (UF). References dim_states.
-        tests:
+        data_tests:
           - unique
           - not_null
           - relationships:
@@ -82,16 +82,16 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: state_name
         description: Full name of the state (e.g. São Paulo, Rio de Janeiro).
-        tests:
+        data_tests:
           - not_null
       - name: capital
         description: Capital city of the state.
-        tests:
+        data_tests:
           - not_null
       - name: region
         description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
@@ -109,20 +109,20 @@ models:
     columns:
       - name: customer_id
         description: "{{ doc('customer_unique_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
-        tests:
+        data_tests:
           - not_null
       - name: city
         description: "{{ doc('city_name') }}"
-        tests:
+        data_tests:
           - not_null
       - name: state_id
         description: Brazilian state (UF) of the customer. References dim_states.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -140,18 +140,18 @@ models:
     columns:
       - name: seller_id
         description: "{{ doc('seller_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
-        tests:
+        data_tests:
           - not_null
       - name: city
         description: "{{ doc('city_name') }}"
       - name: state_id
         description: Brazilian state (UF) of the seller. References dim_states.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -167,7 +167,7 @@ models:
     columns:
       - name: product_id
         description: "{{ doc('product_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: category_name
@@ -196,12 +196,12 @@ models:
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: customer_id
         description: Customer who placed the order. References dim_customers.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -209,7 +209,7 @@ models:
                 field: customer_id
       - name: order_date_id
         description: Purchase date of the order. References dim_date.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -217,7 +217,7 @@ models:
                 field: date_id
       - name: status
         description: Current status of the order in the fulfillment process.
-        tests:
+        data_tests:
           - not_null
       - name: approved_at
         description: Timestamp the order was approved.
@@ -229,7 +229,7 @@ models:
         description: Estimated delivery date for the order.
       - name: days_to_deliver
         description: Days taken to deliver the order to the customer.
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
@@ -260,12 +260,12 @@ models:
     columns:
       - name: order_item_id
         description: Surrogate key on (order_id, item_sequence_number).
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: order_id
         description: Order the item belongs to. References fct_orders.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -273,7 +273,7 @@ models:
                 field: order_id
       - name: product_id
         description: Product of the item. References dim_products.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -281,7 +281,7 @@ models:
                 field: product_id
       - name: seller_id
         description: Seller of the item. References dim_sellers.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -289,7 +289,7 @@ models:
                 field: seller_id
       - name: shipping_date_id
         description: Shipping deadline for the item. References dim_date.
-        tests:
+        data_tests:
           - not_null
           - relationships:
               arguments:
@@ -297,17 +297,17 @@ models:
                 field: date_id
       - name: item_sequence_number
         description: Position of the item within the order (degenerate dimension).
-        tests:
+        data_tests:
           - not_null
       - name: price
         description: Price of the item in BRL.
-        tests:
+        data_tests:
           - not_null
       - name: freight_value
         description: Freight cost for the item in BRL.
-        tests:
+        data_tests:
           - not_null
       - name: total_item_value
         description: Sum of price and freight_value.
-        tests:
+        data_tests:
           - not_null

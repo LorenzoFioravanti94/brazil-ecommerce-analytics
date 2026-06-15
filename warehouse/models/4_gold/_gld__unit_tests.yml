@@ -1,0 +1,66 @@
+unit_tests:
+  - name: test_fct_orders_payment_pivot
+    description: >
+      payments_aggregated must pivot each payment type into its own column,
+      summing values per order, returning 0 for absent types (debit_card here)
+      and excluding 'not_defined' payments from every aggregate.
+    model: fct_orders
+    # fct_orders is incremental: run the full-refresh path so the lookback filter
+    # is skipped. All inputs use format: sql (explicit columns/types) so the test
+    # is self-contained and runs in isolation without building the upstreams.
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('slv_int_olist__orders')
+        format: sql
+        rows: |
+          SELECT 'O1' AS order_id, 'C1' AS customer_id, 'delivered' AS status,
+                 CAST('2018-01-10 09:00:00' AS TIMESTAMP) AS purchase_timestamp,
+                 CAST(NULL AS TIMESTAMP) AS approved_at,
+                 CAST(NULL AS TIMESTAMP) AS delivered_carrier_date,
+                 CAST(NULL AS TIMESTAMP) AS delivered_customer_date,
+                 CAST(NULL AS TIMESTAMP) AS estimated_delivery_date
+      - input: ref('slv_int_olist__order_payments')
+        format: sql
+        rows: |
+          SELECT 'P1' AS order_payment_id, 'O1' AS order_id, 1 AS sequence_number, 'credit_card' AS type, 2 AS installments_count, 100 AS value
+          UNION ALL SELECT 'P2', 'O1', 2, 'boleto', 1, 50
+          UNION ALL SELECT 'P3', 'O1', 3, 'voucher', 1, 10
+          UNION ALL SELECT 'P4', 'O1', 4, 'not_defined', 1, 999
+      - input: ref('slv_int_olist__order_reviews')
+        format: sql
+        rows: "SELECT CAST(NULL AS VARCHAR) AS order_id, CAST(NULL AS INTEGER) AS score, CAST(NULL AS DATE) AS creation_date, CAST(NULL AS TIMESTAMP) AS answer_timestamp LIMIT 0"
+    expect:
+      rows:
+        - {order_id: 'O1', total_payment_value: 160, installments_count: 2, credit_card_value: 100, boleto_value: 50, voucher_value: 10, debit_card_value: 0}
+
+  - name: test_fct_orders_keeps_most_recent_review
+    description: >
+      When an order carries multiple reviews, only the most recent one
+      (by creation_date) survives the dedup window and feeds the review measures.
+    model: fct_orders
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('slv_int_olist__orders')
+        format: sql
+        rows: |
+          SELECT 'O1' AS order_id, 'C1' AS customer_id, 'delivered' AS status,
+                 CAST('2018-01-10 09:00:00' AS TIMESTAMP) AS purchase_timestamp,
+                 CAST(NULL AS TIMESTAMP) AS approved_at,
+                 CAST(NULL AS TIMESTAMP) AS delivered_carrier_date,
+                 CAST(NULL AS TIMESTAMP) AS delivered_customer_date,
+                 CAST(NULL AS TIMESTAMP) AS estimated_delivery_date
+      - input: ref('slv_int_olist__order_payments')
+        format: sql
+        rows: "SELECT CAST(NULL AS VARCHAR) AS order_payment_id, CAST(NULL AS VARCHAR) AS order_id, CAST(NULL AS INTEGER) AS sequence_number, CAST(NULL AS VARCHAR) AS type, CAST(NULL AS INTEGER) AS installments_count, CAST(NULL AS DOUBLE) AS value LIMIT 0"
+      - input: ref('slv_int_olist__order_reviews')
+        format: sql
+        rows: |
+          SELECT 'O1' AS order_id, 3 AS score, CAST('2018-02-01' AS DATE) AS creation_date, CAST('2018-02-02 10:00:00' AS TIMESTAMP) AS answer_timestamp
+          UNION ALL SELECT 'O1', 5, CAST('2018-03-01' AS DATE), CAST('2018-03-02 10:00:00' AS TIMESTAMP)
+    expect:
+      rows:
+        - {order_id: 'O1', review_score: 5, review_creation_date: '2018-03-01'}

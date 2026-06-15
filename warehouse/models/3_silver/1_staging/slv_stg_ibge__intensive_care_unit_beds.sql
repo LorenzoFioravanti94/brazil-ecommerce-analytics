@@ -7,12 +7,16 @@ WITH icu_beds AS (
         "Public beds per citizen",
         "Private beds per citizen"
     FROM {{ ref('brz_ibge__icu_beds') }}
+),
+final AS (
+    SELECT
+        UPPER(TRIM(UF)) AS state_id,
+        "ICU beds" AS icu_beds,
+        "Public beds" AS public_beds,
+        "Private beds" AS private_beds,
+        "Public beds per citizen" AS public_beds_per_10k_citizens,
+        "Private beds per citizen" AS private_beds_per_10k_citizens
+    FROM icu_beds
 )
-SELECT
-    upper(trim(UF)) AS state_id,
-    "ICU beds" AS icu_beds,
-    "Public beds" AS public_beds,
-    "Private beds" AS private_beds,
-    "Public beds per citizen" AS public_beds_per_10k_citizens,
-    "Private beds per citizen" AS private_beds_per_10k_citizens
-FROM icu_beds
+SELECT *
+FROM final
