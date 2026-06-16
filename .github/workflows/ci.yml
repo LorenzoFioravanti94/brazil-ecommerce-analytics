@@ -84,23 +84,13 @@ jobs:
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
-          # Slim CI without --defer (no prod DB is reachable from CI), so the
-          # fresh DB must contain everything the selected nodes touch:
-          #   • LEADING + on state:modified -> build the ANCESTORS of changed
-          #     nodes, so modified models (e.g. facts that read silver) and the
-          #     models behind modified tests can actually be built here.
-          #   • NO trailing + -> do not graph-select downstream tests that would
-          #     reference unbuilt star-schema dimensions (facts FK every dim, and
-          #     dims are not ancestors of facts, so they would never be built).
-          #   • --indirect-selection cautious -> attach a test only when ALL the
-          #     models it references are in the build set; cross-dimension FK
-          #     tests are skipped here and covered by Full CI on develop -> main.
-          #   • tag:always_build -> force standalone models like dim_date.
-          # IMPORTANT: --state is resolved RELATIVE TO --project-dir, so the
-          # repo-root persistent_state/ needs an ABSOLUTE path here.
+          # Selection logic (state:modified+, cautious, always_build, seeds) and
+          # its rationale live in warehouse/selectors.yml under the `slim_ci`
+          # selector. Only the invocation-time args stay here:
+          #   • --state -> resolved RELATIVE TO --project-dir, so the repo-root
+          #     persistent_state/ needs an ABSOLUTE path.
           dbt build \
-            --select +state:modified tag:always_build resource_type:seed \
-            --indirect-selection cautious \
+            --selector slim_ci \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir warehouse
