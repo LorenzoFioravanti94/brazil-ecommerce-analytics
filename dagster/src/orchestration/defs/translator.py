@@ -34,6 +34,10 @@ class WarehouseDbtTranslator(DagsterDbtTranslator):
         # their own group so nothing lands in the catch-all "default" group.
         if dbt_resource_props.get("resource_type") == "seed":
             return "seeds"
+        # Snapshots carry no layer tag either — they capture SCD2 history of a
+        # source, so give them their own group rather than the "default" one.
+        if dbt_resource_props.get("resource_type") == "snapshot":
+            return "snapshots"
         # Anything else (e.g. sources) falls back to dagster-dbt's default.
         return super().get_group_name(dbt_resource_props)
 
