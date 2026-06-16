@@ -8,12 +8,14 @@
 - [ ] Docs / Chore
 - [ ] Release / Promotion (`develop` → `main`)
 
-## dbt layers impacted
+## Layers & components impacted
 - [ ] Sources
 - [ ] Bronze
 - [ ] Silver
 - [ ] Gold
+- [ ] Consumption
 - [ ] Seeds
+- [ ] Snapshots
 - [ ] CI
 - [ ] CD - Dagster
 - [ ] Tooling

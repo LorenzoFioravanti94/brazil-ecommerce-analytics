@@ -6,9 +6,10 @@ Centralizes two Phase I enrichments that both hang off the dbt metadata:
    Dagster *asset checks* (and source tests too), so test pass/fail shows up
    on each asset in the UI instead of being buried in `dbt build` logs.
 2. Medallion layers as Dagster *asset groups* — every model already carries a
-   `bronze`/`silver`/`gold` tag (set once per layer in dbt_project.yml), so we
-   reuse that single source of truth to group the asset graph by layer. No new
-   tag to maintain: add a model to a layer in dbt and it groups automatically.
+   `bronze`/`silver`/`gold`/`consumption` tag (set once per layer in
+   dbt_project.yml), so we reuse that single source of truth to group the asset
+   graph by layer. No new tag to maintain: add a model to a layer in dbt and it
+   groups automatically.
 """
 
 from dagster_dbt import DagsterDbtTranslator, DagsterDbtTranslatorSettings
@@ -16,7 +17,7 @@ from dagster_dbt import DagsterDbtTranslator, DagsterDbtTranslatorSettings
 # Layer tags defined in warehouse/dbt_project.yml (`+tags: ["bronze"|...]`).
 # Ordered most-upstream -> most-downstream; the first match wins, which is the
 # correct layer because a model lives in exactly one layer.
-_LAYER_TAGS = ("bronze", "silver", "gold")
+_LAYER_TAGS = ("bronze", "silver", "gold", "consumption")
 
 
 class WarehouseDbtTranslator(DagsterDbtTranslator):
@@ -33,6 +34,10 @@ class WarehouseDbtTranslator(DagsterDbtTranslator):
         # their own group so nothing lands in the catch-all "default" group.
         if dbt_resource_props.get("resource_type") == "seed":
             return "seeds"
+        # Snapshots carry no layer tag either — they capture SCD2 history of a
+        # source, so give them their own group rather than the "default" one.
+        if dbt_resource_props.get("resource_type") == "snapshot":
+            return "snapshots"
         # Anything else (e.g. sources) falls back to dagster-dbt's default.
         return super().get_group_name(dbt_resource_props)
 

@@ -1,0 +1,43 @@
+models:
+  - name: churn_customer_orders
+    description: >
+      Transaction-grain feature source for the downstream customer-churn ML
+      project. One row per order, projected from fct_orders into the contract the
+      ML expects (customer_id, accounting_date, order_status, order_value). All
+      statuses are kept, CANCELLED included, so the cancellation_rate can be
+      derived downstream. Consumed by the customer_churn_model exposure.
+    columns:
+      - name: customer_id
+        description: Unique customer (customer_unique_id). Repeats across orders.
+        data_tests:
+          - not_null
+      - name: accounting_date
+        description: Purchase date of the order (from order_date_id).
+        data_tests:
+          - not_null
+      - name: order_status
+        description: Order status in UPPERCASE (e.g. DELIVERED, CANCELLED).
+        data_tests:
+          - not_null
+      - name: order_value
+        description: >
+          Total monetary value of the order (total_payment_value). May be null
+          for the rare order with no recorded payment.
+
+exposures:
+  - name: customer_churn_model
+    label: Customer Churn / Repurchase Model
+    type: ml
+    maturity: low  # planned downstream consumer, not yet live
+    owner:
+      name: Lorenzo Fioravanti
+      email: lorenzo.frv@gmail.com
+    description: >
+      Planned machine-learning project predicting customer repurchase / churn.
+      It consumes churn_customer_orders as its transaction-grain feature source
+      (RFM via lifetimes, plus a cancellation_rate, logistic regression and
+      clustering). Declared as an exposure so this consumer appears as a
+      downstream node in the dbt lineage and the feeding model can be built and
+      tested together via `+exposure:customer_churn_model`.
+    depends_on:
+      - ref('churn_customer_orders')
