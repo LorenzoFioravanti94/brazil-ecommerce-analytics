@@ -234,6 +234,10 @@ models:
               arguments:
                 min_value: 0
                 inclusive: true
+              # Only delivered orders have a meaningful delivery duration;
+              # other statuses have no delivered_customer_date (days_to_deliver is null).
+              config:
+                where: "status = 'DELIVERED'"
       - name: delivery_delay_days
         description: Days the delivery was late versus the estimate (negative if early).
       - name: installments_count
