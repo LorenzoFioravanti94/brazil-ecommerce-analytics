@@ -1,0 +1,38 @@
+# Named selections — single source of truth for the CI selection logic.
+# The rationale that used to live in .github/workflows/ci.yml lives here now,
+# next to the definition it explains.
+
+selectors:
+  - name: slim_ci
+    description: >
+      Slim CI selection for PRs towards develop. Runs without --defer (no prod DB
+      is reachable from CI), so the fresh DB must contain everything the selected
+      nodes touch. Union of three criteria:
+        * state:modified with parents -> build the ANCESTORS of changed nodes, so
+          modified models (e.g. facts that read silver) and the models behind
+          modified tests can actually be built. No children (+ suffix) on purpose:
+          downstream tests would reference unbuilt star-schema dimensions (facts
+          FK every dim, and dims are not ancestors of facts), so they would never
+          be built here.
+        * tag:always_build -> force standalone models like dim_date, which
+          state:modified+ never selects but the facts' relationship tests need.
+        * resource_type:seed -> seeds are cheap and several models depend on them.
+      indirect_selection: cautious is LOAD-BEARING: it attaches a test only when
+      ALL the models it references are in the build set, so cross-dimension FK
+      tests are skipped here (covered by Full CI on develop -> main). Without it
+      dbt defaults to eager and Slim CI breaks on tests of unbuilt dimensions.
+      NOTE: --state is passed on the CLI (it is a runtime invocation path, not a
+      selection property).
+    default: false
+    definition:
+      union:
+        - method: state
+          value: modified
+          parents: true
+          indirect_selection: cautious
+        - method: tag
+          value: always_build
+          indirect_selection: cautious
+        - method: resource_type
+          value: seed
+          indirect_selection: cautious
