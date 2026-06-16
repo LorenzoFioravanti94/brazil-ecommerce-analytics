@@ -53,6 +53,15 @@ models:
       +materialized: table
       +tags: ["gold"]
 
+    # Downstream consumption layer: use-case-specific marts built on top of the
+    # Gold snowflake (e.g. ML feature sources). Kept OUT of Gold so the conformed
+    # model stays use-case-agnostic; a dedicated `consumption` schema + tag make
+    # the boundary explicit (and groupable in Dagster).
+    5_consumption:
+      +schema: consumption
+      +materialized: view
+      +tags: ["consumption"]
+
 # Static reference / mapping data. Without an explicit +schema, seeds land in
 # target.schema ("main" on DuckDB), which carries no meaning -> give them a
 # dedicated, self-describing schema.
