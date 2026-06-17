@@ -23,8 +23,10 @@ import urllib.request
 DAGSTER_URL = os.environ["DAGSTER_URL"].rstrip("/")
 GRAPHQL_URL = f"{DAGSTER_URL}/graphql"
 
-LOCATION = "orchestration.definitions"
-REPOSITORY = "__repository__"
+# Only the job name is fixed; the code-location and repository names that own it
+# are discovered at runtime. `dg dev` derives the location name from the project
+# (it is "dagster", not the historical "orchestration.definitions"), so pinning
+# it here would silently break again on any tooling/layout change.
 JOB = "standard_job"
 
 POLL_INTERVAL_SECONDS = 30
@@ -43,6 +45,22 @@ def graphql(query: str, variables: dict | None = None) -> dict:
         sys.exit(f"GraphQL errors: {json.dumps(body['errors'])}")
     return body["data"]
 
+
+DISCOVER_QUERY = """
+query Discover {
+  repositoriesOrError {
+    __typename
+    ... on RepositoryConnection {
+      nodes {
+        name
+        location { name }
+        pipelines { name }
+      }
+    }
+    ... on PythonError { message }
+  }
+}
+"""
 
 RELOAD_MUTATION = """
 mutation Reload($name: String!) {
@@ -82,23 +100,41 @@ query Status($runId: ID!) {
 """
 
 
-def reload_location() -> None:
+def discover_target() -> tuple[str, str]:
+    """Find the code-location and repository names that own JOB.
+
+    Returns (location_name, repository_name) so the caller never has to hardcode
+    names that shift with the Dagster project layout or launch command.
+    """
+    result = graphql(DISCOVER_QUERY)["repositoriesOrError"]
+    if result["__typename"] != "RepositoryConnection":
+        sys.exit(f"Failed to list repositories: {result.get('message', result)}")
+    for repo in result["nodes"]:
+        if any(pipeline["name"] == JOB for pipeline in repo["pipelines"]):
+            location = repo["location"]["name"]
+            repository = repo["name"]
+            print(f"Discovered job '{JOB}' in '{location}' / '{repository}'")
+            return location, repository
+    sys.exit(f"No code location exposes a job named '{JOB}'")
+
+
+def reload_location(location: str) -> None:
     """Re-parse the merged project so the manifest is current before the run."""
-    result = graphql(RELOAD_MUTATION, {"name": LOCATION})["reloadRepositoryLocation"]
+    result = graphql(RELOAD_MUTATION, {"name": location})["reloadRepositoryLocation"]
     if result["__typename"] != "WorkspaceLocationEntry":
         sys.exit(f"Code location reload failed: {result.get('message', result)}")
     load = result["locationOrLoadError"]
     if load["__typename"] != "RepositoryLocation":
         sys.exit(f"Code location reload error: {load.get('message', load)}")
-    print(f"Reloaded code location '{LOCATION}'")
+    print(f"Reloaded code location '{location}'")
 
 
-def launch_run() -> str:
+def launch_run(location: str, repository: str) -> str:
     """Launch standard_job and return its run id."""
     params = {
         "selector": {
-            "repositoryLocationName": LOCATION,
-            "repositoryName": REPOSITORY,
+            "repositoryLocationName": location,
+            "repositoryName": repository,
             "jobName": JOB,
         },
         "runConfigData": {},
@@ -128,8 +164,9 @@ def wait_for_run(run_id: str) -> None:
 
 
 def main() -> None:
-    reload_location()
-    run_id = launch_run()
+    location, repository = discover_target()
+    reload_location(location)
+    run_id = launch_run(location, repository)
     wait_for_run(run_id)
 
 
