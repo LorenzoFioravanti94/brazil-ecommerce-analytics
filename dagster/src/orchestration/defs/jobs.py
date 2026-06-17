@@ -1,4 +1,4 @@
-from dagster import define_asset_job, AssetSelection, RunConfig, job
+from dagster import define_asset_job, RunConfig, job
 from dagster_dbt import build_dbt_asset_selection
 
 from .assets import warehouse_assets, DbtConfig
@@ -6,10 +6,15 @@ from .ops import check_source_freshness
 from .resources import dbt_resource
 
 # Standard Job — triggered by GitHub Actions after merge on main.
-# Full project incremental build.
+# Full project incremental build. The selection is built from the dbt project
+# (build_dbt_asset_selection defaults to `fqn:*`, i.e. everything) rather than
+# AssetSelection.all() so it also covers the dbt *source* tests surfaced as asset
+# checks. AssetSelection.all() excludes source assets (and their checks), yet the
+# underlying `dbt build` still runs those source tests — Dagster would then log a
+# noisy "AssetCheckResult ... was yielded which is not selected" for every one.
 standard_job = define_asset_job(
     name="standard_job",
-    selection=AssetSelection.all(),
+    selection=build_dbt_asset_selection([warehouse_assets]),
 )
 
 # Full Refresh Job — weekly schedule.
