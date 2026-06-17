@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 WITH geolocation AS (
     SELECT
         geolocation_zip_code_prefix,

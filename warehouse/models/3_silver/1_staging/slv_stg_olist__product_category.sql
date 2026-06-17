@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 WITH category_translation AS (
     SELECT
         product_category_name,

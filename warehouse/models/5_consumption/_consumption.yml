@@ -1,28 +1,46 @@
 models:
   - name: churn_customer_orders
+    # Public access + enforced contract: this model is an exposed data product
+    # consumed by the customer_churn_model exposure (the downstream ML project).
+    # The contract pins column names and types so the consumer can rely on them.
+    access: public
+    config:
+      contract:
+        enforced: true
     description: >
       Transaction-grain feature source for the downstream customer-churn ML
       project. One row per order, projected from fct_orders into the contract the
-      ML expects (customer_id, accounting_date, order_status, order_value). All
-      statuses are kept, CANCELLED included, so the cancellation_rate can be
-      derived downstream. Consumed by the customer_churn_model exposure.
+      ML expects (order_id, customer_id, accounting_date, order_status,
+      order_value). All statuses are kept, CANCELLED included, so the
+      cancellation_rate can be derived downstream. Consumed by the
+      customer_churn_model exposure.
     columns:
+      - name: order_id
+        description: "{{ doc('order_id') }}"
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
       - name: customer_id
         description: Unique customer (customer_unique_id). Repeats across orders.
+        data_type: varchar
         data_tests:
           - not_null
       - name: accounting_date
         description: Purchase date of the order (from order_date_id).
+        data_type: date
         data_tests:
           - not_null
       - name: order_status
         description: Order status in UPPERCASE (e.g. DELIVERED, CANCELLED).
+        data_type: varchar
         data_tests:
           - not_null
       - name: order_value
         description: >
           Total monetary value of the order (total_payment_value). May be null
           for the rare order with no recorded payment.
+        data_type: double
 
 exposures:
   - name: customer_churn_model
