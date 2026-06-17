@@ -1,6 +1,10 @@
 -- Consumer-facing model for the downstream customer-churn ML project.
 -- Emits the transaction-grain contract that project expects:
---   customer_id, accounting_date, order_status, order_value
+--   order_id, customer_id, accounting_date, order_status, order_value
+--
+-- order_id is the primary key (one row per order) and is tested unique/not_null.
+-- Materialized as a table (not a view) so the ML consumer reads a stable, fast
+-- relation and access is set to public: this is an exposed contract.
 --
 -- Grain: one row per order. The two source rules the ML relies on are already
 -- guaranteed upstream by fct_orders, so nothing extra is done here:
@@ -15,8 +19,11 @@
 -- unique and carries a single status with a non-negative value, so that anomaly
 -- cannot occur; matching distinct orders by equal value would delete real data.
 
+{{ config(materialized='table') }}
+
 WITH fct_orders AS (
     SELECT
+        order_id,
         customer_id,
         order_date_id,
         status,
@@ -25,6 +32,7 @@ WITH fct_orders AS (
 ),
 final AS (
     SELECT
+        order_id,
         customer_id,
         order_date_id          AS accounting_date,
         status                 AS order_status,

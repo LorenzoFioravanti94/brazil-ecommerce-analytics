@@ -4,6 +4,9 @@ models:
     columns:
       - name: local_name
         description: Product category name in Portuguese.
+        data_tests:
+          - unique
+          - not_null
       - name: english_name
         description: Product category name in English.
 
@@ -12,6 +15,9 @@ models:
     columns:
       - name: customer_basket_id
         description: "{{ doc('customer_record_id') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: customer_id
         description: "{{ doc('customer_unique_id') }}"
       - name: zip_code_prefix
@@ -23,6 +29,9 @@ models:
 
   - name: slv_stg_olist__geolocation
     description: Cleaned and standardized geolocation reference data.
+    # No primary-key test here on purpose: raw geolocation holds many coordinate
+    # rows per zip_code_prefix. The grain is finalized in slv_int_olist__geolocation
+    # (one row per zip_code_prefix), where the primary key is tested.
     columns:
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
@@ -37,16 +46,25 @@ models:
 
   - name: slv_stg_olist__order_items
     description: Cleaned and standardized order items.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - item_sequence_number
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
                 field: order_id
       - name: item_sequence_number
         description: Sequence number of the item within the order.
+        data_tests:
+          - not_null
       - name: product_id
         description: "{{ doc('product_id') }}"
         data_tests:
@@ -70,16 +88,25 @@ models:
 
   - name: slv_stg_olist__order_payments
     description: Cleaned and standardized order payments.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - sequence_number
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
                 field: order_id
       - name: sequence_number
         description: Sequence number of the payment within the order.
+        data_tests:
+          - not_null
       - name: type
         description: Payment method used (e.g. credit card or boleto).
       - name: installments_count
@@ -89,12 +116,21 @@ models:
 
   - name: slv_stg_olist__order_reviews
     description: Cleaned and standardized order reviews.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - review_id
+              - order_id
     columns:
       - name: review_id
         description: Identifier of a review.
+        data_tests:
+          - not_null
       - name: order_id
         description: "{{ doc('order_id') }}"
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('slv_stg_olist__orders')
@@ -115,6 +151,9 @@ models:
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: customer_basket_id
         description: "{{ doc('customer_record_id') }}"
         data_tests:
@@ -140,6 +179,9 @@ models:
     columns:
       - name: product_id
         description: "{{ doc('product_id') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: local_category_name
         description: Product category name in Portuguese.
         data_tests:
@@ -169,6 +211,9 @@ models:
     columns:
       - name: seller_id
         description: "{{ doc('seller_id') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
       - name: city
@@ -181,6 +226,9 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: passengers_rate
         description: Normalized rate of airport passengers in the state.
 
@@ -218,6 +266,9 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: hdi_2017
         description: Overall HDI for the state in 2017.
       - name: hdi_education_2017
@@ -275,6 +326,9 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: icu_beds
         description: Total number of ICU beds in the state.
       - name: public_beds
@@ -298,6 +352,9 @@ models:
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
+        data_tests:
+          - unique
+          - not_null
       - name: state_name
         description: Full name of the state.
       - name: capital

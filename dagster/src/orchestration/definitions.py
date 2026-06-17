@@ -1,4 +1,17 @@
-from dagster import Definitions
+import warnings
+
+from dagster import BetaWarning, Definitions
+
+# dagster-dbt builds `LocalFileCodeReference` / `CodeReferencesMetadataValue`
+# (both beta in dagster-dbt 0.29.2) when `enable_code_references=True` on our
+# translator. We deliberately use that feature (one-click asset -> .sql in the
+# UI) and dagster is version-pinned, so the beta API will not shift underneath
+# us. Silence just those two beta notices instead of dropping the feature.
+warnings.filterwarnings(
+    "ignore",
+    category=BetaWarning,
+    message=r"Class `(LocalFileCodeReference|CodeReferencesMetadataValue)`",
+)
 
 from .defs.assets import warehouse_assets
 from .defs.resources import dbt_resource

@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 WITH sellers AS (
     SELECT
         seller_id,
