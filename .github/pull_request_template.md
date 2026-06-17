@@ -14,8 +14,12 @@
 - [ ] Silver
 - [ ] Gold
 - [ ] Consumption
+- [ ] Analyses
+- [ ] Macros
+- [ ] Exposures
 - [ ] Seeds
 - [ ] Snapshots
+- [ ] Tests
 - [ ] CI
 - [ ] CD - Dagster
 - [ ] Tooling
