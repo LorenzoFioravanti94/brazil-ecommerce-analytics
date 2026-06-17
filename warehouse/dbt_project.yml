@@ -1,37 +1,29 @@
-
-# Name your project! Project names should contain only lowercase characters
-# and underscores. A good package name should reflect your organization's
-# name or the intended use of these models
 name: 'warehouse'
 version: '1.0.0'
 
-# This setting configures which "profile" dbt uses for this project.
+# Profile (defined in profiles.yml) that holds this project's connections.
 profile: 'warehouse'
 
-# These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
+# File paths. All are dbt defaults except docs-paths, which is narrowed so dbt
+# looks for doc blocks only in the dedicated docs/ directory.
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-docs-paths: ["docs"]  # look for doc blocks only in the dedicated docs/ directory
+docs-paths: ["docs"]
 
-clean-targets:         # directories to be removed by `dbt clean`
+# Directories removed by `dbt clean`.
+clean-targets:
   - "target"
   - "dbt_packages"
-    
-# Configuring models
-# Full documentation: https://docs.getdbt.com/docs/configuring-models
 
-# In this example config, we tell dbt to build all models in the example/
-# directory as views. These settings can be overridden in the individual model
-# files using the `{{ config(...) }}` macro.
+# Layer-level model defaults (Medallion + dbt doctrine). These can be overridden
+# per model via the {{ config(...) }} macro.
 models:
   warehouse:
-    
+
     2_bronze:
       +schema: bronze
       +materialized: table
@@ -39,11 +31,11 @@ models:
 
     3_silver:
       +tags: ["silver"]
-      
+
       1_staging:
         +schema: silver_staging
         +materialized: view
-        
+
       2_intermediate:
         +schema: silver_intermediate
         +materialized: view

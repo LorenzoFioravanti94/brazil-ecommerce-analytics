@@ -35,39 +35,39 @@ customers_city_no_accents AS (
         state_id
     FROM customers
 ),
--- 2. Applicazione del Seed 1: Correzione dei Typo Grammaticali
+-- 2. Apply Seed 1: fix grammatical typos
 apply_seed_typos AS (
     SELECT
         c.customer_basket_id,
         c.customer_id,
         c.zip_code_prefix,
-        -- Se c'è un typo nel seed usa quello corretto, altrimenti tieni la stringa normalizzata
+        -- If the seed has a typo fix, use it; otherwise keep the normalized string
         COALESCE(t.fixed_city, c.city_no_accents) AS city_corrected,
         c.state_id
     FROM customers_city_no_accents c
     LEFT JOIN typo_cure t
         ON c.city_no_accents = t.original_city
 ),
--- 3. Applicazione del Seed 2: Correzione dei Conflitti dei CAP (Regole Assolute)
+-- 3. Apply Seed 2: resolve ZIP code conflicts (absolute rules)
 apply_seed_zip_rules AS (
     SELECT
         t.customer_basket_id,
         t.customer_id,
         t.zip_code_prefix,
-        -- Se il CAP è problematico, il seed sovrascrive in modo assoluto la città
+        -- If the ZIP code is problematic, the seed unconditionally overrides the city
         COALESCE(z.city_associated, t.city_corrected) AS city_associated,
         t.state_id
     FROM apply_seed_typos t
     LEFT JOIN zip_code_fix z
         ON t.zip_code_prefix = z.zip_code_prefix
 ),
--- 4. Applicazione del Seed 3: Mappatura Distretti -> Comuni IBGE
+-- 4. Apply Seed 3: map districts to official IBGE municipalities
 apply_seed_municipality AS (
     SELECT
         z.customer_basket_id,
         z.customer_id,
         z.zip_code_prefix,
-        -- Se la località è un distretto, mappa sul comune ufficiale IBGE
+        -- If the locality is a district, map it to the official IBGE municipality
         COALESCE(m.municipality, z.city_associated) AS city,
         z.state_id
     FROM apply_seed_zip_rules z
