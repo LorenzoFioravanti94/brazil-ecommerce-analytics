@@ -31,12 +31,12 @@ remove_redundancy AS (
         longitude
     FROM states
 ),
--- 1. Standardizzazione del testo coerente con il Seed 1
+-- 1. Text standardization consistent with Seed 1
 final AS (
     SELECT
         state_id,
         REGEXP_REPLACE(STRIP_ACCENTS(state_name), '[^A-Z0-9 ]', '', 'g') AS state_name,
-        REGEXP_REPLACE(STRIP_ACCENTS(capital), '[^A-Z0-9 ]', '', 'g') AS capital, -- no need to apply seeds beacuse they are capitals
+        REGEXP_REPLACE(STRIP_ACCENTS(capital), '[^A-Z0-9 ]', '', 'g') AS capital, -- no need to apply seeds because these are capital cities
         region,
         area_km2,
         population,
