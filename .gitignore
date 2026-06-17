@@ -6,14 +6,6 @@ warehouse/logs/
 # ─── DAGSTER ───────────────────────────────────────────────────────────────────
 dagster/.dg/
 .tmp_dagster_home*/
-# Runtime artifacts created when DAGSTER_HOME points at the dagster/ project
-# (the dagster.yaml lives there, but its local instance storage must not be committed).
-dagster/storage/
-dagster/history/
-dagster/schedules/
-dagster/logs/
-dagster/.logs_queue/
-dagster/.telemetry/
 
 # ─── DATA ──────────────────────────────────────────────────────────────────────
 data/duckdb/*.duckdb
