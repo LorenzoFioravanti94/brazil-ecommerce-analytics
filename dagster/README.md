@@ -44,13 +44,20 @@ pip install -e ".[dev]"
 
 ### Running Dagster
 
-Start the Dagster UI web server:
+Point `DAGSTER_HOME` at this project directory (it holds `dagster.yaml`) and start
+the Dagster UI web server:
 
 ```bash
+export DAGSTER_HOME="$(pwd)"   # run from the dagster/ project root
 dg dev
 ```
 
 Open http://localhost:3000 in your browser to see the project.
+
+Setting `DAGSTER_HOME` to the directory containing `dagster.yaml` keeps instance
+storage local to the project and silences the "No dagster instance configuration
+file found" startup warning. The local instance storage it creates
+(`storage/`, `history/`, `schedules/`, `logs/`) is gitignored.
 
 ## Learn more
 

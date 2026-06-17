@@ -1,0 +1,14 @@
+# Dagster instance configuration.
+#
+# An explicit (even if effectively empty) dagster.yaml silences the
+# "No dagster instance configuration file found" warning at startup and gives
+# the project a single place to configure instance-level concerns (storage,
+# run launcher, concurrency, ...) later.
+#
+# Point DAGSTER_HOME at this directory before launching, e.g.:
+#   export DAGSTER_HOME="$(pwd)"   # run from the dagster/ project root
+#
+# All settings are left at their defaults (local SQLite storage under
+# DAGSTER_HOME). Add overrides here as the deployment grows.
+telemetry:
+  enabled: false
