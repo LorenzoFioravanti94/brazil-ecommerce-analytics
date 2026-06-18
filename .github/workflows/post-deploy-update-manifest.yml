@@ -26,8 +26,7 @@ jobs:
           token: ${{ secrets.MANIFEST_PAT }}
 
       - name: Install dependencies
-        # Shared dbt pins (incl. duckdb==1.0.0) — must match Slim CI so the
-        # reference manifest round-trips. See requirements-dbt.txt.
+        # A dbt parse only needs the dbt pins, so requirements-dbt.txt is enough (no kaggle/ingestion).
         run: pip install -r requirements-dbt.txt
 
       - name: Install dbt packages
@@ -36,20 +35,14 @@ jobs:
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-          # This manifest is ONLY consumed as the Slim CI comparison state, and
-          # Slim CI runs with --target test. The reference must therefore be
-          # parsed with the SAME target/profile (identical duckdb path => same
-          # database name "test"), otherwise every source's relation differs by
-          # database name (prod vs test) and state:modified flags ALL sources,
-          # cascading state:modified+ onto the whole DAG. Must match ci.yml.
+          # Must match ci.yml: same target/profile (so the database name aligns),
+          # otherwise state:modified flags every source against the Slim CI state.
           cat > ~/.dbt/profiles.yml << 'EOF'
           warehouse:
             target: test
             outputs:
               test:
                 type: duckdb
-                # dbt parse needs no physical DB, but the path must be valid and
-                # its stem must match ci.yml so the database name aligns.
                 path: /tmp/test.duckdb
                 threads: 2
           EOF
@@ -61,11 +54,9 @@ jobs:
             --project-dir warehouse
 
       - name: Guard against an unreadable reference manifest
-        # dbt-core's ModelLanguage enum is {sql, python}; a duckdb other than
-        # 1.0.0 advertises 'javascript' on the function materialization, which
-        # cannot be read back from --state and breaks every Slim CI run that
-        # loads this manifest. Fail loudly here instead of committing a poisoned
-        # reference to main. See requirements-dbt.txt (duckdb==1.0.0).
+        # A duckdb other than 1.0.0 writes 'javascript' into the manifest, which
+        # dbt cannot read back from --state and breaks every Slim CI run. Fail here
+        # instead of committing a poisoned reference. See requirements-dbt.txt.
         run: |
           if grep -q '"javascript"' warehouse/target/manifest.json; then
             echo "ERROR: generated manifest contains 'javascript' — duckdb is not pinned to 1.0.0"
