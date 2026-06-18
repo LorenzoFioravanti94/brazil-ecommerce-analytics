@@ -9,6 +9,7 @@ sources:
     database: "{{ 'prod' if target.name == 'dev' else target.database }}"
     schema: raw_olist
     tables:
+
       - name: category_translation
         description: Mapping of product category names from Portuguese to English.
         columns:

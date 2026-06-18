@@ -1,3 +1,4 @@
+# Column names containing spaces use quote: true — DuckDB requires quoted identifiers for spaced column names.
 sources:
   - name: ibge
     description: >
@@ -9,6 +10,7 @@ sources:
     database: "{{ 'prod' if target.name == 'dev' else target.database }}"
     schema: raw_ibge
     tables:
+
       - name: airports
         description: Airport passenger activity by state.
         columns:
@@ -18,7 +20,7 @@ sources:
               - unique
               - not_null
           - name: "Passengers rate"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Normalized rate of airport passengers in the state.
             data_tests:
               - not_null
@@ -37,7 +39,7 @@ sources:
               - unique
               - not_null
           - name: "HDI 2017"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Overall Human Development Index for the state in 2017.
             data_tests:
               - not_null
@@ -47,7 +49,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Education 2017"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Education component of the HDI for the state in 2017.
             data_tests:
               - not_null
@@ -57,7 +59,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Wealth 2017"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Wealth component of the HDI for the state in 2017.
             data_tests:
               - not_null
@@ -67,7 +69,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Health 2017"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Health component of the HDI for the state in 2017.
             data_tests:
               - not_null
@@ -77,7 +79,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI 2010"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Overall Human Development Index for the state in 2010.
             data_tests:
               - not_null
@@ -87,7 +89,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Education 2010"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Education component of the HDI for the state in 2010.
             data_tests:
               - not_null
@@ -97,7 +99,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Wealth 2010"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Wealth component of the HDI for the state in 2010.
             data_tests:
               - not_null
@@ -107,7 +109,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Health 2010"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Health component of the HDI for the state in 2010.
             data_tests:
               - not_null
@@ -117,7 +119,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI 2000"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Overall Human Development Index for the state in 2000.
             data_tests:
               - not_null
@@ -127,7 +129,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Education 2000"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Education component of the HDI for the state in 2000.
             data_tests:
               - not_null
@@ -137,7 +139,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Wealth 2000"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Wealth component of the HDI for the state in 2000.
             data_tests:
               - not_null
@@ -147,7 +149,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Health 2000"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Health component of the HDI for the state in 2000.
             data_tests:
               - not_null
@@ -157,7 +159,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI 1991"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Overall Human Development Index for the state in 1991.
             data_tests:
               - not_null
@@ -167,7 +169,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Education 1991"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Education component of the HDI for the state in 1991.
             data_tests:
               - not_null
@@ -177,7 +179,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Wealth 1991"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Wealth component of the HDI for the state in 1991.
             data_tests:
               - not_null
@@ -187,7 +189,7 @@ sources:
                     max_value: 1
                     inclusive: true
           - name: "HDI Health 1991"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Health component of the HDI for the state in 1991.
             data_tests:
               - not_null
@@ -206,19 +208,19 @@ sources:
               - unique
               - not_null
           - name: "ICU beds"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Total number of ICU beds in the state.
           - name: "Public beds"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Number of public ICU beds in the state.
           - name: "Private beds"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Number of private ICU beds in the state.
           - name: "Public beds per citizen"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Public ICU beds per citizen in the state.
           - name: "Private beds per citizen"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Private ICU beds per citizen in the state.
 
       - name: states
@@ -246,17 +248,17 @@ sources:
           - name: Population
             description: Total population of the state.
           - name: "Demographic Density"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Population per square kilometer in the state.
           - name: "Cities count"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: Number of cities in the state.
             data_tests:
               - not_null
           - name: GDP
             description: Gross Domestic Product of the state, in Brazilian Reais.
           - name: "GDP rate"
-            quote: true  # DuckDB requires quoting for column names containing spaces.
+            quote: true
             description: GDP growth rate of the state.
           - name: Poverty
             description: Poverty rate in the state.
