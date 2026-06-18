@@ -1,5 +1,5 @@
--- Objective: define a new PK for the customers table by selecting the most recent geographic information for each customer, while also preserving the total number of orders as a key metric for downstream models.
--- CTE 1: Combine customer details with order timestamps to establish chronological order
+-- Promotes customer_id to PK by collapsing multi-order records to one row per customer,
+-- keeping the latest geographic data and counting total orders for downstream use.
 WITH customers AS (
     SELECT
         customer_basket_id,
@@ -25,7 +25,7 @@ municipality_map AS (
     SELECT *
     FROM {{ ref('municipality_map') }}
 ),
-customers_city_no_accents AS (
+customers_normalized_city AS (
     SELECT
         customer_basket_id,
         customer_id,
@@ -35,8 +35,8 @@ customers_city_no_accents AS (
         state_id
     FROM customers
 ),
--- 2. Apply Seed 1: fix grammatical typos
-apply_seed_typos AS (
+-- Fix grammatical typos: apply typo_cure seed
+customers_typos_fixed AS (
     SELECT
         c.customer_basket_id,
         c.customer_id,
@@ -44,12 +44,12 @@ apply_seed_typos AS (
         -- If the seed has a typo fix, use it; otherwise keep the normalized string
         COALESCE(t.fixed_city, c.city_no_accents) AS city_corrected,
         c.state_id
-    FROM customers_city_no_accents c
+    FROM customers_normalized_city c
     LEFT JOIN typo_cure t
         ON c.city_no_accents = t.original_city
 ),
--- 3. Apply Seed 2: resolve ZIP code conflicts (absolute rules)
-apply_seed_zip_rules AS (
+-- Resolve ZIP code conflicts: apply zip_code_fix seed
+customers_zip_fixed AS (
     SELECT
         t.customer_basket_id,
         t.customer_id,
@@ -57,12 +57,12 @@ apply_seed_zip_rules AS (
         -- If the ZIP code is problematic, the seed unconditionally overrides the city
         COALESCE(z.city_associated, t.city_corrected) AS city_associated,
         t.state_id
-    FROM apply_seed_typos t
+    FROM customers_typos_fixed t
     LEFT JOIN zip_code_fix z
         ON t.zip_code_prefix = z.zip_code_prefix
 ),
--- 4. Apply Seed 3: map districts to official IBGE municipalities
-apply_seed_municipality AS (
+-- Map districts to official IBGE municipalities: apply municipality_map seed
+customers_district_fixed AS (
     SELECT
         z.customer_basket_id,
         z.customer_id,
@@ -70,7 +70,7 @@ apply_seed_municipality AS (
         -- If the locality is a district, map it to the official IBGE municipality
         COALESCE(m.municipality, z.city_associated) AS city,
         z.state_id
-    FROM apply_seed_zip_rules z
+    FROM customers_zip_fixed z
     LEFT JOIN municipality_map m
         ON z.city_associated = m.locality
 ),
@@ -82,11 +82,11 @@ customer_orders_joined AS (
         c.city,
         c.state_id,
         o.purchase_timestamp
-    FROM apply_seed_municipality c
+    FROM customers_district_fixed c
     INNER JOIN orders o
         ON c.customer_basket_id = o.customer_basket_id
 ),
--- CTE 2: Calculate total orders per customer and rank their records from newest to oldest
+-- Calculate total orders per customer and rank records from newest to oldest
 customer_records_ranked AS (
     SELECT
         customer_id,
@@ -104,10 +104,11 @@ customer_records_ranked AS (
         ) AS total_orders
     FROM customer_orders_joined
 ),
--- Final Selection: Deduplicate by picking only the latest geographic data for each customer
+-- Deduplicate by picking only the latest geographic data for each customer
 final AS (
     SELECT
-        customer_id, -- This now safely acts as the new Primary Key (PK)
+        -- New PK
+        customer_id,
         zip_code_prefix,
         city,
         state_id,

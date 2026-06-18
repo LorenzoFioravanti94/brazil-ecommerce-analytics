@@ -1,4 +1,5 @@
 models:
+
   - name: brz_olist__category_translation
     description: 1:1 bronze mirror of the olist category_translation source.
 

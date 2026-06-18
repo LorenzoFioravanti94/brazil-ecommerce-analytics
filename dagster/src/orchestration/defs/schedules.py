@@ -1,8 +1,6 @@
 from dagster import ScheduleDefinition
 from .jobs import full_refresh_job, source_freshness_job
 
-# standard_job has no schedule — it is triggered by GitHub Actions via dagster-cd.yml.
-
 # Every Sunday at 4:00 AM
 freshness_schedule = ScheduleDefinition(
     job=source_freshness_job,

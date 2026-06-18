@@ -1,22 +1,20 @@
 """Custom Dagster <-> dbt translator.
 
-Centralizes two Phase I enrichments that both hang off the dbt metadata:
+dagster-dbt turns every dbt node into a Dagster asset; a translator is the hook
+that customizes how that mapping happens. This one adds two things:
 
-1. Data quality as first-class Dagster objects — dbt tests are surfaced as
-   Dagster *asset checks* (and source tests too), so test pass/fail shows up
-   on each asset in the UI instead of being buried in `dbt build` logs.
-2. Medallion layers as Dagster *asset groups* — every model already carries a
-   `bronze`/`silver`/`gold`/`consumption` tag (set once per layer in
-   dbt_project.yml), so we reuse that single source of truth to group the asset
-   graph by layer. No new tag to maintain: add a model to a layer in dbt and it
-   groups automatically.
+1. dbt tests become Dagster *asset checks* (source tests included), so a test's
+   pass/fail shows up on its asset in the UI instead of being buried in the
+   `dbt build` logs.
+2. Assets are grouped by medallion layer, reusing the bronze/silver/gold/
+   consumption tag each model already has in dbt_project.yml. Add a model to a
+   layer in dbt and it is grouped automatically — no extra tag to maintain.
 """
 
 from dagster_dbt import DagsterDbtTranslator, DagsterDbtTranslatorSettings
 
-# Layer tags defined in warehouse/dbt_project.yml (`+tags: ["bronze"|...]`).
-# Ordered most-upstream -> most-downstream; the first match wins, which is the
-# correct layer because a model lives in exactly one layer.
+# The medallion layers, in upstream -> downstream order. Each model is tagged with
+# exactly one (set per folder in dbt_project.yml), so the first match is its layer.
 _LAYER_TAGS = ("bronze", "silver", "gold", "consumption")
 
 
@@ -42,17 +40,14 @@ class WarehouseDbtTranslator(DagsterDbtTranslator):
         return super().get_group_name(dbt_resource_props)
 
 
-# Single shared translator instance used by @dbt_assets.
-# Settings are spelled out explicitly (several already default to True) so the
-# data-quality intent is visible in code rather than relying on silent defaults:
-#   - enable_asset_checks: model dbt tests -> asset checks (default True).
-#   - enable_source_tests_as_checks: also surface the source-level tests
-#     (unique/not_null on raw columns) as checks — our freshness/quality story
-#     starts at the sources, so we want them visible too (default False).
-#   - enable_code_references: attach a link from each asset back to its .sql
-#     file, so the dbt model is one click away in the Dagster UI (default False).
-# Model/column descriptions from dbt are surfaced as asset metadata by default,
-# so no extra wiring is needed for that part of the "metadata" enrichment.
+# The single translator instance used by @dbt_assets. Every setting is listed
+# explicitly, including those already enabled by default, to document each choice:
+#   - enable_asset_checks: turn dbt tests on models into asset checks.
+#   - enable_source_tests_as_checks: also show source tests (unique/not_null on
+#     raw columns) as checks, since our data-quality story starts at the sources.
+#   - enable_code_references: add a link from each asset to its .sql file, so the
+#     model is one click away in the Dagster UI.
+# dbt model and column descriptions already show up as asset metadata by default.
 dbt_translator = WarehouseDbtTranslator(
     settings=DagsterDbtTranslatorSettings(
         enable_asset_checks=True,

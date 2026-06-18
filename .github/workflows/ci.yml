@@ -9,20 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Default fetch-depth (1) is enough: no step reads git history, and the
-      # prod manifest is fetched explicitly from origin/main further below.
       - uses: actions/checkout@v6
 
       - name: Install dependencies
-        # dbt pins live in requirements-dbt.txt (shared with post-deploy) to
-        # keep the manifest byte-compatible with the prod comparison state.
-        # kaggle is CI-only (raw data ingestion) and installed alongside.
+        # dbt pins live in requirements-dbt.txt; kaggle (raw data ingestion) installed alongside.
         run: pip install -r requirements-dbt.txt kaggle
 
       - name: Verify dbt version (guard against silent version skew)
         run: |
-          # Fail loudly if the installed dbt-core differs from the version
-          # that produced the prod manifest — never fall back to "select all".
+          # Fail loudly if dbt-core differs from the version that produced the reference manifest.
           python -c "import dbt.version as v; assert v.__version__ == '1.11.8', f'dbt-core is {v.__version__}, expected 1.11.8'"
 
       - name: Install dbt packages
@@ -35,7 +30,6 @@ jobs:
           chmod 600 ~/.kaggle/access_token
 
       - name: Download datasets
-        # `kaggle ... -p <dir>` creates the target directory itself.
         run: |
           kaggle datasets download \
             -d olistbr/brazilian-ecommerce \
@@ -65,39 +59,23 @@ jobs:
                 threads: 2
           EOF
 
-      # ==============================
-      # 🔄 FETCH PROD REFERENCE STATE
-      # ==============================
-      - name: Fetch prod manifest from main (Slim CI reference state)
+      - name: Fetch reference manifest from main (Slim CI state)
         if: github.base_ref == 'develop'
         run: |
-          # The Slim CI state must be the PROD manifest (what is already
-          # deployed on main), NOT the current branch. Overwrite only this
-          # single file from origin/main, leaving the PR's model code intact,
-          # so state:modified compares the feature branch against production.
+          # Slim CI compares the PR against what is on main: overwrite only the
+          # reference manifest from origin/main, leaving the PR's code intact.
           git fetch origin main --depth=1
           git checkout origin/main -- persistent_state/manifest.json
 
-      # ==============================
-      # 🚀 SLIM CI RUN
-      # ==============================
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
-          # Selection logic (state:modified+, cautious, always_build, seeds) and
-          # its rationale live in warehouse/selectors.yml under the `slim_ci`
-          # selector. Only the invocation-time args stay here:
-          #   • --state -> resolved RELATIVE TO --project-dir, so the repo-root
-          #     persistent_state/ needs an ABSOLUTE path.
           dbt build \
             --selector slim_ci \
             --state ${{ github.workspace }}/persistent_state \
             --target test \
             --project-dir warehouse
 
-      # ==============================
-      # 🚀 FULL CI
-      # ==============================
       - name: Run dbt (Full CI — PR towards main)
         if: github.base_ref == 'main'
         run: |

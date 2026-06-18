@@ -3,11 +3,10 @@ from pathlib import Path
 
 import duckdb
 
-# ---------------------------------------------------------------------------
-# DB path selection — driven by the DBT_TARGET env var.
-# Locally DBT_TARGET is unset -> defaults to "dev"; CI sets DBT_TARGET=test.
-# ---------------------------------------------------------------------------
-REPO_ROOT = Path(__file__).parent.parent  # scripts/ -> repo root
+# Writes raw CSVs into the same DuckDB file dbt will use, selected by DBT_TARGET
+# (unset -> "dev" locally; CI sets it to "test").
+# The scripts/ directory is one level below the repo root.
+REPO_ROOT = Path(__file__).parent.parent
 TARGET = os.environ.get("DBT_TARGET", "dev")
 
 DB_PATHS = {
@@ -46,6 +45,7 @@ IBGE_TABLES = {
 
 def load_csvs(con, schema: str, base_path: Path, tables: dict[str, str]) -> None:
     """Load each CSV into `schema` as a CREATE OR REPLACE TABLE (idempotent)."""
+
     con.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
     for table_name, filename in tables.items():
         filepath = base_path / filename

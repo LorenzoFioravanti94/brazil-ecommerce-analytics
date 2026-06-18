@@ -6,28 +6,15 @@ from .ops import check_source_freshness
 from .resources import dbt_resource
 
 # Standard Job — triggered by GitHub Actions after merge on main.
-# Full project incremental build. The selection is built from the dbt project
-# (build_dbt_asset_selection defaults to `fqn:*`, i.e. everything) rather than
-# AssetSelection.all() so it also covers the dbt *source* tests surfaced as asset
-# checks. AssetSelection.all() excludes source assets (and their checks), yet the
-# underlying `dbt build` still runs those source tests — Dagster would then log a
-# noisy "AssetCheckResult ... was yielded which is not selected" for every one.
+# Full project build. We use build_dbt_asset_selection (not AssetSelection.all())
+# because only the former includes the dbt source tests surfaced as asset checks.
 standard_job = define_asset_job(
     name="standard_job",
     selection=build_dbt_asset_selection([warehouse_assets]),
 )
 
-# Full Refresh Job — weekly schedule.
-# Rebuilds *only the incremental models* from scratch to clear accumulated
-# drift (late-arriving rows, back-filled corrections, changed is_incremental()
-# logic). A `--full-refresh` over the whole project would be wasteful: views and
-# tables are already rebuilt from scratch on every standard run, so the flag is
-# a no-op for them and only changes behaviour for incremental models.
-#
-# The selection uses dbt's native `config.materialized:incremental` selector
-# rather than a tag or a hardcoded model list: dbt already knows which models
-# are incremental from their config, so this is self-maintaining — a new
-# incremental model is picked up automatically with no tag to forget.
+# Rebuilds only the incremental models from scratch. To target just those models
+# we use dbt's `config.materialized:incremental` selector.
 full_refresh_job = define_asset_job(
     name="full_refresh_job",
     selection=build_dbt_asset_selection(

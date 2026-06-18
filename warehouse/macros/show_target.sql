@@ -1,11 +1,6 @@
 {#
-    Developer utility -- do NOT use in models / ref.
-
-    Prints the attributes of the active target (the current connection) to the
-    console. This is a standalone macro: it produces no relation and returns
-    nothing; it only lets the developer inspect the target.
-
-    Usage:  dbt run-operation show_target
+    Developer utility: prints the active target's connection attributes to the console.
+    Usage: dbt run-operation show_target
 #}
 
 {% macro show_target() %}

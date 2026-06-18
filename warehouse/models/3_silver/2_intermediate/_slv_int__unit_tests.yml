@@ -6,10 +6,8 @@ unit_tests:
       reflects the count of records. Seeds are mocked empty so the COALESCE
       city-correction chain falls through and the dedup logic is tested in isolation.
     model: slv_int_olist__customers
-    # Every input is mocked with format: sql (explicit columns/types) so the test
-    # is fully self-contained: it never introspects a warehouse relation and runs
-    # in isolation (e.g. the dbt Power User single-test runner) without first
-    # building the upstream staging models or seeds.
+    # All inputs use format: sql so each test is fully self-contained:
+    # no warehouse relation is introspected and no upstream models need to be built first.
     given:
       - input: ref('slv_stg_olist__customers')
         format: sql

@@ -8,7 +8,8 @@ category_map AS (
     SELECT *
     FROM {{ ref('category_map') }}
 ),
-seed AS (
+-- Join the category_map seed to attach English names and business areas
+categories_enriched AS (
     SELECT
         s.raw_category AS local_name,
         pc.english_name,
@@ -18,6 +19,7 @@ seed AS (
         ON s.raw_category = pc.local_name
     ORDER BY s.business_area, s.raw_category
 ),
+-- Override English names for two categories absent from or incorrectly mapped in the seed
 final AS (
     SELECT
         local_name,
@@ -27,7 +29,7 @@ final AS (
             ELSE english_name
         END AS english_name,
         business_area
-    FROM seed
+    FROM categories_enriched
 )
 SELECT *
 FROM final

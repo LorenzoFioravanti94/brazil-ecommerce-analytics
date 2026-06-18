@@ -1,15 +1,7 @@
-# Snapshot honesty note --------------------------------------------------------
-# The Olist source is a STATIC Kaggle dump, so here this snapshot will only ever
-# capture a single version of each order. It is defined deliberately, to simulate
-# a production-ready setup: `orders` is the one Olist table with a genuine SCD2
-# nature -- in a live system an order mutates through its lifecycle (status:
-# created -> approved -> shipped -> delivered, with the lifecycle timestamps
-# filling in over time). This snapshot is configured to capture that history the
-# moment the source becomes mutable. Every other Olist/IBGE table is static
-# reference data and is intentionally NOT snapshotted.
-#
-# Strategy `check` (not `timestamp`): orders has no single reliable row-level
-# "updated_at" column, so changes are detected on the lifecycle columns below.
+# Defined to simulate a production-ready SCD2 setup:
+#   * Olist is a static Kaggle dump — in production, orders mutates through its lifecycle
+#   * orders is the only Olist table with genuine SCD2 nature; all others are static reference data
+#   * strategy: check (not timestamp) — no single reliable updated_at column
 
 snapshots:
   - name: orders_snapshot
