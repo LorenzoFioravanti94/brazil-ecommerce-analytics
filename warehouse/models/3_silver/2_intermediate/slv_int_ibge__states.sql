@@ -31,7 +31,7 @@ remove_redundancy AS (
         longitude
     FROM states
 ),
--- 1. Text standardization consistent with Seed 1
+-- Text standardization consistent with typo_cure seed
 final AS (
     SELECT
         state_id,
