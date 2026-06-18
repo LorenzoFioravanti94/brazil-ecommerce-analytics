@@ -1,4 +1,6 @@
--- If delivered, the delivery date must be after the purchase date
+-- This test validates that delivered orders have a delivery date strictly after the purchase date.
+--
+-- The test fails when delivered_customer_date < order_date_id.
 WITH orders_dates_data AS (
     SELECT
         order_id,

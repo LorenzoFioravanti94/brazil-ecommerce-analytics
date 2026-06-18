@@ -1,7 +1,6 @@
 -- This test validates that the metric `icu_beds` is mathematically consistent with:
 --     public_beds + private_beds
 --
---
 -- The test fails when this sum is not equal to the `icu_beds` metric.
 WITH icu_beds_data AS (
     SELECT
