@@ -18,41 +18,41 @@ municipality_map AS (
     SELECT *
     FROM {{ ref('municipality_map') }}
 ),
--- 1. Text standardization consistent with Seed 1
-sellers_city_no_accents AS (
+-- Text standardization consistent with typo_cure seed
+sellers_normalized_city AS (
     SELECT
         seller_id,
         zip_code_prefix,
-        -- Apply the exact transformation used to build the first seed
+        -- Standardize city names by removing accents and special characters
         REGEXP_REPLACE(STRIP_ACCENTS(city_raw), '[^A-Z0-9 ]', '', 'g') AS city_no_accents,
         state_id
     FROM sellers
 ),
--- 2. Apply Seed 1: fix grammatical typos
-apply_seed_typos AS (
+-- Fix grammatical typos: apply typo_cure seed
+sellers_typos_fixed AS (
     SELECT
         s.seller_id,
         s.zip_code_prefix,
         -- If the seed has a typo fix, use it; otherwise keep the normalized string
         COALESCE(t.fixed_city, s.city_no_accents) AS city_corrected,
         s.state_id
-    FROM sellers_city_no_accents s
+    FROM sellers_normalized_city s
     LEFT JOIN typo_cure t
         ON s.city_no_accents = t.original_city
 ),
--- 3. Apply Seed 2: resolve ZIP code conflicts (absolute rules)
-apply_seed_zip_rules AS (
+-- Resolve ZIP code conflicts: apply zip_code_fix seed
+sellers_zip_fixed AS (
     SELECT
         t.seller_id,
         t.zip_code_prefix,
         -- If the ZIP code is problematic, the seed unconditionally overrides the city
         COALESCE(z.city_associated, t.city_corrected) AS city_associated,
         t.state_id
-    FROM apply_seed_typos t
+    FROM sellers_typos_fixed t
     LEFT JOIN zip_code_fix z
         ON t.zip_code_prefix = z.zip_code_prefix
 ),
--- 4. Apply Seed 3: map districts to official IBGE municipalities
+-- Map districts to official IBGE municipalities: apply municipality_map seed
 final AS (
     SELECT
         z.seller_id,
@@ -60,7 +60,7 @@ final AS (
         -- If the locality is a district, map it to the official IBGE municipality
         COALESCE(m.municipality, z.city_associated) AS city,
         z.state_id
-    FROM apply_seed_zip_rules z
+    FROM sellers_zip_fixed z
     LEFT JOIN municipality_map m
         ON z.city_associated = m.locality
 )

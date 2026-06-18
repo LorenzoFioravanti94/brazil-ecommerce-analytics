@@ -24,9 +24,7 @@ DAGSTER_URL = os.environ["DAGSTER_URL"].rstrip("/")
 GRAPHQL_URL = f"{DAGSTER_URL}/graphql"
 
 # Only the job name is fixed; the code-location and repository names that own it
-# are discovered at runtime. `dg dev` derives the location name from the project
-# (it is "dagster", not the historical "orchestration.definitions"), so pinning
-# it here would silently break again on any tooling/layout change.
+# are discovered at runtime.
 JOB = "standard_job"
 
 POLL_INTERVAL_SECONDS = 30
@@ -35,6 +33,7 @@ RUN_TIMEOUT_SECONDS = 30 * 60
 
 def graphql(query: str, variables: dict | None = None) -> dict:
     """POST a GraphQL document and return its `data` payload, or exit on error."""
+
     payload = json.dumps({"query": query, "variables": variables or {}}).encode()
     request = urllib.request.Request(
         GRAPHQL_URL, data=payload, headers={"Content-Type": "application/json"}
@@ -46,6 +45,7 @@ def graphql(query: str, variables: dict | None = None) -> dict:
     return body["data"]
 
 
+# Lists every code location / repository and its jobs, to find which one owns JOB.
 DISCOVER_QUERY = """
 query Discover {
   repositoriesOrError {
@@ -62,6 +62,7 @@ query Discover {
 }
 """
 
+# Reloads a code location, re-parsing the dbt project into a fresh manifest.
 RELOAD_MUTATION = """
 mutation Reload($name: String!) {
   reloadRepositoryLocation(repositoryLocationName: $name) {
@@ -78,6 +79,7 @@ mutation Reload($name: String!) {
 }
 """
 
+# Launches a run of the selected job and returns its run id.
 LAUNCH_MUTATION = """
 mutation Launch($params: ExecutionParams!) {
   launchRun(executionParams: $params) {
@@ -90,6 +92,7 @@ mutation Launch($params: ExecutionParams!) {
 }
 """
 
+# Polls a single run's current status (used to wait for the job to finish).
 STATUS_QUERY = """
 query Status($runId: ID!) {
   runOrError(runId: $runId) {
@@ -106,6 +109,7 @@ def discover_target() -> tuple[str, str]:
     Returns (location_name, repository_name) so the caller never has to hardcode
     names that shift with the Dagster project layout or launch command.
     """
+
     result = graphql(DISCOVER_QUERY)["repositoriesOrError"]
     if result["__typename"] != "RepositoryConnection":
         sys.exit(f"Failed to list repositories: {result.get('message', result)}")
@@ -120,6 +124,7 @@ def discover_target() -> tuple[str, str]:
 
 def reload_location(location: str) -> None:
     """Re-parse the merged project so the manifest is current before the run."""
+
     result = graphql(RELOAD_MUTATION, {"name": location})["reloadRepositoryLocation"]
     if result["__typename"] != "WorkspaceLocationEntry":
         sys.exit(f"Code location reload failed: {result.get('message', result)}")
@@ -131,6 +136,7 @@ def reload_location(location: str) -> None:
 
 def launch_run(location: str, repository: str) -> str:
     """Launch standard_job and return its run id."""
+
     params = {
         "selector": {
             "repositoryLocationName": location,
@@ -149,6 +155,7 @@ def launch_run(location: str, repository: str) -> str:
 
 def wait_for_run(run_id: str) -> None:
     """Poll the run until it reaches a terminal state, or exit on timeout."""
+
     deadline = time.time() + RUN_TIMEOUT_SECONDS
     while time.time() < deadline:
         data = graphql(STATUS_QUERY, {"runId": run_id})["runOrError"]

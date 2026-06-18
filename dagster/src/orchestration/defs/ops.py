@@ -1,4 +1,4 @@
-from dagster import op, OpExecutionContext
+from dagster import OpExecutionContext, op
 from dagster_dbt import DbtCliResource
 
 

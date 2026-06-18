@@ -1,8 +1,7 @@
 models:
+
   - name: churn_customer_orders
-    # Public access + enforced contract: this model is an exposed data product
-    # consumed by the customer_churn_model exposure (the downstream ML project).
-    # The contract pins column names and types so the consumer can rely on them.
+    # Exposed data product: access: public and contract: enforced guarantee a stable interface for downstream consumers.
     access: public
     config:
       contract:
@@ -11,8 +10,7 @@ models:
       Transaction-grain feature source for the downstream customer-churn ML
       project. One row per order, projected from fct_orders into the contract the
       ML expects (order_id, customer_id, accounting_date, order_status,
-      order_value). All statuses are kept, CANCELLED included, so the
-      cancellation_rate can be derived downstream. Consumed by the
+      order_value). All statuses are kept, CANCELLED included. Consumed by the
       customer_churn_model exposure.
     columns:
       - name: order_id
@@ -43,10 +41,11 @@ models:
         data_type: double
 
 exposures:
+
   - name: customer_churn_model
     label: Customer Churn / Repurchase Model
     type: ml
-    maturity: low  # planned downstream consumer, not yet live
+    maturity: low
     owner:
       name: Lorenzo Fioravanti
       email: lorenzo.frv@gmail.com
@@ -54,8 +53,6 @@ exposures:
       Planned machine-learning project predicting customer repurchase / churn.
       It consumes churn_customer_orders as its transaction-grain feature source
       (RFM via lifetimes, plus a cancellation_rate, logistic regression and
-      clustering). Declared as an exposure so this consumer appears as a
-      downstream node in the dbt lineage and the feeding model can be built and
-      tested together via `+exposure:customer_churn_model`.
+      clustering).
     depends_on:
       - ref('churn_customer_orders')

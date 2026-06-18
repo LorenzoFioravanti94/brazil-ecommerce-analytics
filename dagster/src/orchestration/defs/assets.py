@@ -6,16 +6,18 @@ from .translator import dbt_translator
 
 
 class DbtConfig(Config):
-    full_refresh: bool = False  # default: incremental run
+    # When True, the dbt build runs with --full-refresh, rebuilding incremental models from scratch.
+    full_refresh: bool = False
 
 
-# Manifest path comes from the shared DbtProject, so it always reflects the
-# manifest prepare_if_dev() (re)generates at code-location load time.
-# `project=dbt_project` is also passed (not just the manifest path) because the
-# translator's enable_code_references needs the project dir to resolve each
-# asset back to its .sql file.
-# The custom translator turns dbt tests into asset checks and groups the assets
-# by medallion layer — see defs/translator.py for the rationale.
+# @dbt_assets generates one Dagster asset per dbt model in the manifest. The three
+# arguments set where that manifest comes from and how each node maps to an asset:
+#   - manifest: taken from the shared DbtProject, so it always reflects the manifest
+#     prepare_if_dev() (re)generates at code-location load time.
+#   - project: the project directory itself, needed so the translator's code
+#     references can link each asset back to its .sql file.
+#   - dagster_dbt_translator: our custom translator — turns dbt tests into asset
+#     checks and groups assets by medallion layer (see defs/translator.py).
 @dbt_assets(
     manifest=dbt_project.manifest_path,
     project=dbt_project,

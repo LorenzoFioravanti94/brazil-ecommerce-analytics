@@ -1,4 +1,5 @@
 models:
+
   - name: slv_stg_olist__product_category
     description: Cleaned product category names, trimmed and standardized.
     columns:
@@ -29,9 +30,7 @@ models:
 
   - name: slv_stg_olist__geolocation
     description: Cleaned and standardized geolocation reference data.
-    # No primary-key test here on purpose: raw geolocation holds many coordinate
-    # rows per zip_code_prefix. The grain is finalized in slv_int_olist__geolocation
-    # (one row per zip_code_prefix), where the primary key is tested.
+    # No primary-key test here: raw geolocation holds many coordinate rows per zip_code_prefix.
     columns:
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"

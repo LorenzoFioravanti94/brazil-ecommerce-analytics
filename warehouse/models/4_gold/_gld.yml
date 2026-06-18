@@ -1,4 +1,5 @@
 models:
+
   - name: dim_date
     description: Date dimension with calendar attributes and Brazilian holiday flags.
     columns:

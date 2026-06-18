@@ -1,5 +1,8 @@
--- The sum of payment methods must be equal to the total payment value
-
+-- This test validates that total_payment_value is mathematically consistent with:
+--     credit_card_value + boleto_value + voucher_value + debit_card_value
+--
+-- A tolerance of 0.01 is applied to account for floating-point rounding.
+-- The test fails when the absolute difference exceeds 0.01.
 WITH payment_data AS (
     SELECT
         order_id,
@@ -13,4 +16,4 @@ WITH payment_data AS (
 SELECT order_id
 FROM payment_data
 WHERE total_payment_value IS NOT NULL
-  AND ABS(total_payment_value - credit_card_value - boleto_value - voucher_value - debit_card_value) > 0.01   -- tolerance for floating point
+  AND ABS(total_payment_value - credit_card_value - boleto_value - voucher_value - debit_card_value) > 0.01

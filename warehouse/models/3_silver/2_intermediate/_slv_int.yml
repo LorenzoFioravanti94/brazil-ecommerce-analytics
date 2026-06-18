@@ -1,4 +1,5 @@
 models:
+
   - name: slv_int_ibge__human_development_index
     description: Analysis-ready Human Development Index, cleaned and reshaped from staging.
     columns:

@@ -1,16 +1,13 @@
--- This generic test validates that a pre-computed ratio column (`given_ratio`) 
+-- This test validates that a pre-computed ratio column (`given_ratio`)
 -- is mathematically consistent with its raw components:
 --     (numerator / denominator) * scale
---
--- It dynamically supports both single-table verification and cross-table lookups 
--- via optional conditional JOIN operations.
 --
 -- A configurable tolerance threshold (default: 0.05) accounts for:
 -- - numerical rounding differences
 -- - source dataset precision constraints
 -- - minor temporal discrepancies between joined datasets
 --
--- The test fails and returns rows where the absolute difference exceeds the tolerance.
+-- The test fails when the absolute difference exceeds 0.05.
 {% test test_ratio_consistency(model, numerator, denominator, given_ratio, scale=1, tolerance=0.05, join_to=none, join_on=none) %}
 
 WITH source_data AS (

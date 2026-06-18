@@ -1,4 +1,5 @@
 seeds:
+
   - name: brazil_holidays
     description: Brazilian national holidays used to flag holiday dates in dim_date.
     config:

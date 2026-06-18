@@ -9,7 +9,7 @@ WITH order_reviews AS (
         answer_timestamp
     FROM {{ ref('slv_stg_olist__order_reviews') }}
 ),
--- Step 1: remove identical mirror-image duplicates
+-- Remove identical mirror-image duplicates
 specular_duplicates AS (
     SELECT DISTINCT
         review_id AS review_group_id,
