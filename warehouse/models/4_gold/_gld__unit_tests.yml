@@ -5,9 +5,9 @@ unit_tests:
       summing values per order, returning 0 for absent types (debit_card here)
       and excluding 'not_defined' payments from every aggregate.
     model: fct_orders
-    # fct_orders is incremental: run the full-refresh path so the lookback filter
-    # is skipped. All inputs use format: sql (explicit columns/types) so the test
-    # is self-contained and runs in isolation without building the upstreams.
+    # is_incremental is overridden to false so the incremental lookback filter in fct_orders is not applied.
+    # All inputs use format: sql so each test is fully self-contained:
+    # no warehouse relation is introspected and no upstream models need to be built first.
     overrides:
       macros:
         is_incremental: false

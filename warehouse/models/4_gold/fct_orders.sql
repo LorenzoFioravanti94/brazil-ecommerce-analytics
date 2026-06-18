@@ -1,3 +1,4 @@
+-- One row per order: payment totals broken down by type, delivery timing metrics, and the most recent review.
 {{ config(
     materialized='incremental',
     unique_key='order_id'
@@ -51,13 +52,14 @@ payments_aggregated AS (
     WHERE type <> 'not_defined'
     GROUP BY order_id
 ),
-reviews_deduplicated AS (
+-- Rank reviews newest-first per order; the final SELECT takes rn = 1 to keep only the most recent.
+reviews_ranked AS (
     SELECT
         order_id,
         score,
         creation_date,
         answer_timestamp,
-        ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY creation_date DESC) AS rn -- Assuming we want the most recent review per order
+        ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY creation_date DESC) AS rn
     FROM order_reviews
 ),
 final AS (
@@ -76,7 +78,8 @@ final AS (
         o.estimated_delivery_date,
         -- derived delivery metrics (using dbt's datediff macro for consistency across databases)
         {{ dbt.datediff("o.purchase_timestamp", "o.delivered_customer_date", "day") }} AS days_to_deliver,
-        {{ dbt.datediff("o.estimated_delivery_date", "o.delivered_customer_date", "day") }} AS delivery_delay_days, --negative when delivered before estimated date
+        -- Negative when the order arrives before the estimated date.
+        {{ dbt.datediff("o.estimated_delivery_date", "o.delivered_customer_date", "day") }} AS delivery_delay_days,
         -- payment aggregates
         pa.installments_count,
         pa.credit_card_value,
@@ -91,8 +94,8 @@ final AS (
     FROM orders o
     LEFT JOIN payments_aggregated pa
         ON o.order_id = pa.order_id
-    LEFT JOIN reviews_deduplicated r
-        ON o.order_id = r.order_id AND r.rn = 1 -- Keep only the most recent review per order
+    LEFT JOIN reviews_ranked r
+        ON o.order_id = r.order_id AND r.rn = 1
 )
 SELECT *
 FROM final

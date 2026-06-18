@@ -1,8 +1,5 @@
--- The HDI source (IBGE) contains multiple reference years (1991, 2000, 2010, 2017),
--- while the Olist orders dataset is concentrated in 2016–2018.
--- In the Gold layer, we therefore retain only the 2017 HDI snapshot to ensure temporal alignment
--- with the orders, effectively reducing dim_hdi to a single row per state (state_id as natural PK).
-
+-- Combines HDI indicators, ICU bed counts, airport throughput, and non-geographic state attributes
+-- (population, GDP, gdp_world_share) into a single socioeconomic dimension; one row per state.
 WITH human_development_index AS (
     SELECT *
     FROM {{ ref('slv_int_ibge__human_development_index') }}
@@ -33,12 +30,15 @@ airports AS (
         passengers_rate
     FROM {{ ref('slv_stg_ibge__airports') }}
 ),
+-- The HDI source spans multiple reference years; only 2017 is kept to align with the Olist order period (2016–2018).
 hdi_filter_year AS (
     SELECT
-        state_id,           -- dropped the artificial PK
+        -- Dropped the artificial PK from the intermediate layer
+        state_id,
         education_index,
         wealth_index,
-        health_index        -- also dropped the year column as it's no longer needed after filtering for 2017
+        health_index
+        -- Year column dropped: not needed after filtering for 2017
     FROM human_development_index
     WHERE year = 2017
 ),

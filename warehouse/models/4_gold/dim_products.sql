@@ -18,6 +18,7 @@ product_category AS (
         business_area
     FROM {{ ref('slv_int_olist__product_category') }}
 ),
+-- Replace the local category name with its English equivalent and attach the business area.
 final AS (
     SELECT
         p.product_id,

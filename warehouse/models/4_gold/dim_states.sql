@@ -14,6 +14,7 @@ WITH states AS (
         longitude
     FROM {{ ref('slv_int_ibge__states') }}
 ),
+-- Retain only geographic fields; socioeconomic indicators (population, GDP, gdp_world_share) live in dim_socio_economics.
 final AS (
     SELECT
         state_id,
