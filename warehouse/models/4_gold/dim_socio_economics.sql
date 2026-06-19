@@ -1,3 +1,6 @@
+-- Outrigger dimension: joins to dim_states, not directly to a fact table.
+-- Socioeconomic data exists at the state level; the navigation path from facts is
+-- fct_orders → dim_customers → dim_states → dim_socio_economics.
 -- Combines HDI indicators, ICU bed counts, airport throughput, and non-geographic state attributes
 -- (population, GDP, gdp_world_share) into a single socioeconomic dimension; one row per state.
 WITH human_development_index AS (

@@ -18,9 +18,9 @@ geolocation AS (
 final AS (
     SELECT
         s.seller_id,
+        s.state_id,
         s.zip_code_prefix,
         s.city,
-        s.state_id,
         g.latitude,
         g.longitude
     FROM sellers s
