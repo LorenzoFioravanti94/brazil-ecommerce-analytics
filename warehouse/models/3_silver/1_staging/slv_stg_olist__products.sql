@@ -15,8 +15,8 @@ final AS (
     SELECT
         TRIM(product_id) AS product_id,
         LOWER(TRIM(product_category_name)) AS local_category_name,
-        CAST(product_name_lenght AS INTEGER) AS name_lenght,
-        CAST(product_description_lenght AS INTEGER) AS description_lenght,
+        CAST(product_name_lenght AS INTEGER) AS name_length,
+        CAST(product_description_lenght AS INTEGER) AS description_length,
         CAST(product_photos_qty AS INTEGER) AS photos_qty,
         product_weight_g AS weight_g,
         product_length_cm AS length_cm,

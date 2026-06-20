@@ -190,9 +190,9 @@ models:
               arguments:
                 to: ref('slv_int_olist__product_category')
                 field: local_name
-      - name: name_lenght
+      - name: name_length
         description: Character length of the product name.
-      - name: description_lenght
+      - name: description_length
         description: Character length of the product description.
       - name: photos_qty
         description: Number of photos available for the product.
