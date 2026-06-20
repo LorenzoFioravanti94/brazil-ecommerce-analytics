@@ -22,7 +22,7 @@ order_payments AS (
         order_id,
         sequence_number,
         type,
-        installments_count,
+        instalments_count,
         value
     FROM {{ ref('slv_int_olist__order_payments') }}
 ),
@@ -38,7 +38,7 @@ payments_aggregated AS (
     SELECT
         order_id,
         SUM(value)                                                    AS total_payment_value,
-        MAX(installments_count)                                       AS installments_count,
+        MAX(instalments_count)                                       AS instalments_count,
         -- one summed column per payment type (credit_card_value, boleto_value, ...)
         {{ dbt_utils.pivot(
             column='type',
@@ -81,7 +81,7 @@ final AS (
         -- Negative when the order arrives before the estimated date.
         {{ dbt.datediff("o.estimated_delivery_date", "o.delivered_customer_date", "day") }} AS delivery_delay_days,
         -- payment aggregates
-        pa.installments_count,
+        pa.instalments_count,
         pa.credit_card_value,
         pa.boleto_value,
         pa.voucher_value,

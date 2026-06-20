@@ -108,8 +108,8 @@ models:
           - not_null
       - name: type
         description: Payment method used (e.g. credit card or boleto).
-      - name: installments_count
-        description: Number of installments for the payment.
+      - name: instalments_count
+        description: Number of instalments for the payment.
       - name: value
         description: Total value of the payment.
 

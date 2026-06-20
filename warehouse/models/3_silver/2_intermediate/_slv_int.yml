@@ -186,8 +186,8 @@ models:
                   - voucher
                   - debit_card
                   - not_defined
-      - name: installments_count
-        description: Number of installments for the payment.
+      - name: instalments_count
+        description: Number of instalments for the payment.
       - name: value
         description: Total value of the payment.
 

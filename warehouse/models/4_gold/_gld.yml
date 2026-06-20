@@ -241,8 +241,8 @@ models:
                 where: "status = 'DELIVERED'"
       - name: delivery_delay_days
         description: Days the delivery was late versus the estimate (negative if early).
-      - name: installments_count
-        description: Number of installments for the order payment.
+      - name: instalments_count
+        description: Number of instalments for the order payment.
       - name: credit_card_value
         description: Total amount paid by credit card for the order.
       - name: boleto_value
