@@ -1,7 +1,7 @@
 models:
 
-  - name: slv_int_ibge__human_development_index
-    description: Analysis-ready Human Development Index, cleaned and reshaped from staging.
+  - name: slv_int_ibge__hdi
+    description: Analysis-ready Human Development Index (HDI), cleaned and reshaped from staging.
     columns:
       - name: hdi_id
         description: Surrogate key built from state_id and year.
@@ -19,8 +19,8 @@ models:
       - name: year
         description: Census year of the HDI measurement.
 
-  - name: slv_int_ibge__intensive_care_unit_beds
-    description: Analysis-ready ICU bed capacity per state, cleaned from staging.
+  - name: slv_int_ibge__icu_beds
+    description: Analysis-ready Intensive Care Unit (ICU) bed capacity per state, cleaned from staging.
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
@@ -47,7 +47,7 @@ models:
       - name: region
         description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
       - name: area_km2
-        description: Total area of the state in square kilometers.
+        description: Total area of the state in square kilometres.
       - name: population
         description: Total population of the state.
       - name: cities_number
@@ -96,7 +96,7 @@ models:
                 to: ref('slv_int_olist__customers')
                 field: customer_id
       - name: status
-        description: Current status of the order in the fulfillment process.
+        description: Current status of the order in the fulfilment process.
       - name: purchase_timestamp
         description: Timestamp the order was placed.
       - name: approved_at
@@ -186,8 +186,8 @@ models:
                   - voucher
                   - debit_card
                   - not_defined
-      - name: installments_count
-        description: Number of installments for the payment.
+      - name: instalments_count
+        description: Number of instalments for the payment.
       - name: value
         description: Total value of the payment.
 

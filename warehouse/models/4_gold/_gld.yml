@@ -97,7 +97,7 @@ models:
       - name: region
         description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
       - name: area_km2
-        description: Total area of the state in square kilometers.
+        description: Total area of the state in square kilometres.
       - name: cities_number
         description: Number of cities in the state.
       - name: latitude
@@ -184,11 +184,11 @@ models:
       - name: weight_g
         description: Weight of the product in grams.
       - name: length_cm
-        description: Length of the product in centimeters.
+        description: Length of the product in centimetres.
       - name: height_cm
-        description: Height of the product in centimeters.
+        description: Height of the product in centimetres.
       - name: width_cm
-        description: Width of the product in centimeters.
+        description: Width of the product in centimetres.
 
   - name: fct_orders
     description: >
@@ -217,7 +217,7 @@ models:
                 to: ref('dim_date')
                 field: date_id
       - name: status
-        description: Current status of the order in the fulfillment process.
+        description: Current status of the order in the fulfilment process.
         data_tests:
           - not_null
       - name: approved_at
@@ -241,8 +241,8 @@ models:
                 where: "status = 'DELIVERED'"
       - name: delivery_delay_days
         description: Days the delivery was late versus the estimate (negative if early).
-      - name: installments_count
-        description: Number of installments for the order payment.
+      - name: instalments_count
+        description: Number of instalments for the order payment.
       - name: credit_card_value
         description: Total amount paid by credit card for the order.
       - name: boleto_value

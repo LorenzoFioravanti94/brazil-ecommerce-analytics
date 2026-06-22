@@ -24,7 +24,7 @@ unit_tests:
       - input: ref('slv_int_olist__order_payments')
         format: sql
         rows: |
-          SELECT 'P1' AS order_payment_id, 'O1' AS order_id, 1 AS sequence_number, 'credit_card' AS type, 2 AS installments_count, 100 AS value
+          SELECT 'P1' AS order_payment_id, 'O1' AS order_id, 1 AS sequence_number, 'credit_card' AS type, 2 AS instalments_count, 100 AS value
           UNION ALL SELECT 'P2', 'O1', 2, 'boleto', 1, 50
           UNION ALL SELECT 'P3', 'O1', 3, 'voucher', 1, 10
           UNION ALL SELECT 'P4', 'O1', 4, 'not_defined', 1, 999
@@ -33,7 +33,7 @@ unit_tests:
         rows: "SELECT CAST(NULL AS VARCHAR) AS order_id, CAST(NULL AS INTEGER) AS score, CAST(NULL AS DATE) AS creation_date, CAST(NULL AS TIMESTAMP) AS answer_timestamp LIMIT 0"
     expect:
       rows:
-        - {order_id: 'O1', total_payment_value: 160, installments_count: 2, credit_card_value: 100, boleto_value: 50, voucher_value: 10, debit_card_value: 0}
+        - {order_id: 'O1', total_payment_value: 160, instalments_count: 2, credit_card_value: 100, boleto_value: 50, voucher_value: 10, debit_card_value: 0}
 
   - name: test_fct_orders_keeps_most_recent_review
     description: >
@@ -55,7 +55,7 @@ unit_tests:
                  CAST(NULL AS TIMESTAMP) AS estimated_delivery_date
       - input: ref('slv_int_olist__order_payments')
         format: sql
-        rows: "SELECT CAST(NULL AS VARCHAR) AS order_payment_id, CAST(NULL AS VARCHAR) AS order_id, CAST(NULL AS INTEGER) AS sequence_number, CAST(NULL AS VARCHAR) AS type, CAST(NULL AS INTEGER) AS installments_count, CAST(NULL AS DOUBLE) AS value LIMIT 0"
+        rows: "SELECT CAST(NULL AS VARCHAR) AS order_payment_id, CAST(NULL AS VARCHAR) AS order_id, CAST(NULL AS INTEGER) AS sequence_number, CAST(NULL AS VARCHAR) AS type, CAST(NULL AS INTEGER) AS instalments_count, CAST(NULL AS DOUBLE) AS value LIMIT 0"
       - input: ref('slv_int_olist__order_reviews')
         format: sql
         rows: |

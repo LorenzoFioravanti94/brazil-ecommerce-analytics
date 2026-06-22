@@ -2,8 +2,8 @@ WITH products AS (
     SELECT
         product_id,
         local_category_name,
-        name_lenght,
-        description_lenght,
+        name_length,
+        description_length,
         photos_qty,
         weight_g,
         length_cm,
@@ -25,8 +25,8 @@ final AS (
         pc.english_name AS category_name,
         pc.business_area,
         -- quality indicators
-        p.name_lenght,
-        p.description_lenght,
+        p.name_length,
+        p.description_length,
         p.photos_qty,
         -- physical attributes
         p.weight_g,

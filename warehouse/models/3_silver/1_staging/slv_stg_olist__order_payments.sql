@@ -12,7 +12,7 @@ final AS (
         TRIM(order_id) AS order_id,
         CAST(payment_sequential AS INTEGER) AS sequence_number,
         LOWER(TRIM(payment_type)) AS type,
-        CAST(payment_installments AS INTEGER) AS installments_count,
+        CAST(payment_installments AS INTEGER) AS instalments_count,
         payment_value AS value
     FROM order_payments
 )

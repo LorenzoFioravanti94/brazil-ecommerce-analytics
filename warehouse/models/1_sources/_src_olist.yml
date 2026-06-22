@@ -151,7 +151,7 @@ sources:
           - name: customer_id
             description: "{{ doc('customer_record_id') }}"
           - name: order_status
-            description: Current status of the order in the fulfillment process.
+            description: Current status of the order in the fulfilment process.
             data_tests:
               - not_null
               - accepted_values:
@@ -195,11 +195,11 @@ sources:
           - name: product_weight_g
             description: Weight of the product in grams.
           - name: product_length_cm
-            description: Length of the product in centimeters.
+            description: Length of the product in centimetres.
           - name: product_height_cm
-            description: Height of the product in centimeters.
+            description: Height of the product in centimetres.
           - name: product_width_cm
-            description: Width of the product in centimeters.
+            description: Width of the product in centimetres.
 
       - name: sellers
         description: Seller records, including identifiers and location.

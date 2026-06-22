@@ -3,7 +3,7 @@ WITH order_payments AS (
         order_id,
         sequence_number,
         type,
-        installments_count,
+        instalments_count,
         value
     FROM {{ ref('slv_stg_olist__order_payments') }}
 ),
@@ -13,7 +13,7 @@ final AS (
         order_id,
         sequence_number,
         type,
-        installments_count,
+        instalments_count,
         value
     FROM order_payments
 )
