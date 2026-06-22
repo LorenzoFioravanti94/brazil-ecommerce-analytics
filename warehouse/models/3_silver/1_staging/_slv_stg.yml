@@ -1,7 +1,9 @@
 models:
 
   - name: slv_stg_olist__product_category
-    description: Cleaned product category names, trimmed and standardized.
+    description: >
+      Product category reference: maps each Olist category to its English name.
+      Sourced from the product-category-name translation table, cleaned and trimmed.
     columns:
       - name: local_name
         description: Product category name in Portuguese.
