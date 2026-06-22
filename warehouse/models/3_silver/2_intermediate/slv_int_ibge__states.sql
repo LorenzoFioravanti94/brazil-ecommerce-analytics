@@ -36,7 +36,8 @@ final AS (
     SELECT
         state_id,
         REGEXP_REPLACE(STRIP_ACCENTS(state_name), '[^A-Z0-9 ]', '', 'g') AS state_name,
-        REGEXP_REPLACE(STRIP_ACCENTS(capital), '[^A-Z0-9 ]', '', 'g') AS capital, -- no need to apply seeds because these are capital cities
+        -- no need to apply seeds because these are capital cities
+        REGEXP_REPLACE(STRIP_ACCENTS(capital), '[^A-Z0-9 ]', '', 'g') AS capital,
         region,
         area_km2,
         population,
