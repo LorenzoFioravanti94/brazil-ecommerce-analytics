@@ -244,12 +244,12 @@ sources:
             data_tests:
               - not_null
           - name: Area
-            description: Total area of the state in square kilometers.
+            description: Total area of the state in square kilometres.
           - name: Population
             description: Total population of the state.
           - name: "Demographic Density"
             quote: true
-            description: Population per square kilometer in the state.
+            description: Population per square kilometre in the state.
           - name: "Cities count"
             quote: true
             description: Number of cities in the state.

@@ -47,7 +47,7 @@ models:
       - name: region
         description: Region of Brazil the state belongs to (e.g. North, Northeast, Central-West, Southeast, South).
       - name: area_km2
-        description: Total area of the state in square kilometers.
+        description: Total area of the state in square kilometres.
       - name: population
         description: Total population of the state.
       - name: cities_number
@@ -96,7 +96,7 @@ models:
                 to: ref('slv_int_olist__customers')
                 field: customer_id
       - name: status
-        description: Current status of the order in the fulfillment process.
+        description: Current status of the order in the fulfilment process.
       - name: purchase_timestamp
         description: Timestamp the order was placed.
       - name: approved_at

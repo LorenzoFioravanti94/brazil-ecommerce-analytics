@@ -161,7 +161,7 @@ models:
                 to: ref('slv_stg_olist__customers')
                 field: customer_basket_id
       - name: status
-        description: Current status of the order in the fulfillment process.
+        description: Current status of the order in the fulfilment process.
       - name: purchase_timestamp
         description: Timestamp the order was placed.
       - name: approved_at
@@ -199,11 +199,11 @@ models:
       - name: weight_g
         description: Weight of the product in grams.
       - name: length_cm
-        description: Length of the product in centimeters.
+        description: Length of the product in centimetres.
       - name: height_cm
-        description: Height of the product in centimeters.
+        description: Height of the product in centimetres.
       - name: width_cm
-        description: Width of the product in centimeters.
+        description: Width of the product in centimetres.
 
   - name: slv_stg_olist__sellers
     description: Cleaned and standardized sellers.
@@ -361,11 +361,11 @@ models:
       - name: region
         description: Region of Brazil the state belongs to (e.g. North, Northeast, Southeast, South, Central-West).
       - name: area_km2
-        description: Total area of the state in square kilometers.
+        description: Total area of the state in square kilometres.
       - name: population
         description: Total population of the state.
       - name: demographic_density_per_km2
-        description: Population per square kilometer in the state.
+        description: Population per square kilometre in the state.
       - name: cities_number
         description: Number of cities in the state.
       - name: gdp
