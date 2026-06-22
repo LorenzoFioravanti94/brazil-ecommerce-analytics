@@ -231,8 +231,8 @@ models:
       - name: passengers_rate
         description: Normalized rate of airport passengers in the state.
 
-  - name: slv_stg_ibge__human_development_index
-    description: Cleaned and standardized IBGE Human Development Index data.
+  - name: slv_stg_ibge__hdi
+    description: Cleaned and standardized IBGE Human Development Index (HDI) data.
     data_tests:
       - test_mean_consistency:
           arguments:
@@ -301,8 +301,8 @@ models:
       - name: hdi_health_1991
         description: Health component of the HDI for the state in 1991.
 
-  - name: slv_stg_ibge__intensive_care_unit_beds
-    description: Cleaned and standardized IBGE ICU bed data.
+  - name: slv_stg_ibge__icu_beds
+    description: Cleaned and standardized IBGE Intensive Care Unit (ICU) bed data.
     data_tests:
       - test_ratio_consistency:
           description: Validates public_beds_per_10k_citizens against total public beds and state population.

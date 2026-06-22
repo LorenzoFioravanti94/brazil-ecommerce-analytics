@@ -17,7 +17,7 @@ WITH human_development_index AS (
         hdi_education_1991,
         hdi_wealth_1991,
         hdi_health_1991
-    FROM {{ ref('slv_stg_ibge__human_development_index') }}
+    FROM {{ ref('slv_stg_ibge__hdi') }}
 ),
 hdi_2017 AS (
     SELECT

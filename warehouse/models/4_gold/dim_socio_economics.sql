@@ -5,11 +5,11 @@
 -- (population, GDP, gdp_world_share) into a single socioeconomic dimension; one row per state.
 WITH human_development_index AS (
     SELECT *
-    FROM {{ ref('slv_int_ibge__human_development_index') }}
+    FROM {{ ref('slv_int_ibge__hdi') }}
 ),
 intensive_care_unit_beds AS (
     SELECT *
-    FROM {{ ref('slv_int_ibge__intensive_care_unit_beds') }}
+    FROM {{ ref('slv_int_ibge__icu_beds') }}
 ),
 states AS (
     SELECT

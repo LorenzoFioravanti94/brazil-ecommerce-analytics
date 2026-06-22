@@ -1,7 +1,7 @@
 models:
 
-  - name: slv_int_ibge__human_development_index
-    description: Analysis-ready Human Development Index, cleaned and reshaped from staging.
+  - name: slv_int_ibge__hdi
+    description: Analysis-ready Human Development Index (HDI), cleaned and reshaped from staging.
     columns:
       - name: hdi_id
         description: Surrogate key built from state_id and year.
@@ -19,8 +19,8 @@ models:
       - name: year
         description: Census year of the HDI measurement.
 
-  - name: slv_int_ibge__intensive_care_unit_beds
-    description: Analysis-ready ICU bed capacity per state, cleaned from staging.
+  - name: slv_int_ibge__icu_beds
+    description: Analysis-ready Intensive Care Unit (ICU) bed capacity per state, cleaned from staging.
     columns:
       - name: state_id
         description: "{{ doc('state_abbreviation') }}"
