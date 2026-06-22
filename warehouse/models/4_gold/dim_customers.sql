@@ -19,9 +19,9 @@ geolocation AS (
 final AS (
     SELECT
         c.customer_id,
+        c.state_id,
         c.zip_code_prefix,
         c.city,
-        c.state_id,
         g.latitude_mean AS latitude,
         g.longitude_mean AS longitude,
         c.total_orders

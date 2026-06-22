@@ -8,7 +8,7 @@ WITH icu_beds_data AS (
         icu_beds,
         public_beds,
         private_beds      
-    FROM {{ ref('slv_stg_ibge__intensive_care_unit_beds') }}
+    FROM {{ ref('slv_stg_ibge__icu_beds') }}
 )
 SELECT
     state_id,

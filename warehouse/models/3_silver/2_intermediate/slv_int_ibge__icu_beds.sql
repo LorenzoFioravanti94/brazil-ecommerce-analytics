@@ -6,7 +6,7 @@ WITH intensive_care_unit_beds AS (
         private_beds,
         public_beds_per_10k_citizens,
         private_beds_per_10k_citizens
-    FROM {{ ref('slv_stg_ibge__intensive_care_unit_beds') }}
+    FROM {{ ref('slv_stg_ibge__icu_beds') }}
 ),
 final AS (
     SELECT
