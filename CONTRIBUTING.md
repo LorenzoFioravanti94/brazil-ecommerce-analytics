@@ -15,7 +15,8 @@ feature/*  ──►  develop  ──►  main
 - **`develop`** is the integration branch. All feature work is merged here first via Pull Request.
 - **`main`** receives only promotion PRs from `develop`. It represents the latest stable, deployable state.
 - `develop` is never bypassed — changes go through it even for small fixes.
-- Both `develop` and `main` are protected by a GitHub ruleset: direct pushes are blocked, PRs are required.
+- Both `develop` and `main` are protected by a GitHub ruleset: direct pushes are blocked, PRs are required, and any open conversations must be resolved before merging.
+- PRs merge with a **merge commit** — squash and rebase are disabled. Squashing a `develop → main` PR would fold the manifest-bot commit messages into one commit and silently skip deployment; see [CI/CD](.github/CICD.md).
 
 ### Branch types
 
