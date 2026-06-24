@@ -70,10 +70,9 @@ Do not keep a `dagster.yaml` inside this `dagster/` project folder — Dagster w
 
 ### Installing dependencies
 
-This project shares the repository's virtual environment (`myvenv`), created in the
-[root README](../README.md#quickstart) from `requirements.txt` — which already pins the
-Dagster runtime. With that environment active, install the local `orchestration` package
-in editable mode so `dg` can load the code location. From the `dagster/` directory:
+The repo's `myvenv` (from the [root README](../README.md#quickstart)) already pins the
+Dagster runtime. With it active, install this package editable so `dg` can load the code
+location. Run from `dagster/`:
 
 ```bash
 source ../myvenv/bin/activate    # the repo's shared venv

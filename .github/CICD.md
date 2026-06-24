@@ -81,7 +81,7 @@ Triggered by `workflow_run` after `dagster-cd` **succeeds**. It checks out `main
 
 Three safeguards make this safe to run unattended:
 
-- **Matching profile.** It parses with the committed `warehouse/profiles.yml` on `target: test` — the same profile `ci.yml` uses — so the database name aligns; a mismatch would flag every source as `state:modified` against the Slim CI baseline.
+- **Matching profile.** Parses with the committed `warehouse/profiles.yml` on `target: test`, the same profile `ci.yml` uses. The database name must align, or `state:modified` flags every source against the Slim CI baseline.
 - **`duckdb` poison guard.** If the generated manifest contains the string `"javascript"`, it aborts before committing. See the landmine below.
 - **Rebase before push.** It runs `git pull --rebase origin main` before pushing, so a commit that landed concurrently doesn't leave the manifest stale with no retry.
 

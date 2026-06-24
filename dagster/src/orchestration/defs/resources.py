@@ -4,7 +4,8 @@ from dagster_dbt import DbtCliResource, DbtProject
 
 # Repo-root dbt project, resolved relative to this file (cwd-independent).
 DBT_PROJECT_DIR = Path(__file__).parents[4] / "warehouse"
-DBT_PROFILES_DIR = Path.home() / ".dbt"
+# The profiles.yml committed in the project — the same one local dbt and CI use.
+DBT_PROFILES_DIR = DBT_PROJECT_DIR
 
 # DbtProject centralizes project + manifest handling. prepare_if_dev() regenerates
 # the manifest from disk on every (re)load under `dg dev`, so a renamed model never

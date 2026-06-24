@@ -90,9 +90,7 @@ pip install -e ".[dev]"   # first time only: adds the orchestration package + th
 dg dev
 ```
 
-`dg dev` starts the Dagster UI on [http://localhost:3000](http://localhost:3000). The
-one-time editable install is required because `requirements.txt` pins the Dagster runtime
-but not the local `orchestration` package or the `dg` CLI — see [`dagster/README.md`](dagster/README.md#installing-dependencies).
+`dg dev` starts the Dagster UI on [http://localhost:3000](http://localhost:3000). The editable install runs once: `requirements.txt` ships the Dagster runtime, not the local `orchestration` package or `dg`.
 
 Ensure `~/.dagster/dagster.yaml` exists (even empty) before starting — Dagster warns at startup if it is missing:
 
