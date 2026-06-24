@@ -1,6 +1,6 @@
 # dagster
 
-Dagster orchestration for the `warehouse` dbt project. Every dbt model, test, seed, and snapshot becomes a Dagster asset. Dagster powers the **CD** side of the pipeline only — after each merge to `main`, GitHub Actions triggers the `standard_job`. CI is handled entirely by GitHub Actions; see [`../.github/README.md`](../.github/README.md).
+Dagster orchestration for the `warehouse` dbt project. Every dbt model, test, seed, and snapshot becomes a Dagster asset. Dagster powers the **CD** side of the pipeline only — after each merge to `main`, GitHub Actions triggers the `standard_job`. CI is handled entirely by GitHub Actions; see [`../.github/CICD.md`](../.github/CICD.md).
 
 ---
 
@@ -45,7 +45,7 @@ The automatic trigger of `standard_job` after each merge to `main` is the founda
 
 After a merge to `main`, GitHub Actions reloads this code location and launches `standard_job` over GraphQL. The instance is reached through the URL set in the `DAGSTER_URL` secret.
 
-The full CI/CD subsystem — the `persistent_state/manifest.json` loop and how this trigger fits in — is documented in [`../.github/README.md`](../.github/README.md).
+The full CI/CD subsystem — the `persistent_state/manifest.json` loop and how this trigger fits in — is documented in [`../.github/CICD.md`](../.github/CICD.md).
 
 ---
 
