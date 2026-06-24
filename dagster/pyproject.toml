@@ -6,7 +6,7 @@ dependencies = [
     "dagster==1.13.2",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 # Pinned to the same version as the core `dagster` dependency above: leaving these
 # unpinned lets a fresh install pull a newer dagster-dg-cli that drags dagster past
 # the 1.13.2 pin and breaks dagster-dbt / webserver (which require ==1.13.2).

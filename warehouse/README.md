@@ -187,12 +187,14 @@ dbt test -s tag:gold
 dbt run-operation show_target
 ```
 
-The `profiles.yml` defines three targets, all DuckDB:
+The project's `profiles.yml` is committed in `warehouse/`, so dbt discovers it automatically and a fresh clone needs no `~/.dbt` setup. It defines three targets, all DuckDB:
 
 | Target | Path | Notes |
 |---|---|---|
-| `dev` (default) | `/tmp/dev.duckdb` | Throwaway build DB. Attaches `prod` read-only (alias `prod`) so dev queries can read production data without writing to it. |
-| `test` | `/tmp/test.duckdb` | Used by CI — a clean, isolated database built from scratch on every run. |
-| `prod` | `data/duckdb/prod.duckdb` | The persistent production database; the only target backed by a file under version-controlled `data/`. |
+| `dev` (default) | `data/duckdb/dev.duckdb` | Throwaway build DB. Attaches `prod` read-only (alias `prod`) so dev queries can read production data without writing to it. |
+| `test` | `data/duckdb/test.duckdb` | Used by CI — a clean, isolated database built from scratch on every run. |
+| `prod` | `data/duckdb/prod.duckdb` | The persistent production database; the one Dagster builds on each deploy. |
+
+All three DuckDB files live under `data/duckdb/` (gitignored) and are addressed by paths relative to `warehouse/`, so the project runs identically on Windows, macOS, and Linux.
 
 Environment isolation is at the **file** level (separate `.duckdb` files per target), which is what makes the `generate_schema_name` override safe — see [Macros](#macros).

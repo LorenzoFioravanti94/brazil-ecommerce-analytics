@@ -11,8 +11,8 @@ TARGET = os.environ.get("DBT_TARGET", "dev")
 
 DB_PATHS = {
     "prod": REPO_ROOT / "data/duckdb/prod.duckdb",
-    "test": Path("/tmp/test.duckdb"),
-    "dev":  Path("/tmp/dev.duckdb"),
+    "test": REPO_ROOT / "data/duckdb/test.duckdb",
+    "dev":  REPO_ROOT / "data/duckdb/dev.duckdb",
 }
 
 if TARGET not in DB_PATHS:
