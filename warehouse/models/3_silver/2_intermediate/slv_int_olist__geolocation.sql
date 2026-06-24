@@ -51,7 +51,7 @@ geolocation_zip_fixed AS (
         t.longitude,
         t.state_id,
         -- If the ZIP code is problematic, the seed unconditionally overrides the city
-        COALESCE(z.city_associated, t.city_corrected) AS city_associated
+        COALESCE(z.associated_city, t.city_corrected) AS associated_city
     FROM geolocation_typos_fixed t
     LEFT JOIN zip_code_fix z
         ON t.zip_code_prefix = z.zip_code_prefix
@@ -64,10 +64,10 @@ geolocation_district_fixed AS (
         z.longitude,
         z.state_id,
         -- If the locality is a district, map it to the official IBGE municipality
-        COALESCE(m.municipality, z.city_associated) AS city_final
+        COALESCE(m.municipality, z.associated_city) AS city_final
     FROM geolocation_zip_fixed z
     LEFT JOIN municipality_map m
-        ON z.city_associated = m.locality
+        ON z.associated_city = m.locality
 ),
 -- Aggregate to one row per zip_code_prefix: average coordinates, pick canonical city
 final AS (

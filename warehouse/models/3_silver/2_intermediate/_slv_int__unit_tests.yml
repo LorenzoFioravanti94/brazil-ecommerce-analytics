@@ -26,7 +26,7 @@ unit_tests:
         rows: "SELECT CAST(NULL AS VARCHAR) AS original_city, CAST(NULL AS VARCHAR) AS fixed_city LIMIT 0"
       - input: ref('zip_code_fix')
         format: sql
-        rows: "SELECT CAST(NULL AS VARCHAR) AS zip_code_prefix, CAST(NULL AS VARCHAR) AS city_associated LIMIT 0"
+        rows: "SELECT CAST(NULL AS VARCHAR) AS zip_code_prefix, CAST(NULL AS VARCHAR) AS associated_city LIMIT 0"
       - input: ref('municipality_map')
         format: sql
         rows: "SELECT CAST(NULL AS VARCHAR) AS locality, CAST(NULL AS VARCHAR) AS municipality LIMIT 0"
