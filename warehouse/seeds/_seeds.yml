@@ -73,14 +73,14 @@ seeds:
     config:
       column_types:
         zip_code_prefix: varchar
-        city_associated: varchar
+        associated_city: varchar
     columns:
       - name: zip_code_prefix
         description: "{{ doc('zip_code_prefix') }}"
         data_tests:
           - unique
           - not_null
-      - name: city_associated
+      - name: associated_city
         description: "{{ doc('city_name') }}"
         data_tests:
           - not_null

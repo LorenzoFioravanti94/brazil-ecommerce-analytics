@@ -55,7 +55,7 @@ customers_zip_fixed AS (
         t.customer_id,
         t.zip_code_prefix,
         -- If the ZIP code is problematic, the seed unconditionally overrides the city
-        COALESCE(z.city_associated, t.city_corrected) AS city_associated,
+        COALESCE(z.associated_city, t.city_corrected) AS associated_city,
         t.state_id
     FROM customers_typos_fixed t
     LEFT JOIN zip_code_fix z
@@ -68,11 +68,11 @@ customers_district_fixed AS (
         z.customer_id,
         z.zip_code_prefix,
         -- If the locality is a district, map it to the official IBGE municipality
-        COALESCE(m.municipality, z.city_associated) AS city,
+        COALESCE(m.municipality, z.associated_city) AS city,
         z.state_id
     FROM customers_zip_fixed z
     LEFT JOIN municipality_map m
-        ON z.city_associated = m.locality
+        ON z.associated_city = m.locality
 ),
 customer_orders_joined AS (
     SELECT
