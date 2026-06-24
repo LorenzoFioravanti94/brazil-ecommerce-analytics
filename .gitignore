@@ -2,6 +2,8 @@
 warehouse/target/
 warehouse/dbt_packages/
 warehouse/logs/
+# anonymous-usage cookie dbt writes next to profiles.yml
+warehouse/.user.yml
 
 # ─── DAGSTER ───────────────────────────────────────────────────────────────────
 dagster/.dg/
