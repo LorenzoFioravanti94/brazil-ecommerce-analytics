@@ -72,6 +72,8 @@ Runs on `push` to `main`. It calls `scripts/dagster_trigger.py`, which talks to 
 The reload is mandatory — without it Dagster keeps the manifest it loaded at startup, and `dagster-dbt` raises `KeyError` the moment a renamed node is missing from that stale copy.
 
 > **Loop guard.** The job skips any commit whose message contains `update persistent_state manifest`. That message is produced by the next workflow, which also pushes to `main`; without the guard, that bot commit would re-trigger this CD workflow forever.
+>
+> This guard is also why promotion PRs must use a **merge commit**, not a squash. Squashing folds every commit message in the PR — including the bot's `update persistent_state manifest` commits carried on `develop` — into the squash commit, which then matches this filter and silently skips deployment. The ruleset restricts the allowed merge method to merge commits for this reason.
 
 ---
 
