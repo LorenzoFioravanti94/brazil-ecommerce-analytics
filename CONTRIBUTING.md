@@ -86,10 +86,13 @@ dbt run-operation show_target    # print active connection details
 ```bash
 source myvenv/bin/activate
 cd dagster/
+pip install -e ".[dev]"   # first time only: adds the orchestration package + the dg CLI
 dg dev
 ```
 
-`dg dev` starts the Dagster UI on [http://localhost:3000](http://localhost:3000).
+`dg dev` starts the Dagster UI on [http://localhost:3000](http://localhost:3000). The
+one-time editable install is required because `requirements.txt` pins the Dagster runtime
+but not the local `orchestration` package or the `dg` CLI — see [`dagster/README.md`](dagster/README.md#installing-dependencies).
 
 Ensure `~/.dagster/dagster.yaml` exists (even empty) before starting — Dagster warns at startup if it is missing:
 

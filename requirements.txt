@@ -10,7 +10,7 @@ backoff==2.2.1
 certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.7
-click==8.1.8
+click==8.3.0
 click-aliases==1.0.5
 colorama==0.4.6
 coloredlogs==14.0

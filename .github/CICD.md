@@ -39,7 +39,7 @@ The loop is self-correcting: every successful deploy to `main` refreshes the bas
 
 ## `ci.yml` — Pull Request Gate
 
-Runs on every PR targeting `develop` or `main`. It provisions a throwaway environment from scratch (install dbt pins, download the Kaggle datasets, ingest into a fresh `/tmp/test.duckdb`), then branches on the target:
+Runs on every PR targeting `develop` or `main`. It provisions a throwaway environment from scratch (install dbt pins, download the Kaggle datasets, ingest into a fresh `data/duckdb/test.duckdb`), then branches on the target:
 
 ### Slim CI (PR → `develop`)
 
@@ -81,7 +81,7 @@ Triggered by `workflow_run` after `dagster-cd` **succeeds**. It checks out `main
 
 Three safeguards make this safe to run unattended:
 
-- **Matching profile.** It writes the same `target: test` profile as `ci.yml`. The database name must align, otherwise `state:modified` would flag every source against the Slim CI baseline.
+- **Matching profile.** It parses with the committed `warehouse/profiles.yml` on `target: test` — the same profile `ci.yml` uses — so the database name aligns; a mismatch would flag every source as `state:modified` against the Slim CI baseline.
 - **`duckdb` poison guard.** If the generated manifest contains the string `"javascript"`, it aborts before committing. See the landmine below.
 - **Rebase before push.** It runs `git pull --rebase origin main` before pushing, so a commit that landed concurrently doesn't leave the manifest stale with no retry.
 

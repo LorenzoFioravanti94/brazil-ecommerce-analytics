@@ -1,0 +1,30 @@
+# Lives in the dbt project directory so a fresh clone works with no setup:
+# dbt discovers profiles.yml here, ahead of ~/.dbt. All DuckDB paths are relative
+# to this directory (dbt always runs from warehouse/), so they resolve correctly
+# on any machine.
+warehouse:
+  target: dev
+
+  outputs:
+    # Throwaway local build DB. Attaches prod read-only (alias `prod`) so dev
+    # queries can read production data without writing to it.
+    dev:
+      type: duckdb
+      path: "../data/duckdb/dev.duckdb"
+      threads: 1
+      attach:
+        - path: &prod_path "../data/duckdb/prod.duckdb"
+          alias: prod
+          read_only: true
+
+    # Clean, isolated DB built from scratch on every run. Used by CI.
+    test:
+      type: duckdb
+      path: "../data/duckdb/test.duckdb"
+      threads: 1
+
+    # Persistent production database, the only target backed by a file in data/.
+    prod:
+      type: duckdb
+      path: *prod_path
+      threads: 4

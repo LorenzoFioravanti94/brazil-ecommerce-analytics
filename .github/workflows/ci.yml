@@ -46,19 +46,6 @@ jobs:
         env:
           DBT_TARGET: test
 
-      - name: Create profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          warehouse:
-            target: test
-            outputs:
-              test:
-                type: duckdb
-                path: /tmp/test.duckdb
-                threads: 2
-          EOF
-
       - name: Fetch reference manifest from main (Slim CI state)
         if: github.base_ref == 'develop'
         run: |
@@ -70,15 +57,14 @@ jobs:
       - name: Run dbt (Slim CI — PR towards develop)
         if: github.base_ref == 'develop'
         run: |
+          cd warehouse
           dbt build \
             --selector slim_ci \
             --state ${{ github.workspace }}/persistent_state \
-            --target test \
-            --project-dir warehouse
+            --target test
 
       - name: Run dbt (Full CI — PR towards main)
         if: github.base_ref == 'main'
         run: |
-          dbt build \
-            --target test \
-            --project-dir warehouse
+          cd warehouse
+          dbt build --target test

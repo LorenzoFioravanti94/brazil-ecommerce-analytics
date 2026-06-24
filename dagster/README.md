@@ -70,11 +70,14 @@ Do not keep a `dagster.yaml` inside this `dagster/` project folder — Dagster w
 
 ### Installing dependencies
 
+This project shares the repository's virtual environment (`myvenv`), created in the
+[root README](../README.md#quickstart) from `requirements.txt` — which already pins the
+Dagster runtime. With that environment active, install the local `orchestration` package
+in editable mode so `dg` can load the code location. From the `dagster/` directory:
+
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate   # macOS / Linux
-.venv\Scripts\activate      # Windows
-pip install -e ".[dev]"
+source ../myvenv/bin/activate    # the repo's shared venv
+pip install -e ".[dev]"          # adds the orchestration package + the `dg` CLI
 ```
 
 ### Running locally

@@ -32,26 +32,12 @@ jobs:
       - name: Install dbt packages
         run: dbt deps --project-dir warehouse
 
-      - name: Create profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          # Must match ci.yml: same target/profile (so the database name aligns),
-          # otherwise state:modified flags every source against the Slim CI state.
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          warehouse:
-            target: test
-            outputs:
-              test:
-                type: duckdb
-                path: /tmp/test.duckdb
-                threads: 2
-          EOF
-
       - name: Generate manifest from main (dbt parse — no DB needed)
+        # Uses the committed warehouse/profiles.yml (same target as ci.yml), so the
+        # database name aligns; a mismatch would flag every source as state:modified.
         run: |
-          dbt parse \
-            --target test \
-            --project-dir warehouse
+          cd warehouse
+          dbt parse --target test
 
       - name: Guard against an unreadable reference manifest
         # A duckdb other than 1.0.0 writes 'javascript' into the manifest, which
