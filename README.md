@@ -59,14 +59,18 @@ The depth lives in the layer READMEs; this is the front door.
 
 ```
 .
-├── warehouse/        # dbt project: models, seeds, snapshots, tests, macros
-├── dagster/          # Dagster orchestration + continuous delivery
-├── .github/          # CI/CD workflows and the dbt-manifest loop
-├── scripts/          # data_ingestion.py (ingest), dagster_trigger.py (CD)
-├── data/             # gitignored — raw CSVs + the DuckDB database
-├── images/           # architecture and lineage diagrams
-├── STYLE_GUIDE.md    # SQL / YAML / Python conventions
-└── CONTRIBUTING.md   # git workflow + local development setup
+├── warehouse/           # dbt project: models, seeds, snapshots, tests, macros
+├── dagster/             # Dagster orchestration + continuous delivery
+├── .github/             # CI/CD workflows and the dbt-manifest loop
+├── persistent_state/    # stable dbt manifest that Slim CI compares against
+├── scripts/             # data_ingestion.py (ingest), dagster_trigger.py (CD)
+├── data/                # gitignored — raw CSVs + the DuckDB database
+├── images/              # architecture and lineage diagrams
+├── requirements.txt     # full Python environment (dbt + Dagster + tooling)
+├── requirements-dbt.txt # dbt-only pins used by CI and the manifest refresh
+├── README.md            # this file
+├── STYLE_GUIDE.md       # SQL / YAML / Python conventions
+└── CONTRIBUTING.md      # git workflow + local development setup
 ```
 
 | Read this | For |
