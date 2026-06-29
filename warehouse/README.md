@@ -43,7 +43,7 @@ Two fact tables and six dimension tables (see [Dimensional Model](#dimensional-m
 
 Use-case-specific marts built on top of the Gold snowflake. Kept outside the Gold layer so the conformed dimensional model stays use-case-agnostic.
 
-Current model: `churn_customer_orders` — a transaction-grain feature source for the downstream customer-churn ML project. It is materialized as a `table`, has `access: public`, and carries an enforced contract (column names and data types are guaranteed). See [Exposures](#exposures) below.
+Current model: `order_delivery_experience` — an order-grain feature/target source for the downstream delivery-experience ML project. It is materialized as a `table`, has `access: public`, and carries an enforced contract (column names and data types are guaranteed). See [Exposures](#exposures) below.
 
 ---
 
@@ -132,11 +132,11 @@ Hermetic unit tests on Gold models that run against inline SQL fixtures (not the
 
 ## Exposures
 
-One exposure is defined: **`customer_churn_model`** (type: `ml`, maturity: `low`).
+One exposure is defined: **`delivery_experience_model`** (type: `ml`, maturity: `low`).
 
-It consumes `churn_customer_orders` as its transaction-grain feature source. The planned model uses RFM signals (via the `lifetimes` library), a cancellation rate feature, logistic regression, and clustering.
+It consumes `order_delivery_experience` as its order-grain feature source. The planned model predicts delivery duration (`days_to_deliver`, regression) and lateness (derived from `delivery_delay_days`), studying how the socioeconomic context of a customer's state shapes the delivery outcome.
 
-`churn_customer_orders` is hardened as a data product:
+`order_delivery_experience` is hardened as a data product:
 - `access: public` — explicitly exposed to downstream consumers
 - `contract: enforced: true` — column names and data types are guaranteed by the contract
 - Materialized as a `table` — downstream ML reads a stable, pre-computed relation

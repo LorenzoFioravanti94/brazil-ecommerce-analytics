@@ -98,7 +98,7 @@ Model filenames follow the pattern `{layer_prefix}[_{sublayer_prefix}]_{source}_
 | Silver — Intermediate | `slv_` | `int_` | `slv_int_olist__orders.sql` |
 | Gold — Dimension | `dim_` | — | `dim_customers.sql` |
 | Gold — Fact | `fct_` | — | `fct_order_items.sql` |
-| Consumption | *(no prefix)* | — | `churn_customer_orders.sql` |
+| Consumption | *(no prefix)* | — | `order_delivery_experience.sql` |
 
 Models are also organized in layer-named subdirectories that mirror the prefix structure (e.g. `models/2_bronze/`, `models/3_silver/1_staging/`).
 
