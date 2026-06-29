@@ -32,7 +32,7 @@ The pipeline follows a **Medallion architecture**; every layer is a separate sch
 - **Silver / Intermediate** — joins, geolocation resolution, and the socioeconomic enrichment that ties Olist geography to IBGE state indicators.
 - **Gold** — the deliverable: a **snowflake dimensional model** (2 facts, 6 dimensions) with `dim_states` as the conformed dimension. This is the last layer of the core pipeline.
 
-A small **consumption** layer sits beyond Gold to demonstrate one downstream use — a feature source for a churn model — and is intentionally outside the scope of the core pipeline.
+A small **consumption** layer sits beyond Gold to demonstrate one downstream use — a feature source for a delivery-experience model — and is intentionally outside the scope of the core pipeline.
 
 **Orchestration & automation.** [Dagster](dagster/README.md) turns every dbt node into an asset and rebuilds the warehouse after each merge to `main` (continuous delivery). [GitHub Actions](.github/CICD.md) gates every pull request with a Slim or Full CI build and keeps the reference dbt manifest in sync.
 

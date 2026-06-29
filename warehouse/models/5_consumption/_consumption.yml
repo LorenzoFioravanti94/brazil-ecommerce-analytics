@@ -1,17 +1,19 @@
 models:
 
-  - name: churn_customer_orders
+  - name: order_delivery_experience
     # Exposed data product: access: public and contract: enforced guarantee a stable interface for downstream consumers.
     access: public
     config:
       contract:
         enforced: true
     description: >
-      Transaction-grain feature source for the downstream customer-churn ML
-      project. One row per order, projected from fct_orders into the contract the
-      ML expects (order_id, customer_id, accounting_date, order_status,
-      order_value). All statuses are kept, CANCELLED included. Consumed by the
-      customer_churn_model exposure.
+      Order-grain feature/target source for the downstream delivery-experience ML
+      project. One row per delivered order. Pairs the regression target
+      (days_to_deliver) and the delivery_delay_days outcome with purchase-time
+      features that carry no leakage: payment, item aggregates, customer-to-seller
+      haversine distance, calendar attributes, customer/seller geography, and the
+      socioeconomic context of the customer's state. Consumed by the
+      delivery_experience_model exposure.
     columns:
       - name: order_id
         description: "{{ doc('order_id') }}"
@@ -19,40 +21,237 @@ models:
         data_tests:
           - unique
           - not_null
-      - name: customer_id
-        description: Unique customer (customer_unique_id). Repeats across orders.
-        data_type: varchar
+      - name: days_to_deliver
+        description: >
+          Regression target. Days from purchase to delivery to the customer.
+        data_type: integer
         data_tests:
           - not_null
-      - name: accounting_date
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: delivery_delay_days
+        description: >
+          Days the delivery was late versus the estimate (negative if early).
+          Source for a downstream is_late flag.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: order_purchase_date
         description: Purchase date of the order (from order_date_id).
         data_type: date
         data_tests:
           - not_null
-      - name: order_status
-        description: Order status in UPPERCASE (e.g. DELIVERED, CANCELLED).
+      - name: estimated_delivery_days
+        description: Days from purchase to the carrier's estimated delivery date.
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: total_payment_value
+        description: >
+          Total amount paid across all payment types. Null for the rare order with
+          no recorded payment.
+        data_type: double
+      - name: instalments_count
+        description: Number of instalments for the order payment.
+        data_type: integer
+      - name: main_payment_type
+        description: >
+          Dominant payment method by amount (credit_card, boleto, voucher,
+          debit_card). Null when total_payment_value is null.
+        data_type: varchar
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - credit_card
+                  - boleto
+                  - voucher
+                  - debit_card
+      - name: month
+        description: Month of the purchase date (1-12).
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: quarter
+        description: Quarter of the purchase date (1-4).
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: day_of_week
+        description: Day of week of the purchase date (1-7, Monday to Sunday).
+        data_type: integer
+        data_tests:
+          - not_null
+      - name: is_weekend
+        description: Whether the purchase date falls on a weekend.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: is_holiday_brazil
+        description: Whether the purchase date is a public holiday in Brazil.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: n_items
+        description: Number of items in the order.
+        data_type: integer
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: n_sellers
+        description: Number of distinct sellers fulfilling the order.
+        data_type: integer
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: total_freight
+        description: Sum of freight_value across the order's items, in BRL.
+        data_type: double
+      - name: total_price
+        description: Sum of price across the order's items, in BRL.
+        data_type: double
+      - name: total_weight_g
+        description: Sum of item weights in grams.
+        data_type: bigint
+      - name: total_volume_cm3
+        description: Sum of item volumes (length x height x width) in cubic centimetres.
+        data_type: bigint
+      - name: main_category_name
+        description: Product category contributing the highest item value in the order.
+        data_type: varchar
+      - name: business_area
+        description: Business area of the dominant product category.
+        data_type: varchar
+      - name: avg_photos_qty
+        description: Average number of product photos across the order's items.
+        data_type: double
+      - name: max_distance_km
+        description: >
+          Largest customer-to-seller haversine distance (km) across the order's
+          sellers; gates final delivery. Null when a zip code is not geolocated.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 10000
+                inclusive: true
+      - name: avg_distance_km
+        description: >
+          Average customer-to-seller haversine distance (km) across the order's
+          items. Null when a zip code is not geolocated.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 10000
+                inclusive: true
+      - name: customer_state_id
+        description: Brazilian state (UF) of the customer.
         data_type: varchar
         data_tests:
           - not_null
-      - name: order_value
-        description: >
-          Total monetary value of the order (total_payment_value). May be null
-          for the rare order with no recorded payment.
+      - name: customer_region
+        description: Region of Brazil the customer's state belongs to.
+        data_type: varchar
+        data_tests:
+          - not_null
+      - name: customer_city
+        description: City of the customer.
+        data_type: varchar
+        data_tests:
+          - not_null
+      - name: customer_lat
+        description: Latitude of the customer's location. Null when the zip code is not geolocated.
         data_type: double
+      - name: customer_long
+        description: Longitude of the customer's location. Null when the zip code is not geolocated.
+        data_type: double
+      - name: seller_state_id
+        description: Brazilian state (UF) of the principal seller.
+        data_type: varchar
+        data_tests:
+          - not_null
+      - name: seller_region
+        description: Region of Brazil the principal seller's state belongs to.
+        data_type: varchar
+        data_tests:
+          - not_null
+      - name: population
+        description: Population of the customer's state in 2017.
+        data_type: bigint
+      - name: gdp
+        description: GDP of the customer's state in 2017.
+        data_type: double
+      - name: education_index
+        description: Education index of the customer's state in 2017.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: wealth_index
+        description: Wealth index of the customer's state in 2017.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: health_index
+        description: Health index of the customer's state in 2017.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
+      - name: poverty_index
+        description: Poverty index of the customer's state in 2017.
+        data_type: double
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true
+      - name: airports_passengers_rate
+        description: Airport passenger rate of the customer's state in 2017.
+        data_type: double
+      - name: public_icu_beds
+        description: Number of public ICU beds in the customer's state in 2017.
+        data_type: integer
+      - name: private_icu_beds
+        description: Number of private ICU beds in the customer's state in 2017.
+        data_type: integer
 
 exposures:
 
-  - name: customer_churn_model
-    label: Customer Churn / Repurchase Model
+  - name: delivery_experience_model
+    label: Delivery Experience Prediction Model
     type: ml
     maturity: low
     owner:
       name: Lorenzo Fioravanti
       email: lorenzo.frv@gmail.com
     description: >
-      Planned machine-learning project predicting customer repurchase / churn.
-      It consumes churn_customer_orders as its transaction-grain feature source
-      (RFM via lifetimes, plus a cancellation_rate, logistic regression and
-      clustering).
+      Planned machine-learning project predicting the delivery experience of a
+      Brazilian e-commerce order: days_to_deliver (regression) and lateness derived
+      from delivery_delay_days. It consumes order_delivery_experience as its
+      order-grain feature source, studying how the socioeconomic context of a
+      customer's state shapes delivery outcomes.
     depends_on:
-      - ref('churn_customer_orders')
+      - ref('order_delivery_experience')

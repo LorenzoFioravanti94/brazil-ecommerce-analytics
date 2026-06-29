@@ -23,7 +23,7 @@ Assets are grouped by medallion layer, reusing the dbt `+tags` already defined i
 | `bronze` | All `brz_*` models |
 | `silver` | All `slv_stg_*` and `slv_int_*` models |
 | `gold` | All `dim_*` and `fct_*` models |
-| `consumption` | `churn_customer_orders` |
+| `consumption` | `order_delivery_experience` |
 | `seeds` | All seed assets |
 | `snapshots` | `orders_snapshot` |
 
